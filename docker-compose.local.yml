@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Backend service
+  backend:
+    build:
+      context: ./axiomancer-backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - JWT_SECRET=local-development-secret-key
+      - JWT_EXPIRES_IN=24h
+    volumes:
+      - ./axiomancer-backend/src:/app/src
+      - ./axiomancer-backend/database.sqlite:/app/database.sqlite
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend service
+  frontend:
+    build:
+      context: ./axiomancer-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:3001/api
+    depends_on:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  default:
+    name: axiomancer-local
