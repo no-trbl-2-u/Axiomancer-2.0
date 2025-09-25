@@ -21,3 +21,9 @@
 - Docker containers for each Toolset
 - Docker-Compose to orchestrate containers
 - Environment for Local/Stage/Prod
+
+## Toolset (Developer Experience) 
+- Linting with ESLint (make sure there's a command in package.json to lint the entire application) 
+- Formatting on save (Make sure the there's a command in package.json to format the entire application) 
+- Very Explicit types with Typescript
+- Follow agreed upon best practices for each toolset 
