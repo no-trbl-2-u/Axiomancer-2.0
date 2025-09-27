@@ -261,7 +261,7 @@ function getInitialLocations(): Record<string, GameLocation> {
           description: 'The threshold between your hometown and the wider world.',
           type: 'start',
           position: { x: 10, y: 90 },
-          connections: ['woodland_path'],
+          connections: ['woodland_path', 'creature_den'],
           unlocked: true,
           visited: false,
           icon: '🌳'
@@ -346,16 +346,16 @@ function getInitialLocations(): Record<string, GameLocation> {
         {
           id: 'creature_den',
           name: 'Logical Fallacy Den',
-          description: 'A dark corner of the forest where twisted logic takes physical form.',
+          description: 'A dark corner of the forest where twisted logic takes physical form. Perfect for testing your philosophical combat skills!',
           type: 'encounter',
           position: { x: 70, y: 30 },
           connections: ['deep_forest'],
-          unlocked: false,
+          unlocked: true,
           visited: false,
           event: {
             id: 'fallacy_encounter',
             type: 'combat',
-            description: 'A dangerous logical fallacy manifests as a creature.',
+            description: 'BATTLE TEST: Fight an Abortive Fallacy to test combat mechanics!',
             enemyId: 'abortive_fallacy'
           },
           icon: '👹'

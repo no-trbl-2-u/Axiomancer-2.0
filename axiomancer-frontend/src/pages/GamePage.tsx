@@ -10,6 +10,8 @@ import { MapScreen } from '../components/game/MapScreen';
 import { DialogueScreen } from '../components/game/DialogueScreen';
 import { SkillScreen } from '../components/game/SkillScreen';
 import { NodeMapScreen } from '../components/game/NodeMapScreen';
+import { SimpleNodeMap } from '../components/game/SimpleNodeMap';
+import { VisxNodeMapScreen } from '../components/game/VisxNodeMapScreen';
 import { FishingScreen } from '../components/game/FishingScreen';
 import { GameUI } from '../components/game/GameUI';
 
@@ -37,9 +39,9 @@ export const GamePage = React.memo(() => {
 
     switch (currentScreen) {
       case 'exploration':
-        return shouldUseNodeMap ? <NodeMapScreen /> : <ExplorationScreen />;
+        return shouldUseNodeMap ? <VisxNodeMapScreen /> : <ExplorationScreen />;
       case 'node_travel':
-        return <NodeMapScreen />;
+        return <VisxNodeMapScreen />;
       case 'fishing':
         return <FishingScreen />;
       case 'combat':
@@ -55,7 +57,7 @@ export const GamePage = React.memo(() => {
       case 'dialogue':
         return <DialogueScreen />;
       default:
-        return shouldUseNodeMap ? <NodeMapScreen /> : <ExplorationScreen />;
+        return shouldUseNodeMap ? <VisxNodeMapScreen /> : <ExplorationScreen />;
     }
   };
 

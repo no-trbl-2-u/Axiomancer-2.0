@@ -84,7 +84,7 @@ export interface GameNode {
   id: string;
   name: string;
   description: string;
-  type: 'start' | 'resource' | 'encounter' | 'person' | 'event' | 'boss' | 'exit';
+  type: 'start' | 'resource' | 'encounter' | 'person' | 'event' | 'boss' | 'exit' | 'explore';
   position: { x: number; y: number };
   connections: string[];
   unlocked: boolean;
@@ -92,6 +92,48 @@ export interface GameNode {
   event?: NodeEvent;
   cost?: NodeCost;
   icon?: string;
+  isGlobalNode?: boolean; // true for global map nodes, false for exploration nodes
+  energyCost?: number; // energy required to travel to this node
+}
+
+export interface GlobalMapNode {
+  id: string;
+  name: string;
+  description: string;
+  position: { x: number; y: number };
+  unlocked: boolean;
+  completed: boolean;
+  connections: string[];
+  requiredCompletions?: string[]; // other nodes that must be completed to unlock this
+  explorationNodes?: ExplorationNode[];
+  theme: 'peaceful' | 'mysterious' | 'dangerous' | 'magical';
+}
+
+export interface ExplorationNode {
+  id: string;
+  type: 'dialogue' | 'combat' | 'discovery';
+  title: string;
+  description: string;
+  energyCost: number;
+  completed: boolean;
+  // For dialogue nodes
+  npcName?: string;
+  dialogueOptions?: DialogueOption[];
+  // For combat nodes
+  enemyId?: string;
+  // For discovery nodes
+  discoveryType?: 'quest_item' | 'equipment' | 'consumable';
+  item?: Item;
+}
+
+export interface DialogueOption {
+  id: string;
+  text: string;
+  isCorrect: boolean; // true for the "real" answer that gives rewards
+  response: string;
+  energyReward?: number;
+  itemReward?: Item;
+  storyProgress?: Record<string, boolean>;
 }
 
 export interface NodeEvent {
