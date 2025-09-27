@@ -23,6 +23,7 @@
     "eslint": "^8.47.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "playwright": "^1.40.0",
     "prettier": "^3.0.2",
     "typescript": "^5.1.6",
     "vite": "^4.4.9"
@@ -35,7 +36,9 @@
     "lint:fix": "eslint src/**/*.{js,jsx,ts,tsx} --fix",
     "format": "prettier --write src/**/*.{js,jsx,ts,tsx,css,json}",
     "format:check": "prettier --check src/**/*.{js,jsx,ts,tsx,css,json}",
-    "test": "echo \"Tests not implemented yet\" && exit 0"
+    "test": "node tests/test-axiomancer.js",
+    "test:headless": "HEADLESS=true node tests/test-axiomancer.js",
+    "install-playwright": "npx playwright install"
   },
   "eslintConfig": {
     "extends": [

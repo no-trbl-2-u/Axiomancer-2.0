@@ -10,14 +10,12 @@ export const GlobalStyles = (): JSX.Element => (
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-          sans-serif;
+        font-family: 'Georgia', 'Times New Roman', serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1C1C1C 0%, #2F2F2F 50%, #2F4F4F 100%);
         min-height: 100vh;
-        color: #333;
+        color: #F5F5DC;
       }
 
       #root {

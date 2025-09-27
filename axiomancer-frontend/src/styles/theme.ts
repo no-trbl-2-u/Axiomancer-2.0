@@ -1,24 +1,37 @@
 export const theme = {
   colors: {
-    primary: '#667eea',
-    secondary: '#764ba2',
-    success: '#28a745',
-    danger: '#dc3545',
-    warning: '#ffc107',
-    info: '#17a2b8',
-    light: '#f8f9fa',
-    dark: '#343a40',
-    white: '#ffffff',
+    // Gothic Medieval Theme Colors - extracted from the Axiomancer image
+    primary: '#8B0000',        // Deep crimson red from robes
+    secondary: '#2F4F4F',      // Dark slate gray from stone
+    accent: '#4682B4',         // Steel blue from stained glass
+    success: '#228B22',        // Forest green
+    danger: '#DC143C',         // Crimson
+    warning: '#DAA520',        // Goldenrod from ornate details
+    info: '#4682B4',           // Steel blue
+    light: '#F5F5DC',          // Beige from parchment
+    dark: '#1C1C1C',           // Near black from shadows
+    white: '#FFFAF0',          // Floral white
+    // Gothic color palette
+    gothic: {
+      crimson: '#8B0000',      // Deep red from robes
+      stone: '#696969',        // Dim gray from stone walls
+      shadow: '#2F2F2F',       // Dark charcoal
+      gold: '#DAA520',         // Goldenrod from details
+      silver: '#C0C0C0',       // Silver from metalwork
+      midnight: '#191970',     // Midnight blue
+      parchment: '#F5F5DC',    // Aged parchment
+      blood: '#DC143C',        // Blood red
+    },
     gray: {
-      100: '#f8f9fa',
-      200: '#e9ecef',
-      300: '#dee2e6',
-      400: '#ced4da',
-      500: '#adb5bd',
-      600: '#6c757d',
-      700: '#495057',
-      800: '#343a40',
-      900: '#212529',
+      100: '#F5F5DC',          // Light parchment
+      200: '#E5E5E5',
+      300: '#D3D3D3',
+      400: '#A9A9A9',
+      500: '#808080',
+      600: '#696969',          // Dim gray
+      700: '#556B2F',          // Dark olive
+      800: '#2F2F2F',          // Dark charcoal
+      900: '#1C1C1C',          // Near black
     },
   },
   spacing: {

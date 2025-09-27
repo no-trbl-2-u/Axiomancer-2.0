@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { GlobalStyles } from './styles/GlobalStyles';
 import { Layout } from './components/Layout';
+import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
@@ -9,6 +10,7 @@ import { DashboardPage } from './pages/DashboardPage';
 const AppContent = React.memo(() => {
   const { isAuthenticated, isLoading } = useAuth();
   const [showRegister, setShowRegister] = useState<boolean>(false);
+  const [showLanding, setShowLanding] = useState<boolean>(true);
 
   if (isLoading) {
     return (
@@ -16,6 +18,10 @@ const AppContent = React.memo(() => {
         <div>Loading...</div>
       </Layout>
     );
+  }
+
+  if (showLanding) {
+    return <LandingPage onClickToStart={() => setShowLanding(false)} />;
   }
 
   if (!isAuthenticated) {
