@@ -9,6 +9,8 @@ import { InventoryScreen } from '../components/game/InventoryScreen';
 import { MapScreen } from '../components/game/MapScreen';
 import { DialogueScreen } from '../components/game/DialogueScreen';
 import { SkillScreen } from '../components/game/SkillScreen';
+import { NodeMapScreen } from '../components/game/NodeMapScreen';
+import { FishingScreen } from '../components/game/FishingScreen';
 import { GameUI } from '../components/game/GameUI';
 
 const GameContainer = styled.div`
@@ -29,9 +31,17 @@ export const GamePage = React.memo(() => {
   const { currentScreen, gameState } = useGame();
 
   const renderCurrentScreen = () => {
+    // Check if current location uses node-based exploration
+    const currentLocation = gameState.locations[gameState.currentLocation];
+    const shouldUseNodeMap = currentLocation?.isNodeMap;
+
     switch (currentScreen) {
       case 'exploration':
-        return <ExplorationScreen />;
+        return shouldUseNodeMap ? <NodeMapScreen /> : <ExplorationScreen />;
+      case 'node_travel':
+        return <NodeMapScreen />;
+      case 'fishing':
+        return <FishingScreen />;
       case 'combat':
         return <CombatScreen />;
       case 'character':
@@ -45,7 +55,7 @@ export const GamePage = React.memo(() => {
       case 'dialogue':
         return <DialogueScreen />;
       default:
-        return <ExplorationScreen />;
+        return shouldUseNodeMap ? <NodeMapScreen /> : <ExplorationScreen />;
     }
   };
 

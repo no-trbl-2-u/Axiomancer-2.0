@@ -76,6 +76,49 @@ export interface GameLocation {
   events: GameEvent[];
   mapImage?: string;
   coordinates?: { x: number; y: number };
+  nodes?: GameNode[];
+  isNodeMap?: boolean;
+}
+
+export interface GameNode {
+  id: string;
+  name: string;
+  description: string;
+  type: 'start' | 'resource' | 'encounter' | 'person' | 'event' | 'boss' | 'exit';
+  position: { x: number; y: number };
+  connections: string[];
+  unlocked: boolean;
+  visited: boolean;
+  event?: NodeEvent;
+  cost?: NodeCost;
+  icon?: string;
+}
+
+export interface NodeEvent {
+  id: string;
+  type: 'gather' | 'combat' | 'dialogue' | 'choice' | 'fishing' | 'building';
+  description: string;
+  resource?: string;
+  enemyId?: string;
+  npcId?: string;
+  choices?: NodeChoice[];
+  requirements?: ChoiceRequirement[];
+  outcome?: ChoiceOutcome;
+}
+
+export interface NodeChoice {
+  id: string;
+  text: string;
+  cost?: NodeCost;
+  outcome?: ChoiceOutcome;
+  philosophicalAlignment?: Partial<PhilosophicalStance>;
+}
+
+export interface NodeCost {
+  health?: number;
+  mana?: number;
+  gold?: number;
+  items?: Array<{ id: string; quantity: number }>;
 }
 
 export interface NPC {
@@ -194,6 +237,7 @@ export interface CombatLogEntry {
 export interface GameState {
   character: Character;
   currentLocation: string;
+  currentNode?: string;
   locations: Record<string, GameLocation>;
   questLog: Quest[];
   gamePhase: 'childhood' | 'labyrinth' | 'adulthood';
@@ -207,8 +251,20 @@ export interface GameState {
     visitedIslands: string[];
     returnedHome: boolean;
     decidedToBeAdvisor: boolean;
+    talkedToGuardian: boolean;
+    startedFishing: boolean;
+    hasCart: boolean;
+    hasHorse: boolean;
+    hasFish: number;
   };
   combat: CombatState | null;
+  inventory: {
+    gold: number;
+    wood: number;
+    ironOre: number;
+    fish: number;
+    items: Item[];
+  };
 }
 
 export interface Quest {
@@ -229,4 +285,4 @@ export interface QuestObjective {
 
 export type EquipmentType = 'weapon' | 'armor' | 'accessory' | 'consumable';
 export type ItemType = 'weapon' | 'armor' | 'consumable' | 'crafting' | 'quest' | 'misc';
-export type GameScreen = 'exploration' | 'combat' | 'character' | 'inventory' | 'dialogue' | 'map' | 'skills';
+export type GameScreen = 'exploration' | 'combat' | 'character' | 'inventory' | 'dialogue' | 'map' | 'skills' | 'node_travel' | 'fishing' | 'building';

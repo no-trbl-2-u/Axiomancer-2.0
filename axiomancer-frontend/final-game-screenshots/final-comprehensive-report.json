@@ -1,0 +1,667 @@
+{
+  "executiveSummary": {
+    "testDate": "2025-09-27T21:14:56.640Z",
+    "totalTests": 37,
+    "passedTests": 23,
+    "failedTests": 14,
+    "successRate": "62.2%",
+    "overallStatus": "🟡 GOOD - Node-based implementation is mostly functional with some areas needing attention"
+  },
+  "applicationFlow": {
+    "landingPage": "✅ Fantasy-themed landing page with CLICK TO START",
+    "authentication": "✅ Email/password login and sign-up system",
+    "characterCreation": "✅ Comprehensive philosophical character creation with ethics, reality views, and knowledge approaches",
+    "gameInterface": "See NodeMapScreen implementation results below"
+  },
+  "nodeMapImplementation": {
+    "tested": true,
+    "results": [
+      {
+        "test": "NodeMap Container",
+        "passed": false,
+        "details": "Found 0 NodeMap containers",
+        "timestamp": "2025-09-27T21:13:41.314Z"
+      },
+      {
+        "test": "Map Area",
+        "passed": false,
+        "details": "Found 0 map areas",
+        "timestamp": "2025-09-27T21:13:41.554Z"
+      },
+      {
+        "test": "Interactive Nodes",
+        "passed": true,
+        "details": "Found 6 interactive nodes",
+        "timestamp": "2025-09-27T21:13:41.556Z"
+      },
+      {
+        "test": "Node Click 1",
+        "passed": true,
+        "details": "Successfully clicked Your Home",
+        "timestamp": "2025-09-27T21:13:45.511Z"
+      },
+      {
+        "test": "Node Click 2",
+        "passed": true,
+        "details": "Successfully clicked Talk to Guardian",
+        "timestamp": "2025-09-27T21:13:49.263Z"
+      },
+      {
+        "test": "Node Click 2",
+        "passed": false,
+        "details": "Failed to click Talk to Guardian: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Talk\"), button:has-text(\"Fish\"), button:has-text(\"Gather\"), button:has-text(\"Build\"), button:has-text(\"Interact\")').first()\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"css-1ygfn82\">Talk</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"css-1kl6xxu\">…</div> from <div class=\"css-knhcre\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"css-1kl6xxu\">…</div> from <div class=\"css-knhcre\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    58 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"css-1kl6xxu\">…</div> from <div class=\"css-knhcre\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+        "timestamp": "2025-09-27T21:14:21.291Z"
+      },
+      {
+        "test": "Home Node",
+        "passed": true,
+        "details": "Home node found",
+        "timestamp": "2025-09-27T21:14:21.306Z"
+      },
+      {
+        "test": "Guardian Node",
+        "passed": true,
+        "details": "Guardian node found",
+        "timestamp": "2025-09-27T21:14:21.307Z"
+      },
+      {
+        "test": "Fishing Node",
+        "passed": true,
+        "details": "Fishing node found",
+        "timestamp": "2025-09-27T21:14:21.308Z"
+      },
+      {
+        "test": "Boat Node",
+        "passed": true,
+        "details": "Boat node found",
+        "timestamp": "2025-09-27T21:14:21.310Z"
+      },
+      {
+        "test": "Forest Node",
+        "passed": true,
+        "details": "Forest node found",
+        "timestamp": "2025-09-27T21:14:21.311Z"
+      },
+      {
+        "test": "Node Connections",
+        "passed": false,
+        "details": "Found 0 connection elements",
+        "timestamp": "2025-09-27T21:14:53.327Z"
+      },
+      {
+        "test": "Mobile Nodes",
+        "passed": true,
+        "details": "6 nodes visible on mobile",
+        "timestamp": "2025-09-27T21:14:54.459Z"
+      },
+      {
+        "test": "Wireframe: Central Map Area",
+        "passed": false,
+        "details": "Central area containing interactive nodes - Found 0 matching elements",
+        "timestamp": "2025-09-27T21:14:56.604Z"
+      },
+      {
+        "test": "Wireframe: Interactive Nodes",
+        "passed": true,
+        "details": "Clickable nodes representing locations and actions - Found 6 matching elements",
+        "timestamp": "2025-09-27T21:14:56.610Z"
+      },
+      {
+        "test": "Wireframe: Node Connections",
+        "passed": false,
+        "details": "Visual connections between related nodes - Found 0 matching elements",
+        "timestamp": "2025-09-27T21:14:56.615Z"
+      }
+    ]
+  },
+  "childhoodProgression": {
+    "expectedFlow": "Home → Guardian → Fishing → Boat Building → Forest",
+    "tested": true,
+    "results": [
+      {
+        "test": "Home Node",
+        "passed": true,
+        "details": "Home node found",
+        "timestamp": "2025-09-27T21:14:21.306Z"
+      },
+      {
+        "test": "Guardian Node",
+        "passed": true,
+        "details": "Guardian node found",
+        "timestamp": "2025-09-27T21:14:21.307Z"
+      },
+      {
+        "test": "Fishing Node",
+        "passed": true,
+        "details": "Fishing node found",
+        "timestamp": "2025-09-27T21:14:21.308Z"
+      },
+      {
+        "test": "Boat Node",
+        "passed": true,
+        "details": "Boat node found",
+        "timestamp": "2025-09-27T21:14:21.310Z"
+      },
+      {
+        "test": "Forest Node",
+        "passed": true,
+        "details": "Forest node found",
+        "timestamp": "2025-09-27T21:14:21.311Z"
+      }
+    ]
+  },
+  "mobileResponsiveness": {
+    "viewport": "375x667 (standard mobile)",
+    "tested": true,
+    "results": [
+      {
+        "test": "Mobile Header",
+        "passed": true,
+        "details": "Header visible on mobile",
+        "timestamp": "2025-09-27T21:14:54.455Z"
+      },
+      {
+        "test": "Mobile Resources",
+        "passed": false,
+        "details": "0 resource elements visible on mobile",
+        "timestamp": "2025-09-27T21:14:54.457Z"
+      },
+      {
+        "test": "Mobile Nodes",
+        "passed": true,
+        "details": "6 nodes visible on mobile",
+        "timestamp": "2025-09-27T21:14:54.459Z"
+      },
+      {
+        "test": "Mobile Info Panel",
+        "passed": false,
+        "details": "Info panel visible on mobile",
+        "timestamp": "2025-09-27T21:14:54.460Z"
+      },
+      {
+        "test": "Mobile Layout",
+        "passed": true,
+        "details": "Page height: 818px",
+        "timestamp": "2025-09-27T21:14:54.463Z"
+      },
+      {
+        "test": "Mobile Touch Targets",
+        "passed": true,
+        "details": "13 touch targets available",
+        "timestamp": "2025-09-27T21:14:54.466Z"
+      },
+      {
+        "test": "Mobile Responsiveness",
+        "passed": false,
+        "details": "Error: locator.tap: The page does not support tap. Use hasTouch context option to enable touch support.",
+        "timestamp": "2025-09-27T21:14:56.472Z"
+      }
+    ]
+  },
+  "wireframeComparison": {
+    "referenceFile": "EXAMPLE-MAP.png",
+    "expectedElements": [
+      "Header panel with resource tracking (💰🐟🪵⛏️)",
+      "Central interactive map with nodes",
+      "Bottom information panel",
+      "Dark fantasy theme",
+      "Node connections/paths",
+      "Mobile responsive design"
+    ],
+    "results": [
+      {
+        "test": "Wireframe: Header with Resources",
+        "passed": true,
+        "details": "Top panel with resource tracking (💰🐟🪵⛏️) - Found 1 matching elements",
+        "timestamp": "2025-09-27T21:14:56.600Z"
+      },
+      {
+        "test": "Wireframe: Central Map Area",
+        "passed": false,
+        "details": "Central area containing interactive nodes - Found 0 matching elements",
+        "timestamp": "2025-09-27T21:14:56.604Z"
+      },
+      {
+        "test": "Wireframe: Bottom Info Panel",
+        "passed": false,
+        "details": "Bottom panel for node details and actions - Found 0 matching elements",
+        "timestamp": "2025-09-27T21:14:56.606Z"
+      },
+      {
+        "test": "Wireframe: Interactive Nodes",
+        "passed": true,
+        "details": "Clickable nodes representing locations and actions - Found 6 matching elements",
+        "timestamp": "2025-09-27T21:14:56.610Z"
+      },
+      {
+        "test": "Wireframe: Node Connections",
+        "passed": false,
+        "details": "Visual connections between related nodes - Found 0 matching elements",
+        "timestamp": "2025-09-27T21:14:56.615Z"
+      },
+      {
+        "test": "Wireframe: Dark Theme",
+        "passed": true,
+        "details": "Background color: rgb(0, 0, 0)",
+        "timestamp": "2025-09-27T21:14:56.638Z"
+      },
+      {
+        "test": "Wireframe: Three-Panel Layout",
+        "passed": false,
+        "details": "Three-panel layout not detected",
+        "timestamp": "2025-09-27T21:14:56.640Z"
+      }
+    ]
+  },
+  "screenshots": [
+    {
+      "name": "01-landing-page",
+      "description": "Landing page",
+      "filename": "01-landing-page.png",
+      "timestamp": "2025-09-27T21:12:58.324Z"
+    },
+    {
+      "name": "02-login-page",
+      "description": "Login page",
+      "filename": "02-login-page.png",
+      "timestamp": "2025-09-27T21:13:02.494Z"
+    },
+    {
+      "name": "03-character-creation-page",
+      "description": "Character creation page loaded",
+      "filename": "03-character-creation-page.png",
+      "timestamp": "2025-09-27T21:13:21.827Z"
+    },
+    {
+      "name": "04-character-name-filled",
+      "description": "Character name filled",
+      "filename": "04-character-name-filled.png",
+      "timestamp": "2025-09-27T21:13:24.042Z"
+    },
+    {
+      "name": "05-virtue-ethics-selected",
+      "description": "Virtue Ethics selected",
+      "filename": "05-virtue-ethics-selected.png",
+      "timestamp": "2025-09-27T21:13:26.301Z"
+    },
+    {
+      "name": "06-materialism-selected",
+      "description": "Materialism selected",
+      "filename": "06-materialism-selected.png",
+      "timestamp": "2025-09-27T21:13:28.517Z"
+    },
+    {
+      "name": "07-empiricism-selected",
+      "description": "Empiricism selected",
+      "filename": "07-empiricism-selected.png",
+      "timestamp": "2025-09-27T21:13:30.723Z"
+    },
+    {
+      "name": "08-after-character-creation",
+      "description": "After character creation submission",
+      "filename": "08-after-character-creation.png",
+      "timestamp": "2025-09-27T21:13:38.051Z"
+    },
+    {
+      "name": "09-game-interface",
+      "description": "Game interface after character creation",
+      "filename": "09-game-interface.png",
+      "timestamp": "2025-09-27T21:13:41.310Z"
+    },
+    {
+      "name": "10-header-panel",
+      "description": "Header panel with resources",
+      "filename": "10-header-panel.png",
+      "timestamp": "2025-09-27T21:13:41.540Z"
+    },
+    {
+      "name": "11-nodes-detected",
+      "description": "Detected 6 interactive nodes",
+      "filename": "11-nodes-detected.png",
+      "timestamp": "2025-09-27T21:13:41.758Z"
+    },
+    {
+      "name": "13-node-interaction-1",
+      "description": "Clicked on Your Home",
+      "filename": "13-node-interaction-1.png",
+      "timestamp": "2025-09-27T21:13:45.511Z"
+    },
+    {
+      "name": "13-node-interaction-2",
+      "description": "Clicked on Talk to Guardian",
+      "filename": "13-node-interaction-2.png",
+      "timestamp": "2025-09-27T21:13:49.263Z"
+    },
+    {
+      "name": "16-mobile-viewport",
+      "description": "Mobile viewport (375x667)",
+      "filename": "16-mobile-viewport.png",
+      "timestamp": "2025-09-27T21:14:54.452Z"
+    },
+    {
+      "name": "18-final-wireframe-comparison",
+      "description": "Final desktop view for wireframe comparison",
+      "filename": "18-final-wireframe-comparison.png",
+      "timestamp": "2025-09-27T21:14:56.595Z"
+    }
+  ],
+  "detailedResults": [
+    {
+      "test": "Account Creation",
+      "passed": true,
+      "details": "Successfully created account",
+      "timestamp": "2025-09-27T21:13:21.618Z"
+    },
+    {
+      "test": "Character Name",
+      "passed": true,
+      "details": "Filled character name",
+      "timestamp": "2025-09-27T21:13:23.850Z"
+    },
+    {
+      "test": "Ethical Foundation Selection",
+      "passed": true,
+      "details": "Selected Virtue Ethics",
+      "timestamp": "2025-09-27T21:13:26.109Z"
+    },
+    {
+      "test": "Reality View Selection",
+      "passed": true,
+      "details": "Selected Materialism",
+      "timestamp": "2025-09-27T21:13:28.334Z"
+    },
+    {
+      "test": "Knowledge Approach Selection",
+      "passed": true,
+      "details": "Selected Empiricism",
+      "timestamp": "2025-09-27T21:13:30.554Z"
+    },
+    {
+      "test": "Character Creation Submit",
+      "passed": true,
+      "details": "Submitted character creation",
+      "timestamp": "2025-09-27T21:13:37.797Z"
+    },
+    {
+      "test": "NodeMap Container",
+      "passed": false,
+      "details": "Found 0 NodeMap containers",
+      "timestamp": "2025-09-27T21:13:41.314Z"
+    },
+    {
+      "test": "Header Panel",
+      "passed": true,
+      "details": "Found 1 header/resource elements",
+      "timestamp": "2025-09-27T21:13:41.316Z"
+    },
+    {
+      "test": "Resource Icons",
+      "passed": false,
+      "details": "Found resources: Gold(0) Fish(0) Wood(0) Iron(0)",
+      "timestamp": "2025-09-27T21:13:41.549Z"
+    },
+    {
+      "test": "Map Area",
+      "passed": false,
+      "details": "Found 0 map areas",
+      "timestamp": "2025-09-27T21:13:41.554Z"
+    },
+    {
+      "test": "Interactive Nodes",
+      "passed": true,
+      "details": "Found 6 interactive nodes",
+      "timestamp": "2025-09-27T21:13:41.556Z"
+    },
+    {
+      "test": "Node Click 1",
+      "passed": true,
+      "details": "Successfully clicked Your Home",
+      "timestamp": "2025-09-27T21:13:45.511Z"
+    },
+    {
+      "test": "Node Click 2",
+      "passed": true,
+      "details": "Successfully clicked Talk to Guardian",
+      "timestamp": "2025-09-27T21:13:49.263Z"
+    },
+    {
+      "test": "Action Buttons 2",
+      "passed": true,
+      "details": "Found 1 action buttons",
+      "timestamp": "2025-09-27T21:13:49.270Z"
+    },
+    {
+      "test": "Node Click 2",
+      "passed": false,
+      "details": "Failed to click Talk to Guardian: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Talk\"), button:has-text(\"Fish\"), button:has-text(\"Gather\"), button:has-text(\"Build\"), button:has-text(\"Interact\")').first()\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"css-1ygfn82\">Talk</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"css-1kl6xxu\">…</div> from <div class=\"css-knhcre\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"css-1kl6xxu\">…</div> from <div class=\"css-knhcre\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    58 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"css-1kl6xxu\">…</div> from <div class=\"css-knhcre\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "timestamp": "2025-09-27T21:14:21.291Z"
+    },
+    {
+      "test": "Home Node",
+      "passed": true,
+      "details": "Home node found",
+      "timestamp": "2025-09-27T21:14:21.306Z"
+    },
+    {
+      "test": "Guardian Node",
+      "passed": true,
+      "details": "Guardian node found",
+      "timestamp": "2025-09-27T21:14:21.307Z"
+    },
+    {
+      "test": "Fishing Node",
+      "passed": true,
+      "details": "Fishing node found",
+      "timestamp": "2025-09-27T21:14:21.308Z"
+    },
+    {
+      "test": "Boat Node",
+      "passed": true,
+      "details": "Boat node found",
+      "timestamp": "2025-09-27T21:14:21.310Z"
+    },
+    {
+      "test": "Forest Node",
+      "passed": true,
+      "details": "Forest node found",
+      "timestamp": "2025-09-27T21:14:21.311Z"
+    },
+    {
+      "test": "Childhood Progression",
+      "passed": false,
+      "details": "Error: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button[title*=\"Fish\"], button:has-text(\"🎣\")').first()\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"css-khlhk0\" title=\"Fishing Waters\">🎣</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    58 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "timestamp": "2025-09-27T21:14:53.322Z"
+    },
+    {
+      "test": "Info Panel",
+      "passed": false,
+      "details": "Found 0 info panels",
+      "timestamp": "2025-09-27T21:14:53.324Z"
+    },
+    {
+      "test": "Node Connections",
+      "passed": false,
+      "details": "Found 0 connection elements",
+      "timestamp": "2025-09-27T21:14:53.327Z"
+    },
+    {
+      "test": "Mobile Header",
+      "passed": true,
+      "details": "Header visible on mobile",
+      "timestamp": "2025-09-27T21:14:54.455Z"
+    },
+    {
+      "test": "Mobile Resources",
+      "passed": false,
+      "details": "0 resource elements visible on mobile",
+      "timestamp": "2025-09-27T21:14:54.457Z"
+    },
+    {
+      "test": "Mobile Nodes",
+      "passed": true,
+      "details": "6 nodes visible on mobile",
+      "timestamp": "2025-09-27T21:14:54.459Z"
+    },
+    {
+      "test": "Mobile Info Panel",
+      "passed": false,
+      "details": "Info panel visible on mobile",
+      "timestamp": "2025-09-27T21:14:54.460Z"
+    },
+    {
+      "test": "Mobile Layout",
+      "passed": true,
+      "details": "Page height: 818px",
+      "timestamp": "2025-09-27T21:14:54.463Z"
+    },
+    {
+      "test": "Mobile Touch Targets",
+      "passed": true,
+      "details": "13 touch targets available",
+      "timestamp": "2025-09-27T21:14:54.466Z"
+    },
+    {
+      "test": "Mobile Responsiveness",
+      "passed": false,
+      "details": "Error: locator.tap: The page does not support tap. Use hasTouch context option to enable touch support.",
+      "timestamp": "2025-09-27T21:14:56.472Z"
+    },
+    {
+      "test": "Wireframe: Header with Resources",
+      "passed": true,
+      "details": "Top panel with resource tracking (💰🐟🪵⛏️) - Found 1 matching elements",
+      "timestamp": "2025-09-27T21:14:56.600Z"
+    },
+    {
+      "test": "Wireframe: Central Map Area",
+      "passed": false,
+      "details": "Central area containing interactive nodes - Found 0 matching elements",
+      "timestamp": "2025-09-27T21:14:56.604Z"
+    },
+    {
+      "test": "Wireframe: Bottom Info Panel",
+      "passed": false,
+      "details": "Bottom panel for node details and actions - Found 0 matching elements",
+      "timestamp": "2025-09-27T21:14:56.606Z"
+    },
+    {
+      "test": "Wireframe: Interactive Nodes",
+      "passed": true,
+      "details": "Clickable nodes representing locations and actions - Found 6 matching elements",
+      "timestamp": "2025-09-27T21:14:56.610Z"
+    },
+    {
+      "test": "Wireframe: Node Connections",
+      "passed": false,
+      "details": "Visual connections between related nodes - Found 0 matching elements",
+      "timestamp": "2025-09-27T21:14:56.615Z"
+    },
+    {
+      "test": "Wireframe: Dark Theme",
+      "passed": true,
+      "details": "Background color: rgb(0, 0, 0)",
+      "timestamp": "2025-09-27T21:14:56.638Z"
+    },
+    {
+      "test": "Wireframe: Three-Panel Layout",
+      "passed": false,
+      "details": "Three-panel layout not detected",
+      "timestamp": "2025-09-27T21:14:56.640Z"
+    }
+  ],
+  "criticalIssues": [
+    {
+      "test": "NodeMap Container",
+      "passed": false,
+      "details": "Found 0 NodeMap containers",
+      "timestamp": "2025-09-27T21:13:41.314Z"
+    },
+    {
+      "test": "Resource Icons",
+      "passed": false,
+      "details": "Found resources: Gold(0) Fish(0) Wood(0) Iron(0)",
+      "timestamp": "2025-09-27T21:13:41.549Z"
+    },
+    {
+      "test": "Map Area",
+      "passed": false,
+      "details": "Found 0 map areas",
+      "timestamp": "2025-09-27T21:13:41.554Z"
+    },
+    {
+      "test": "Node Click 2",
+      "passed": false,
+      "details": "Failed to click Talk to Guardian: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Talk\"), button:has-text(\"Fish\"), button:has-text(\"Gather\"), button:has-text(\"Build\"), button:has-text(\"Interact\")').first()\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"css-1ygfn82\">Talk</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"css-1kl6xxu\">…</div> from <div class=\"css-knhcre\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"css-1kl6xxu\">…</div> from <div class=\"css-knhcre\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    58 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"css-1kl6xxu\">…</div> from <div class=\"css-knhcre\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "timestamp": "2025-09-27T21:14:21.291Z"
+    },
+    {
+      "test": "Childhood Progression",
+      "passed": false,
+      "details": "Error: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button[title*=\"Fish\"], button:has-text(\"🎣\")').first()\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"css-khlhk0\" title=\"Fishing Waters\">🎣</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    58 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "timestamp": "2025-09-27T21:14:53.322Z"
+    },
+    {
+      "test": "Info Panel",
+      "passed": false,
+      "details": "Found 0 info panels",
+      "timestamp": "2025-09-27T21:14:53.324Z"
+    },
+    {
+      "test": "Node Connections",
+      "passed": false,
+      "details": "Found 0 connection elements",
+      "timestamp": "2025-09-27T21:14:53.327Z"
+    },
+    {
+      "test": "Mobile Resources",
+      "passed": false,
+      "details": "0 resource elements visible on mobile",
+      "timestamp": "2025-09-27T21:14:54.457Z"
+    },
+    {
+      "test": "Mobile Info Panel",
+      "passed": false,
+      "details": "Info panel visible on mobile",
+      "timestamp": "2025-09-27T21:14:54.460Z"
+    },
+    {
+      "test": "Mobile Responsiveness",
+      "passed": false,
+      "details": "Error: locator.tap: The page does not support tap. Use hasTouch context option to enable touch support.",
+      "timestamp": "2025-09-27T21:14:56.472Z"
+    },
+    {
+      "test": "Wireframe: Central Map Area",
+      "passed": false,
+      "details": "Central area containing interactive nodes - Found 0 matching elements",
+      "timestamp": "2025-09-27T21:14:56.604Z"
+    },
+    {
+      "test": "Wireframe: Bottom Info Panel",
+      "passed": false,
+      "details": "Bottom panel for node details and actions - Found 0 matching elements",
+      "timestamp": "2025-09-27T21:14:56.606Z"
+    },
+    {
+      "test": "Wireframe: Node Connections",
+      "passed": false,
+      "details": "Visual connections between related nodes - Found 0 matching elements",
+      "timestamp": "2025-09-27T21:14:56.615Z"
+    },
+    {
+      "test": "Wireframe: Three-Panel Layout",
+      "passed": false,
+      "details": "Three-panel layout not detected",
+      "timestamp": "2025-09-27T21:14:56.640Z"
+    }
+  ],
+  "recommendations": [
+    "🗺️ NodeMapScreen component needs implementation or debugging - this is the core of the node-based exploration system",
+    "🎯 Node interaction system needs refinement - ensure nodes are properly clickable and responsive",
+    "💰 Resource tracking system needs implementation - add gold, fish, wood, and iron ore displays",
+    "📱 Mobile responsiveness needs optimization - ensure all elements work properly on 375x667 viewport",
+    "🎨 UI layout should better match the EXAMPLE-MAP.png wireframe design",
+    "👶 Childhood progression flow (Home → Guardian → Fishing → Boat → Forest) needs implementation",
+    "🔗 Node connection lines/paths should be added to show relationships between locations"
+  ]
+}

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGame } from '../../contexts/GameContext';
-import { fallacySkills, getAvailableSkills, canLearnSkill } from '../../utils/fallacySkills';
 import { Skill } from '../../types/game';
 
 const SkillContainer = styled.div`
@@ -28,10 +27,32 @@ const SkillContainer = styled.div`
 
 const SkillTitle = styled.h2`
   color: ${theme.colors.primary};
-  margin-bottom: ${theme.spacing.xl};
+  margin-bottom: ${theme.spacing.lg};
   font-size: 2rem;
   text-align: center;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+`;
+
+const InfoPanel = styled.div`
+  background: ${theme.colors.background.panel};
+  border: ${theme.rpg.borderWidth} solid ${theme.colors.border.primary};
+  border-radius: ${theme.rpg.panelBorderRadius};
+  padding: ${theme.spacing.lg};
+  margin-bottom: ${theme.spacing.xl};
+  text-align: center;
+  box-shadow: ${theme.shadows.panel};
+
+  p {
+    color: ${theme.colors.text.secondary};
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .highlight {
+    color: ${theme.colors.text.accent};
+    font-weight: bold;
+  }
 `;
 
 const SkillTabs = styled.div`
@@ -67,31 +88,18 @@ const SkillGrid = styled.div`
   overflow-y: auto;
 `;
 
-const SkillCard = styled.div<{ known: boolean; available: boolean }>`
-  background: ${props => props.known 
-    ? 'linear-gradient(45deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2))'
-    : props.available
-    ? theme.colors.background.panel
-    : 'rgba(0, 0, 0, 0.3)'};
-  border: 3px solid ${props => props.known 
-    ? '#10b981'
-    : props.available
-    ? theme.colors.border.primary
-    : theme.colors.border.dark};
+const SkillCard = styled.div<{ level: number }>`
+  background: linear-gradient(45deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+  border: 3px solid #10b981;
   border-radius: ${theme.rpg.panelBorderRadius};
   padding: ${theme.spacing.lg};
   position: relative;
   box-shadow: ${theme.shadows.panel};
   transition: all 0.3s ease;
-  cursor: ${props => props.available && !props.known ? 'pointer' : 'default'};
-  opacity: ${props => props.available || props.known ? 1 : 0.6};
 
   &:hover {
-    ${props => props.available && !props.known && `
-      transform: translateY(-2px);
-      box-shadow: ${theme.shadows.glow};
-      border-color: ${theme.colors.primary};
-    `}
+    transform: translateY(-2px);
+    box-shadow: ${theme.shadows.glow};
   }
 `;
 
@@ -255,37 +263,37 @@ const RequirementsList = styled.div`
 `;
 
 export const SkillScreen = React.memo(() => {
-  const { gameState, updateCharacter } = useGame();
+  const { gameState } = useGame();
   const { character } = gameState;
   const [selectedTab, setSelectedTab] = useState<string>('all');
 
-  const availableSkills = getAvailableSkills(character);
-  const knownSkillIds = character.skills.map(skill => skill.id);
-  
+  const knownSkills = character.skills;
   const skillTypes = ['all', 'fallacy', 'virtue', 'logic', 'rhetoric', 'meditation'];
   
   const getFilteredSkills = () => {
-    const allSkills = Object.values(fallacySkills);
-    if (selectedTab === 'all') return allSkills;
-    return allSkills.filter(skill => skill.type === selectedTab);
+    if (selectedTab === 'all') return knownSkills;
+    return knownSkills.filter(skill => skill.type === selectedTab);
   };
 
-  const handleLearnSkill = (skillId: string) => {
-    if (!canLearnSkill(character, skillId)) return;
-    
-    const skill = fallacySkills[skillId];
-    if (!skill) return;
-    
-    const newSkills = [...character.skills, skill];
-    updateCharacter({ skills: newSkills });
+  const hasSkillsInCategory = (category: string) => {
+    if (category === 'all') return knownSkills.length > 0;
+    return knownSkills.some(skill => skill.type === category);
   };
-
-  const isSkillKnown = (skillId: string) => knownSkillIds.includes(skillId);
-  const isSkillAvailable = (skillId: string) => availableSkills.some(s => s.id === skillId);
 
   return (
     <SkillContainer>
-      <SkillTitle>Philosophical Skills & Fallacies</SkillTitle>
+      <SkillTitle>Learned Skills & Abilities</SkillTitle>
+      
+      <InfoPanel>
+        <p>
+          Skills cannot be learned from this screen. Instead, you must 
+          <span className="highlight"> encounter philosophical challenges, engage in combat with logical fallacies, 
+          and make meaningful choices throughout your journey</span> to gain new abilities.
+        </p>
+        <p style={{ marginTop: theme.spacing.md }}>
+          Current skills learned: <span className="highlight">{knownSkills.length}</span>
+        </p>
+      </InfoPanel>
       
       <SkillTabs>
         {skillTypes.map(type => (
@@ -293,25 +301,19 @@ export const SkillScreen = React.memo(() => {
             key={type}
             active={selectedTab === type}
             onClick={() => setSelectedTab(type)}
+            disabled={!hasSkillsInCategory(type)}
+            style={{ opacity: hasSkillsInCategory(type) ? 1 : 0.5 }}
           >
-            {type}
+            {type} {type !== 'all' && `(${knownSkills.filter(s => s.type === type).length})`}
           </SkillTab>
         ))}
       </SkillTabs>
 
       <SkillGrid>
-        {getFilteredSkills().map(skill => {
-          const known = isSkillKnown(skill.id);
-          const available = isSkillAvailable(skill.id);
-
-          return (
-            <SkillCard
-              key={skill.id}
-              known={known}
-              available={available}
-              onClick={() => available && !known && handleLearnSkill(skill.id)}
-            >
-              {known && <KnownSkillBadge>Learned</KnownSkillBadge>}
+        {getFilteredSkills().length > 0 ? (
+          getFilteredSkills().map(skill => (
+            <SkillCard key={skill.id} level={skill.level}>
+              <KnownSkillBadge>Mastered</KnownSkillBadge>
               
               <SkillHeader>
                 <SkillIcon>{skill.icon}</SkillIcon>
@@ -336,7 +338,7 @@ export const SkillScreen = React.memo(() => {
                 </SkillStat>
                 <SkillStat>
                   <div className="stat-label">Aspect</div>
-                  <div className="stat-value">{skill.philosophicalAspect || 'None'}</div>
+                  <div className="stat-value">{skill.philosophicalAspect || 'Mind'}</div>
                 </SkillStat>
               </SkillStats>
 
@@ -346,7 +348,6 @@ export const SkillScreen = React.memo(() => {
                   border: '1px solid rgba(139, 92, 246, 0.3)',
                   borderRadius: theme.borderRadius.sm,
                   padding: theme.spacing.sm,
-                  marginBottom: theme.spacing.md,
                   fontSize: '0.85rem',
                   color: '#c4b5fd',
                   fontStyle: 'italic'
@@ -354,32 +355,25 @@ export const SkillScreen = React.memo(() => {
                   Effect: {skill.effect}
                 </div>
               )}
-
-              {!known && available && (
-                <LearnButton onClick={() => handleLearnSkill(skill.id)}>
-                  Learn Skill
-                </LearnButton>
-              )}
-
-              {!available && !known && skill.learningRequirement && (
-                <RequirementsList>
-                  <div className="req-title">Requirements:</div>
-                  <div className="req-item">Level {skill.learningRequirement.level}</div>
-                  {skill.learningRequirement.stats && Object.entries(skill.learningRequirement.stats).map(([stat, value]) => (
-                    <div key={stat} className="req-item">
-                      {stat.toUpperCase()}: {value} (Current: {character.stats[stat as keyof typeof character.stats]})
-                    </div>
-                  ))}
-                  {skill.learningRequirement.philosophicalAlignment && Object.entries(skill.learningRequirement.philosophicalAlignment).map(([aspect, value]) => (
-                    <div key={aspect} className="req-item">
-                      {aspect}: {value} (Current: {character.philosophicalStance[aspect as keyof typeof character.philosophicalStance]})
-                    </div>
-                  ))}
-                </RequirementsList>
-              )}
             </SkillCard>
-          );
-        })}
+          ))
+        ) : (
+          <div style={{
+            gridColumn: '1 / -1',
+            textAlign: 'center',
+            padding: theme.spacing.xl,
+            background: theme.colors.background.panel,
+            border: `2px solid ${theme.colors.border.primary}`,
+            borderRadius: theme.rpg.panelBorderRadius,
+            color: theme.colors.text.secondary
+          }}>
+            <h3 style={{ color: theme.colors.text.accent, marginBottom: theme.spacing.md }}>No Skills Learned Yet</h3>
+            <p style={{ margin: 0, fontSize: '1.1rem', lineHeight: 1.5 }}>
+              Explore the world, engage with philosophical challenges, and defeat logical fallacies 
+              to learn new skills and abilities. Your journey of discovery awaits!
+            </p>
+          </div>
+        )}
       </SkillGrid>
     </SkillContainer>
   );

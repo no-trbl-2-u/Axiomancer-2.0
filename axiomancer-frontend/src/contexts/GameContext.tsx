@@ -8,25 +8,33 @@ interface GameContextType {
   currentScreen: GameScreen;
   startNewGame: (characterName: string) => void;
   moveToLocation: (locationId: string) => void;
+  moveToNode: (nodeId: string) => void;
   updateCharacter: (updates: Partial<Character>) => void;
+  updateInventory: (updates: Partial<GameState['inventory']>) => void;
+  updateStory: (updates: Partial<GameState['story']>) => void;
   startCombat: (enemyId: string) => void;
   endCombat: () => void;
   changeScreen: (screen: GameScreen) => void;
   completeQuest: (questId: string) => void;
   addQuest: (quest: Quest) => void;
   makePhilosophicalChoice: (choiceId: string, outcome: any) => void;
+  unlockNode: (locationId: string, nodeId: string) => void;
 }
 
 type GameAction =
   | { type: 'START_NEW_GAME'; payload: { characterName: string } }
   | { type: 'MOVE_TO_LOCATION'; payload: { locationId: string } }
+  | { type: 'MOVE_TO_NODE'; payload: { nodeId: string } }
   | { type: 'UPDATE_CHARACTER'; payload: Partial<Character> }
+  | { type: 'UPDATE_INVENTORY'; payload: Partial<GameState['inventory']> }
+  | { type: 'UPDATE_STORY'; payload: Partial<GameState['story']> }
   | { type: 'START_COMBAT'; payload: { enemyId: string } }
   | { type: 'END_COMBAT' }
   | { type: 'CHANGE_SCREEN'; payload: { screen: GameScreen } }
   | { type: 'COMPLETE_QUEST'; payload: { questId: string } }
   | { type: 'ADD_QUEST'; payload: { quest: Quest } }
-  | { type: 'MAKE_PHILOSOPHICAL_CHOICE'; payload: { choiceId: string; outcome: any } };
+  | { type: 'MAKE_PHILOSOPHICAL_CHOICE'; payload: { choiceId: string; outcome: any } }
+  | { type: 'UNLOCK_NODE'; payload: { locationId: string; nodeId: string } };
 
 const initialGameState: GameState = {
   character: {
@@ -67,6 +75,7 @@ const initialGameState: GameState = {
     },
   },
   currentLocation: 'fishing_town',
+  currentNode: 'home',
   locations: getInitialLocations(),
   questLog: initialQuests,
   gamePhase: 'childhood',
@@ -80,8 +89,20 @@ const initialGameState: GameState = {
     visitedIslands: [],
     returnedHome: false,
     decidedToBeAdvisor: false,
+    talkedToGuardian: false,
+    startedFishing: false,
+    hasCart: true,
+    hasHorse: true,
+    hasFish: 0,
   },
   combat: null,
+  inventory: {
+    gold: 50,
+    wood: 0,
+    ironOre: 0,
+    fish: 0,
+    items: [],
+  },
 };
 
 function getInitialLocations(): Record<string, GameLocation> {
@@ -89,11 +110,111 @@ function getInitialLocations(): Record<string, GameLocation> {
     fishing_town: {
       id: 'fishing_town',
       name: 'Small Fishing Town',
-      description: 'A peaceful town by the water where you grew up with your guardian.',
+      description: 'A peaceful town by the water where you grew up with your guardian. This is where your philosophical journey begins.',
       type: 'town',
-      connections: ['forest', 'coastal_cliffs'],
+      connections: [],
       mapImage: '/maps/map01.jpeg',
       coordinates: { x: 1, y: 2 },
+      isNodeMap: true,
+      nodes: [
+        {
+          id: 'home',
+          name: 'Your Home',
+          description: 'The cozy house where you live with your guardian.',
+          type: 'start',
+          position: { x: 50, y: 80 },
+          connections: ['guardian', 'docks'],
+          unlocked: true,
+          visited: true,
+          icon: '🏠'
+        },
+        {
+          id: 'guardian',
+          name: 'Talk to Guardian',
+          description: 'Your guardian has wisdom to share before you begin your journey.',
+          type: 'person',
+          position: { x: 30, y: 60 },
+          connections: ['docks'],
+          unlocked: true,
+          visited: false,
+          event: {
+            id: 'guardian_talk',
+            type: 'dialogue',
+            description: 'Your guardian speaks about your upcoming adventure.',
+            npcId: 'guardian'
+          },
+          icon: '👨‍🏫'
+        },
+        {
+          id: 'docks',
+          name: 'Town Docks',
+          description: 'The wooden docks where fishing boats come and go.',
+          type: 'resource',
+          position: { x: 70, y: 40 },
+          connections: ['fishing_spot'],
+          unlocked: false,
+          visited: false,
+          event: {
+            id: 'prepare_fishing',
+            type: 'fishing',
+            description: 'Prepare your fishing gear and learn the basics.',
+            requirements: [{ type: 'stat', key: 'talkedToGuardian', value: true }]
+          },
+          icon: '⚓'
+        },
+        {
+          id: 'fishing_spot',
+          name: 'Fishing Waters',
+          description: 'Rich fishing waters where you can catch fish for your journey.',
+          type: 'resource',
+          position: { x: 90, y: 20 },
+          connections: ['boat_builder'],
+          unlocked: false,
+          visited: false,
+          event: {
+            id: 'fish_gathering',
+            type: 'gather',
+            description: 'Cast your line and gather fish for the journey ahead.',
+            resource: 'fish',
+            requirements: [{ type: 'stat', key: 'startedFishing', value: 1 }]
+          },
+          icon: '🎣'
+        },
+        {
+          id: 'boat_builder',
+          name: 'Boat Workshop',
+          description: 'Where you can build a boat to explore beyond the town.',
+          type: 'building',
+          position: { x: 50, y: 20 },
+          connections: ['forest_path'],
+          unlocked: false,
+          visited: false,
+          event: {
+            id: 'boat_building',
+            type: 'building',
+            description: 'Build a boat to access new areas.',
+            requirements: [{ type: 'item', key: 'fish', value: 5 }, { type: 'item', key: 'wood', value: 10 }]
+          },
+          icon: '🚤'
+        },
+        {
+          id: 'forest_path',
+          name: 'Path to Forest',
+          description: 'The beginning of your journey into the wider world.',
+          type: 'exit',
+          position: { x: 20, y: 20 },
+          connections: [],
+          unlocked: false,
+          visited: false,
+          event: {
+            id: 'leave_town',
+            type: 'choice',
+            description: 'Leave the safety of your hometown and venture into the forest.',
+            requirements: [{ type: 'stat', key: 'builtBoat', value: 1 }]
+          },
+          icon: '🌲'
+        }
+      ],
       npcs: [
         {
           id: 'guardian',
@@ -102,7 +223,7 @@ function getInitialLocations(): Record<string, GameLocation> {
           dialogue: [
             {
               id: 'guardian_intro',
-              text: 'Be careful out there, young one. The world is full of difficult choices.',
+              text: 'Young one, I see the curiosity in your eyes. You wish to explore beyond our small town, don\'t you? Remember, every choice you make shapes who you become.',
               choices: [
                 {
                   id: 'respect',
@@ -122,49 +243,161 @@ function getInitialLocations(): Record<string, GameLocation> {
         },
       ],
       resources: ['fish'],
-      events: [
-        {
-          id: 'trolley_dilemma',
-          name: 'The Trolley Problem',
-          description: 'A philosophical dilemma about moral responsibility presents itself.',
-          type: 'philosophical_dilemma',
-          triggered: false,
-        },
-      ],
+      events: [],
     },
     forest: {
       id: 'forest',
       name: 'Whispering Forest',
-      description: 'A dense forest full of ancient trees and the sounds of nature.',
+      description: 'A dense forest full of ancient trees and philosophical creatures. Each step forward reveals new challenges and wisdom.',
       type: 'forest',
-      connections: ['fishing_town', 'cave', 'ancient_ruins'],
+      connections: ['fishing_town'],
       mapImage: '/maps/map02.jpg',
       coordinates: { x: 1, y: 1 },
-      npcs: [],
-      resources: ['wood'],
-      events: [
+      isNodeMap: true,
+      nodes: [
         {
-          id: 'philosophical_tree',
+          id: 'forest_entrance',
+          name: 'Forest Entrance',
+          description: 'The threshold between your hometown and the wider world.',
+          type: 'start',
+          position: { x: 10, y: 90 },
+          connections: ['woodland_path'],
+          unlocked: true,
+          visited: false,
+          icon: '🌳'
+        },
+        {
+          id: 'woodland_path',
+          name: 'Woodland Path',
+          description: 'A winding path through dense trees.',
+          type: 'event',
+          position: { x: 30, y: 70 },
+          connections: ['clearing'],
+          unlocked: false,
+          visited: false,
+          event: {
+            id: 'path_choice',
+            type: 'choice',
+            description: 'You encounter a fork in the path. How do you choose which way to go?',
+            choices: [
+              {
+                id: 'intuition',
+                text: 'Trust your intuition and follow your heart.',
+                outcome: { type: 'stat_change', key: 'wisdom', value: 1 },
+                philosophicalAlignment: { epistemology: 'mystical' }
+              },
+              {
+                id: 'logical',
+                text: 'Analyze the paths logically and choose the safest route.',
+                outcome: { type: 'stat_change', key: 'intelligence', value: 1 },
+                philosophicalAlignment: { epistemology: 'rationalist' }
+              }
+            ]
+          },
+          icon: '🛤️'
+        },
+        {
+          id: 'clearing',
+          name: 'Forest Clearing',
+          description: 'A peaceful clearing where sunlight filters through the canopy.',
+          type: 'resource',
+          position: { x: 50, y: 50 },
+          connections: ['ancient_tree', 'creature_den'],
+          unlocked: false,
+          visited: false,
+          event: {
+            id: 'wood_gathering',
+            type: 'gather',
+            description: 'Gather fallen branches and wood for building.',
+            resource: 'wood'
+          },
+          icon: '🪵'
+        },
+        {
+          id: 'ancient_tree',
           name: 'The Philosophical Tree',
           description: 'An ancient oak that seems to whisper questions about existence.',
-          type: 'philosophical_dilemma',
-          triggered: false,
+          type: 'encounter',
+          position: { x: 30, y: 30 },
+          connections: ['deep_forest'],
+          unlocked: false,
+          visited: false,
+          event: {
+            id: 'tree_meditation',
+            type: 'choice',
+            description: 'The ancient tree poses a question: What is the nature of growth?',
+            choices: [
+              {
+                id: 'physical',
+                text: 'Growth is physical expansion and accumulation.',
+                outcome: { type: 'stat_change', key: 'strength', value: 1 },
+                philosophicalAlignment: { metaphysics: 'materialist' }
+              },
+              {
+                id: 'spiritual',
+                text: 'Growth is spiritual development and understanding.',
+                outcome: { type: 'stat_change', key: 'wisdom', value: 2 },
+                philosophicalAlignment: { metaphysics: 'idealist' }
+              }
+            ]
+          },
+          icon: '🌳'
         },
         {
-          id: 'fallacy_encounter',
-          name: 'Encounter with Abortive Fallacy',
-          description: 'A dangerous logical fallacy manifests as a creature in the woods.',
-          type: 'combat',
-          triggered: false,
+          id: 'creature_den',
+          name: 'Logical Fallacy Den',
+          description: 'A dark corner of the forest where twisted logic takes physical form.',
+          type: 'encounter',
+          position: { x: 70, y: 30 },
+          connections: ['deep_forest'],
+          unlocked: false,
+          visited: false,
+          event: {
+            id: 'fallacy_encounter',
+            type: 'combat',
+            description: 'A dangerous logical fallacy manifests as a creature.',
+            enemyId: 'abortive_fallacy'
+          },
+          icon: '👹'
         },
         {
-          id: 'strawman_ambush',
-          name: 'Strawman Ambush',
-          description: 'Twisted arguments take physical form and attack unsuspecting travelers.',
-          type: 'combat',
-          triggered: false,
+          id: 'deep_forest',
+          name: 'Deep Forest',
+          description: 'The heart of the forest where greater challenges await.',
+          type: 'boss',
+          position: { x: 50, y: 10 },
+          connections: ['cave_entrance'],
+          unlocked: false,
+          visited: false,
+          event: {
+            id: 'forest_guardian',
+            type: 'combat',
+            description: 'The guardian of the forest tests your philosophical resolve.',
+            enemyId: 'philosophical_goblin'
+          },
+          icon: '🦉'
         },
+        {
+          id: 'cave_entrance',
+          name: 'Cave Entrance',
+          description: 'The entrance to mysterious crystal caverns.',
+          type: 'exit',
+          position: { x: 90, y: 10 },
+          connections: [],
+          unlocked: false,
+          visited: false,
+          event: {
+            id: 'enter_cave',
+            type: 'choice',
+            description: 'Enter the mysterious cave system.',
+            requirements: [{ type: 'item', key: 'wood', value: 5 }]
+          },
+          icon: '🕳️'
+        }
       ],
+      npcs: [],
+      resources: ['wood'],
+      events: [],
     },
     cave: {
       id: 'cave',
@@ -351,6 +584,25 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         currentLocation: action.payload.locationId,
+        currentNode: state.locations[action.payload.locationId]?.isNodeMap ? 
+          state.locations[action.payload.locationId].nodes?.find(n => n.type === 'start')?.id : undefined,
+      };
+
+    case 'MOVE_TO_NODE':
+      return {
+        ...state,
+        currentNode: action.payload.nodeId,
+        locations: {
+          ...state.locations,
+          [state.currentLocation]: {
+            ...state.locations[state.currentLocation],
+            nodes: state.locations[state.currentLocation].nodes?.map(node => 
+              node.id === action.payload.nodeId 
+                ? { ...node, visited: true }
+                : node
+            )
+          }
+        }
       };
 
     case 'UPDATE_CHARACTER':
@@ -360,6 +612,40 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           ...state.character,
           ...action.payload,
         },
+      };
+
+    case 'UPDATE_INVENTORY':
+      return {
+        ...state,
+        inventory: {
+          ...state.inventory,
+          ...action.payload,
+        },
+      };
+
+    case 'UPDATE_STORY':
+      return {
+        ...state,
+        story: {
+          ...state.story,
+          ...action.payload,
+        },
+      };
+
+    case 'UNLOCK_NODE':
+      return {
+        ...state,
+        locations: {
+          ...state.locations,
+          [action.payload.locationId]: {
+            ...state.locations[action.payload.locationId],
+            nodes: state.locations[action.payload.locationId].nodes?.map(node => 
+              node.id === action.payload.nodeId 
+                ? { ...node, unlocked: true }
+                : node
+            )
+          }
+        }
       };
 
     case 'START_COMBAT':
@@ -431,8 +717,24 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'MOVE_TO_LOCATION', payload: { locationId } });
   };
 
+  const moveToNode = (nodeId: string) => {
+    dispatch({ type: 'MOVE_TO_NODE', payload: { nodeId } });
+  };
+
   const updateCharacter = (updates: Partial<Character>) => {
     dispatch({ type: 'UPDATE_CHARACTER', payload: updates });
+  };
+
+  const updateInventory = (updates: Partial<GameState['inventory']>) => {
+    dispatch({ type: 'UPDATE_INVENTORY', payload: updates });
+  };
+
+  const updateStory = (updates: Partial<GameState['story']>) => {
+    dispatch({ type: 'UPDATE_STORY', payload: updates });
+  };
+
+  const unlockNode = (locationId: string, nodeId: string) => {
+    dispatch({ type: 'UNLOCK_NODE', payload: { locationId, nodeId } });
   };
 
   const startCombat = (enemyId: string) => {
@@ -468,13 +770,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
         currentScreen,
         startNewGame,
         moveToLocation,
+        moveToNode,
         updateCharacter,
+        updateInventory,
+        updateStory,
         startCombat,
         endCombat,
         changeScreen,
         completeQuest,
         addQuest,
         makePhilosophicalChoice,
+        unlockNode,
       }}
     >
       {children}

@@ -1,0 +1,223 @@
+{
+  "summary": {
+    "totalTests": 16,
+    "passedTests": 3,
+    "failedTests": 13,
+    "successRate": "18.8%",
+    "testDate": "2025-09-27T21:03:52.704Z"
+  },
+  "screenshots": [
+    {
+      "name": "01-landing-page",
+      "description": "Initial landing page load",
+      "filename": "01-landing-page.png",
+      "timestamp": "2025-09-27T21:03:45.105Z"
+    },
+    {
+      "name": "04-current-page",
+      "description": "Current page after navigation",
+      "filename": "04-current-page.png",
+      "timestamp": "2025-09-27T21:03:48.267Z"
+    },
+    {
+      "name": "06-game-loaded",
+      "description": "Game page loaded",
+      "filename": "06-game-loaded.png",
+      "timestamp": "2025-09-27T21:03:50.412Z"
+    },
+    {
+      "name": "14-mobile-viewport",
+      "description": "Mobile viewport (375x667)",
+      "filename": "14-mobile-viewport.png",
+      "timestamp": "2025-09-27T21:03:51.516Z"
+    },
+    {
+      "name": "16-final-desktop-view",
+      "description": "Final desktop view for wireframe comparison",
+      "filename": "16-final-desktop-view.png",
+      "timestamp": "2025-09-27T21:03:52.680Z"
+    }
+  ],
+  "testResults": [
+    {
+      "test": "Landing Page Navigation",
+      "passed": false,
+      "details": "No start button found",
+      "timestamp": "2025-09-27T21:03:45.120Z"
+    },
+    {
+      "test": "Post-Start Navigation",
+      "passed": true,
+      "details": "Navigated to: http://localhost:3002/",
+      "timestamp": "2025-09-27T21:03:48.122Z"
+    },
+    {
+      "test": "Character Creation Flow",
+      "passed": true,
+      "details": "Proceeding from page: http://localhost:3002/",
+      "timestamp": "2025-09-27T21:03:48.272Z"
+    },
+    {
+      "test": "NodeMap Visibility",
+      "passed": false,
+      "details": "NodeMapScreen not found",
+      "timestamp": "2025-09-27T21:03:50.418Z"
+    },
+    {
+      "test": "Node Detection",
+      "passed": false,
+      "details": "Found 0 nodes",
+      "timestamp": "2025-09-27T21:03:50.425Z"
+    },
+    {
+      "test": "Home Node",
+      "passed": false,
+      "details": "Home node not found",
+      "timestamp": "2025-09-27T21:03:50.433Z"
+    },
+    {
+      "test": "Mobile Header",
+      "passed": false,
+      "details": "Header visible on mobile",
+      "timestamp": "2025-09-27T21:03:51.518Z"
+    },
+    {
+      "test": "Mobile Resources",
+      "passed": false,
+      "details": "Resource panel visible on mobile",
+      "timestamp": "2025-09-27T21:03:51.520Z"
+    },
+    {
+      "test": "Mobile Info Panel",
+      "passed": false,
+      "details": "Info panel visible on mobile",
+      "timestamp": "2025-09-27T21:03:51.524Z"
+    },
+    {
+      "test": "Mobile Scrolling",
+      "passed": true,
+      "details": "Page height: 667px vs viewport: 667px",
+      "timestamp": "2025-09-27T21:03:51.527Z"
+    },
+    {
+      "test": "Wireframe: Header with Resources",
+      "passed": false,
+      "details": "Header panel with resource display",
+      "timestamp": "2025-09-27T21:03:52.682Z"
+    },
+    {
+      "test": "Wireframe: Central Map Area",
+      "passed": false,
+      "details": "Central map/node area",
+      "timestamp": "2025-09-27T21:03:52.683Z"
+    },
+    {
+      "test": "Wireframe: Bottom Info Panel",
+      "passed": false,
+      "details": "Bottom information panel",
+      "timestamp": "2025-09-27T21:03:52.685Z"
+    },
+    {
+      "test": "Wireframe: Connected Nodes",
+      "passed": false,
+      "details": "Multiple interconnected nodes",
+      "timestamp": "2025-09-27T21:03:52.686Z"
+    },
+    {
+      "test": "Wireframe: Node Connections",
+      "passed": false,
+      "details": "Found 0 connection elements",
+      "timestamp": "2025-09-27T21:03:52.688Z"
+    },
+    {
+      "test": "Wireframe: Dark Theme",
+      "passed": false,
+      "details": "Background color: rgb(0, 0, 0)",
+      "timestamp": "2025-09-27T21:03:52.704Z"
+    }
+  ],
+  "issues": [
+    {
+      "test": "Landing Page Navigation",
+      "passed": false,
+      "details": "No start button found",
+      "timestamp": "2025-09-27T21:03:45.120Z"
+    },
+    {
+      "test": "NodeMap Visibility",
+      "passed": false,
+      "details": "NodeMapScreen not found",
+      "timestamp": "2025-09-27T21:03:50.418Z"
+    },
+    {
+      "test": "Node Detection",
+      "passed": false,
+      "details": "Found 0 nodes",
+      "timestamp": "2025-09-27T21:03:50.425Z"
+    },
+    {
+      "test": "Home Node",
+      "passed": false,
+      "details": "Home node not found",
+      "timestamp": "2025-09-27T21:03:50.433Z"
+    },
+    {
+      "test": "Mobile Header",
+      "passed": false,
+      "details": "Header visible on mobile",
+      "timestamp": "2025-09-27T21:03:51.518Z"
+    },
+    {
+      "test": "Mobile Resources",
+      "passed": false,
+      "details": "Resource panel visible on mobile",
+      "timestamp": "2025-09-27T21:03:51.520Z"
+    },
+    {
+      "test": "Mobile Info Panel",
+      "passed": false,
+      "details": "Info panel visible on mobile",
+      "timestamp": "2025-09-27T21:03:51.524Z"
+    },
+    {
+      "test": "Wireframe: Header with Resources",
+      "passed": false,
+      "details": "Header panel with resource display",
+      "timestamp": "2025-09-27T21:03:52.682Z"
+    },
+    {
+      "test": "Wireframe: Central Map Area",
+      "passed": false,
+      "details": "Central map/node area",
+      "timestamp": "2025-09-27T21:03:52.683Z"
+    },
+    {
+      "test": "Wireframe: Bottom Info Panel",
+      "passed": false,
+      "details": "Bottom information panel",
+      "timestamp": "2025-09-27T21:03:52.685Z"
+    },
+    {
+      "test": "Wireframe: Connected Nodes",
+      "passed": false,
+      "details": "Multiple interconnected nodes",
+      "timestamp": "2025-09-27T21:03:52.686Z"
+    },
+    {
+      "test": "Wireframe: Node Connections",
+      "passed": false,
+      "details": "Found 0 connection elements",
+      "timestamp": "2025-09-27T21:03:52.688Z"
+    },
+    {
+      "test": "Wireframe: Dark Theme",
+      "passed": false,
+      "details": "Background color: rgb(0, 0, 0)",
+      "timestamp": "2025-09-27T21:03:52.704Z"
+    }
+  ],
+  "recommendations": [
+    "NodeMapScreen component may not be properly rendered or accessible",
+    "Mobile responsiveness needs improvement - consider reviewing CSS media queries"
+  ]
+}
