@@ -22,7 +22,7 @@ fi
 
 # Start services
 echo "🐳 Starting Docker containers..."
-docker-compose -f docker-compose.local.yml up --build -d
+docker compose -f docker-compose.local.yml up --build -d
 
 # Wait for services to be healthy
 echo "⏳ Waiting for services to be ready..."
@@ -30,7 +30,7 @@ sleep 5
 
 # Check service status
 echo "📊 Service Status:"
-docker-compose -f docker-compose.local.yml ps
+docker compose -f docker-compose.local.yml ps
 
 echo ""
 echo "✅ Local environment is running!"

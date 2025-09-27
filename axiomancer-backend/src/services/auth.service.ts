@@ -58,7 +58,7 @@ export class AuthService {
   static generateToken(payload: JwtPayload): string {
     return jwt.sign(payload, this.JWT_SECRET, {
       expiresIn: this.JWT_EXPIRES_IN,
-    });
+    } as jwt.SignOptions);
   }
 
   static verifyToken(token: string): JwtPayload {

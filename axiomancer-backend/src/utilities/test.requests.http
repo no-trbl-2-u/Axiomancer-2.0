@@ -1,0 +1,160 @@
+### Variables
+@baseUrl = http://localhost:3001
+@email = test@example.com
+@password = TestPassword123!
+@firstName = John
+@lastName = Doe
+
+### Health Check
+GET {{baseUrl}}/health
+
+###
+
+### Register User
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "firstName": "{{firstName}}",
+  "lastName": "{{lastName}}"
+}
+
+###
+
+### Login User
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+###
+
+### Get User Profile (requires token from login)
+GET {{baseUrl}}/api/auth/profile
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+###
+
+### Register User - Missing Fields (should fail)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+###
+
+### Register User - Duplicate Email (should fail after first registration)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "firstName": "Jane",
+  "lastName": "Smith"
+}
+
+###
+
+### Login - Invalid Email (should fail)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com",
+  "password": "{{password}}"
+}
+
+###
+
+### Login - Invalid Password (should fail)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "wrongpassword"
+}
+
+###
+
+### Get Profile - No Token (should fail)
+GET {{baseUrl}}/api/auth/profile
+
+###
+
+### Get Profile - Invalid Token (should fail)
+GET {{baseUrl}}/api/auth/profile
+Authorization: Bearer invalid_token_here
+
+###
+
+### Database Persistence Test Sequence
+### 1. Register a unique user
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "persistence@test.com",
+  "password": "PersistenceTest123!",
+  "firstName": "Persistence",
+  "lastName": "Test"
+}
+
+###
+
+### 2. Login with the same user to verify persistence
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "persistence@test.com",
+  "password": "PersistenceTest123!"
+}
+
+###
+
+### 3. Register another user to test multiple users
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user2@test.com",
+  "password": "User2Test123!",
+  "firstName": "User",
+  "lastName": "Two"
+}
+
+###
+
+### 4. Login with second user
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user2@test.com",
+  "password": "User2Test123!"
+}
+
+###
+
+### 5. Try to register first user again (should fail - proving persistence)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "persistence@test.com",
+  "password": "DifferentPassword123!",
+  "firstName": "Different",
+  "lastName": "Name"
+}
+
+###

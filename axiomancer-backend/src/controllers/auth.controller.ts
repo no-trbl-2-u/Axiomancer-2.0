@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
-import { UserCreateInput, UserLoginInput } from '../types';
+import { UserCreateInput, UserLoginInput, JwtPayload } from '../types';
+
+interface AuthenticatedRequest extends Request {
+  user?: JwtPayload;
+}
 
 export class AuthController {
   static async register(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -45,7 +49,7 @@ export class AuthController {
     }
   }
 
-  static async profile(req: Request, res: Response, next: NextFunction): Promise<void> {
+  static async profile(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       // This would typically fetch the full user profile
       // For now, we'll just return the authenticated user info

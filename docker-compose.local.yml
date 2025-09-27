@@ -15,7 +15,6 @@ services:
       - JWT_EXPIRES_IN=24h
     volumes:
       - ./axiomancer-backend/src:/app/src
-      - ./axiomancer-backend/database.sqlite:/app/database.sqlite
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "healthcheck.js"]

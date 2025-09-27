@@ -18,7 +18,7 @@ fi
 
 # Start services
 echo "🐳 Starting Docker containers for staging..."
-docker-compose -f docker-compose.staging.yml up --build -d
+docker compose -f docker-compose.staging.yml up --build -d
 
 # Wait for services to be healthy
 echo "⏳ Waiting for services to be ready..."
@@ -26,7 +26,7 @@ sleep 10
 
 # Check service status
 echo "📊 Service Status:"
-docker-compose -f docker-compose.staging.yml ps
+docker compose -f docker-compose.staging.yml ps
 
 echo ""
 echo "✅ Staging environment is running!"
