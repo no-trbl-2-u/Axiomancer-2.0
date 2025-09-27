@@ -38,7 +38,9 @@
     "format:check": "prettier --check src/**/*.{js,jsx,ts,tsx,css,json}",
     "test": "node tests/test-axiomancer.js",
     "test:headless": "HEADLESS=true node tests/test-axiomancer.js",
-    "install-playwright": "npx playwright install"
+    "install-playwright": "npx playwright install",
+    "dev-tools": "npx -y @agentdeskai/browser-tools-server"
+
   },
   "eslintConfig": {
     "extends": [

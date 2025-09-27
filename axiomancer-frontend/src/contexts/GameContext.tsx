@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { GameState, Character, GameLocation, Quest, CombatState, GameScreen } from '../types/game';
+import { initialQuests } from '../utils/questSystem';
+import { createEnemyByType } from '../utils/combatMechanics';
 
 interface GameContextType {
   gameState: GameState;
@@ -66,7 +68,7 @@ const initialGameState: GameState = {
   },
   currentLocation: 'fishing_town',
   locations: getInitialLocations(),
-  questLog: require('../utils/questSystem').initialQuests,
+  questLog: initialQuests,
   gamePhase: 'childhood',
   story: {
     visitedFriend: false,
@@ -361,7 +363,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
 
     case 'START_COMBAT':
-      const { createEnemyByType } = require('../utils/combatMechanics');
+
       const enemy = createEnemyByType(action.payload.enemyId);
       return {
         ...state,
