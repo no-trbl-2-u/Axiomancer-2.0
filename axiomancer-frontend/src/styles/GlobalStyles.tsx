@@ -13,9 +13,10 @@ export const GlobalStyles = (): JSX.Element => (
         font-family: 'Georgia', 'Times New Roman', serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        background: linear-gradient(135deg, #1C1C1C 0%, #2F2F2F 50%, #2F4F4F 100%);
+        background: #000000;
         min-height: 100vh;
-        color: #F5F5DC;
+        color: #FFFFFF;
+        overflow-x: hidden;
       }
 
       #root {
