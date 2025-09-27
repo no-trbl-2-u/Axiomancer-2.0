@@ -84,9 +84,11 @@ export function generateEnemyChoice(enemy: Enemy, playerPreviousChoices: CombatC
       heart: 'mind',   // Mind beats Heart
     };
 
-    chosenAspect = counterAspect[mostUsedAspect] || 'body';
+    chosenAspect = counterAspect[mostUsedAspect];
   } else {
-    chosenAspect = (['body', 'mind', 'heart'] as PhilosophicalAspect[])[Math.floor(Math.random() * 3)];
+    const aspects: PhilosophicalAspect[] = ['body', 'mind', 'heart'];
+    const randomIndex = Math.floor(Math.random() * aspects.length);
+    chosenAspect = aspects[randomIndex] || 'body';
   }
 
   // Choose action based on enemy stats
@@ -169,8 +171,135 @@ export function resolveCombatRound(
 }
 
 /**
- * Create sample enemies for testing
+ * Create philosophical enemies based on fallacies and philosophical concepts
  */
+export function createAbortiveFallacy(): Enemy {
+  return {
+    id: 'abortive_fallacy',
+    name: 'Abortive Fallacy',
+    level: 2,
+    health: 45,
+    maxHealth: 45,
+    mana: 30,
+    maxMana: 30,
+    stats: {
+      strength: 6,
+      constitution: 8,
+      wisdom: 4,
+      intelligence: 16,
+      dexterity: 12,
+      charisma: 8,
+    },
+    skills: [],
+    loot: [
+      {
+        id: 'fallacy_essence',
+        name: 'Essence of Flawed Logic',
+        description: 'A crystallized fragment of a defeated logical fallacy.',
+        type: 'crafting',
+        value: 25,
+        stackable: true,
+        quantity: 1,
+        icon: '🔮',
+      },
+    ],
+    philosophicalAlignment: {
+      ethics: 'nihilistic',
+      metaphysics: 'idealist',
+      epistemology: 'skeptical',
+    },
+    type: 'fallacy',
+    image: '/monsters/Abortive.jpg',
+    description: 'A manifestation of incomplete reasoning - an argument that fails to reach its logical conclusion.',
+    weaknesses: ['mind'],
+    strengths: ['heart'],
+  };
+}
+
+export function createSophist(): Enemy {
+  return {
+    id: 'sophist',
+    name: 'Deceiving Sophist',
+    level: 3,
+    health: 55,
+    maxHealth: 55,
+    mana: 40,
+    maxMana: 40,
+    stats: {
+      strength: 7,
+      constitution: 9,
+      wisdom: 8,
+      intelligence: 14,
+      dexterity: 13,
+      charisma: 18,
+    },
+    skills: [],
+    loot: [
+      {
+        id: 'sophist_rhetoric',
+        name: 'Persuasive Rhetoric',
+        description: 'A scroll containing powerful but misleading arguments.',
+        type: 'quest',
+        value: 40,
+        stackable: true,
+        quantity: 1,
+        icon: '📃',
+      },
+    ],
+    philosophicalAlignment: {
+      ethics: 'consequentialist',
+      metaphysics: 'pragmatist',
+      epistemology: 'skeptical',
+    },
+    type: 'sophist',
+    description: 'A master of persuasion who values winning arguments over finding truth.',
+    weaknesses: ['body'],
+    strengths: ['mind'],
+  };
+}
+
+export function createNihilisticVoid(): Enemy {
+  return {
+    id: 'nihilistic_void',
+    name: 'Nihilistic Void',
+    level: 4,
+    health: 65,
+    maxHealth: 65,
+    mana: 50,
+    maxMana: 50,
+    stats: {
+      strength: 12,
+      constitution: 15,
+      wisdom: 20,
+      intelligence: 18,
+      dexterity: 8,
+      charisma: 3,
+    },
+    skills: [],
+    loot: [
+      {
+        id: 'void_fragment',
+        name: 'Fragment of Meaninglessness',
+        description: 'A piece of the void that questions all meaning and purpose.',
+        type: 'quest',
+        value: 60,
+        stackable: true,
+        quantity: 1,
+        icon: '🕳️',
+      },
+    ],
+    philosophicalAlignment: {
+      ethics: 'nihilistic',
+      metaphysics: 'materialist',
+      epistemology: 'skeptical',
+    },
+    type: 'nihilist',
+    description: 'An embodiment of existential emptiness that seeks to drain meaning from all things.',
+    weaknesses: ['heart'],
+    strengths: ['mind'],
+  };
+}
+
 export function createPhilosophicalGoblin(): Enemy {
   return {
     id: 'philosophical_goblin',
@@ -195,7 +324,7 @@ export function createPhilosophicalGoblin(): Enemy {
         name: 'Goblin Wisdom',
         description: 'A small scroll containing a philosophical question.',
         type: 'quest',
-        value: 0,
+        value: 10,
         stackable: true,
         quantity: 1,
         icon: '📜',
@@ -206,5 +335,202 @@ export function createPhilosophicalGoblin(): Enemy {
       metaphysics: 'idealist',
       epistemology: 'skeptical',
     },
+    type: 'beast',
+    description: 'A small creature that has gained intelligence through exposure to philosophical debates.',
+    weaknesses: ['body'],
+    strengths: ['heart'],
   };
+}
+
+export function createStrawmanArgument(): Enemy {
+  return {
+    id: 'strawman_argument',
+    name: 'Strawman Argument',
+    level: 2,
+    health: 40,
+    maxHealth: 40,
+    mana: 25,
+    maxMana: 25,
+    stats: {
+      strength: 5,
+      constitution: 7,
+      wisdom: 6,
+      intelligence: 12,
+      dexterity: 15,
+      charisma: 14,
+    },
+    skills: [],
+    loot: [
+      {
+        id: 'distorted_reasoning',
+        name: 'Distorted Reasoning',
+        description: 'A twisted logic pattern that misrepresents arguments.',
+        type: 'crafting',
+        value: 20,
+        stackable: true,
+        quantity: 1,
+        icon: '🎭',
+      },
+    ],
+    philosophicalAlignment: {
+      ethics: 'consequentialist',
+      metaphysics: 'pragmatist',
+      epistemology: 'skeptical',
+    },
+    type: 'fallacy',
+    description: 'A misrepresentation of opposing arguments that makes them easier to attack.',
+    weaknesses: ['mind'],
+    strengths: ['body'],
+  };
+}
+
+export function createCircularReasoningDemon(): Enemy {
+  return {
+    id: 'circular_reasoning',
+    name: 'Circular Reasoning Demon',
+    level: 3,
+    health: 50,
+    maxHealth: 50,
+    mana: 35,
+    maxMana: 35,
+    stats: {
+      strength: 8,
+      constitution: 12,
+      wisdom: 8,
+      intelligence: 16,
+      dexterity: 10,
+      charisma: 11,
+    },
+    skills: [],
+    loot: [
+      {
+        id: 'endless_loop',
+        name: 'Endless Logic Loop',
+        description: 'A paradoxical reasoning pattern that goes nowhere.',
+        type: 'quest',
+        value: 35,
+        stackable: true,
+        quantity: 1,
+        icon: '🔄',
+      },
+    ],
+    philosophicalAlignment: {
+      ethics: 'deontological',
+      metaphysics: 'idealist',
+      epistemology: 'rationalist',
+    },
+    type: 'fallacy',
+    description: 'An entity trapped in endless loops of self-justifying logic.',
+    weaknesses: ['body'],
+    strengths: ['mind'],
+  };
+}
+
+export function createConfirmationBiasBeast(): Enemy {
+  return {
+    id: 'confirmation_bias',
+    name: 'Confirmation Bias Beast',
+    level: 2,
+    health: 42,
+    maxHealth: 42,
+    mana: 28,
+    maxMana: 28,
+    stats: {
+      strength: 9,
+      constitution: 11,
+      wisdom: 5,
+      intelligence: 13,
+      dexterity: 12,
+      charisma: 10,
+    },
+    skills: [],
+    loot: [
+      {
+        id: 'selective_evidence',
+        name: 'Selective Evidence',
+        description: 'Information that only supports pre-existing beliefs.',
+        type: 'crafting',
+        value: 22,
+        stackable: true,
+        quantity: 1,
+        icon: '👁️',
+      },
+    ],
+    philosophicalAlignment: {
+      ethics: 'consequentialist',
+      metaphysics: 'materialist',
+      epistemology: 'empiricist',
+    },
+    type: 'fallacy',
+    description: 'A creature that only sees evidence that confirms what it already believes.',
+    weaknesses: ['mind', 'heart'],
+    strengths: ['body'],
+  };
+}
+
+export function createWisdomGuardian(): Enemy {
+  return {
+    id: 'wisdom_guardian',
+    name: 'Guardian of Ancient Wisdom',
+    level: 5,
+    health: 80,
+    maxHealth: 80,
+    mana: 60,
+    maxMana: 60,
+    stats: {
+      strength: 15,
+      constitution: 18,
+      wisdom: 22,
+      intelligence: 20,
+      dexterity: 12,
+      charisma: 16,
+    },
+    skills: [],
+    loot: [
+      {
+        id: 'wisdom_crystal',
+        name: 'Crystal of Ancient Wisdom',
+        description: 'A crystallized piece of pure philosophical understanding.',
+        type: 'quest',
+        value: 100,
+        stackable: false,
+        quantity: 1,
+        icon: '💎',
+      },
+    ],
+    philosophicalAlignment: {
+      ethics: 'virtue',
+      metaphysics: 'dualist',
+      epistemology: 'mystical',
+    },
+    type: 'guardian',
+    description: 'An ancient protector of philosophical knowledge, testing worthy seekers.',
+    weaknesses: [],
+    strengths: ['mind', 'heart'],
+  };
+}
+
+/**
+ * Factory function to create enemies by type
+ */
+export function createEnemyByType(enemyType: string): Enemy {
+  switch (enemyType) {
+    case 'abortive_fallacy':
+      return createAbortiveFallacy();
+    case 'sophist':
+      return createSophist();
+    case 'nihilistic_void':
+      return createNihilisticVoid();
+    case 'strawman_argument':
+      return createStrawmanArgument();
+    case 'circular_reasoning':
+      return createCircularReasoningDemon();
+    case 'confirmation_bias':
+      return createConfirmationBiasBeast();
+    case 'wisdom_guardian':
+      return createWisdomGuardian();
+    case 'philosophical_goblin':
+    default:
+      return createPhilosophicalGoblin();
+  }
 }

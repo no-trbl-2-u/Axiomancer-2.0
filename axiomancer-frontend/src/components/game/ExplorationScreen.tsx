@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGame } from '../../contexts/GameContext';
+import { PhilosophicalEventScreen } from './PhilosophicalEventScreen';
+import { philosophicalEvents, createMeditationEvent, getAvailableEvents } from '../../utils/philosophicalEvents';
 
 const ExplorationContainer = styled.div`
   width: 100%;
@@ -33,13 +35,17 @@ const LocationImage = styled.div`
   background: ${theme.colors.background.secondary};
   border: ${theme.rpg.borderWidth} solid ${theme.colors.border.primary};
   border-radius: ${theme.rpg.panelBorderRadius};
-  display: flex;
-  align-items: center;
-  justify-content: center;
   margin-bottom: ${theme.spacing.xl};
   position: relative;
   overflow: hidden;
   box-shadow: ${theme.shadows.panel};
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.9;
+  }
 
   &::before {
     content: '';
@@ -52,15 +58,51 @@ const LocationImage = styled.div`
       rgba(218, 165, 32, 0.1) 0%,
       rgba(139, 69, 19, 0.1) 50%,
       rgba(218, 165, 32, 0.1) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+`;
+
+const LocationOverlay = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: white;
+  padding: ${theme.spacing.lg};
+  z-index: 2;
+
+  h2 {
+    margin: 0 0 ${theme.spacing.xs} 0;
+    font-size: 1.8rem;
+    color: ${theme.colors.text.accent};
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    font-weight: bold;
+  }
+
+  p {
+    margin: 0;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.4;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   }
 `;
 
 const LocationPlaceholder = styled.div`
   color: ${theme.colors.text.secondary};
   font-size: 1.4rem;
-  z-index: 1;
+  z-index: 3;
   text-align: center;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  padding: ${theme.spacing.lg};
+  border-radius: ${theme.borderRadius.md};
 `;
 
 const ActionPanel = styled.div`
@@ -171,6 +213,7 @@ export const ExplorationScreen = React.memo(() => {
   const { gameState, moveToLocation, startCombat, changeScreen } = useGame();
   const { locations, currentLocation, character } = gameState;
   const location = locations[currentLocation];
+  const [currentEvent, setCurrentEvent] = useState<any>(null);
 
   const handleGatherResource = (resource: string) => {
     // TODO: Implement resource gathering logic
@@ -186,11 +229,48 @@ export const ExplorationScreen = React.memo(() => {
   };
 
   const handleExploreEvent = (eventId: string) => {
-    if (eventId === 'philosophical_tree') {
-      // Start a philosophical combat encounter
-      startCombat('philosophical_goblin');
-    } else {
-      console.log(`Exploring ${eventId}...`);
+    switch (eventId) {
+      case 'philosophical_tree':
+        startCombat('philosophical_goblin');
+        break;
+      case 'fallacy_encounter':
+        startCombat('abortive_fallacy');
+        break;
+      case 'strawman_ambush':
+        startCombat('strawman_argument');
+        break;
+      case 'philosophical_trial':
+        startCombat('sophist');
+        break;
+      case 'confirmation_bias_beast':
+        startCombat('confirmation_bias');
+        break;
+      case 'circular_reasoning_demon':
+        startCombat('circular_reasoning');
+        break;
+      case 'wisdom_guardian_trial':
+        startCombat('wisdom_guardian');
+        break;
+      case 'crystal_meditation':
+        setCurrentEvent(philosophicalEvents.cave_of_forms);
+        break;
+      case 'wind_wisdom':
+        setCurrentEvent(createMeditationEvent(currentLocation));
+        break;
+      case 'lake_reflection':
+        setCurrentEvent(createMeditationEvent(currentLocation));
+        break;
+      case 'trolley_dilemma':
+        setCurrentEvent(philosophicalEvents.trolley_problem);
+        break;
+      default:
+        // Check for location-specific philosophical events
+        const availableEvents = getAvailableEvents(character, currentLocation);
+        if (availableEvents.length > 0) {
+          setCurrentEvent(availableEvents[0]);
+        } else {
+          console.log(`Exploring ${eventId}...`);
+        }
     }
   };
 
@@ -202,12 +282,32 @@ export const ExplorationScreen = React.memo(() => {
     );
   }
 
+  // Show philosophical event if one is active
+  if (currentEvent) {
+    return (
+      <PhilosophicalEventScreen 
+        event={currentEvent} 
+        onComplete={() => setCurrentEvent(null)} 
+      />
+    );
+  }
+
   return (
     <ExplorationContainer>
       <LocationImage>
-        <LocationPlaceholder>
-          {location.name} - Visual representation coming soon
-        </LocationPlaceholder>
+        {location.mapImage ? (
+          <>
+            <img src={location.mapImage} alt={location.name} />
+            <LocationOverlay>
+              <h2>{location.name}</h2>
+              <p>{location.description}</p>
+            </LocationOverlay>
+          </>
+        ) : (
+          <LocationPlaceholder>
+            {location.name} - Visual representation coming soon
+          </LocationPlaceholder>
+        )}
       </LocationImage>
 
       <ActionPanel>
@@ -243,6 +343,27 @@ export const ExplorationScreen = React.memo(() => {
                 <p>{event.description}</p>
               </ActionButton>
             ))}
+
+          {/* Add meditation/reflection action for every location */}
+          <ActionButton
+            onClick={() => setCurrentEvent(createMeditationEvent(currentLocation))}
+          >
+            <h4>🧘 Reflect and Meditate</h4>
+            <p>Take a moment for philosophical contemplation in this place</p>
+          </ActionButton>
+
+          {/* Add philosophical encounter if available */}
+          {getAvailableEvents(character, currentLocation).length > 0 && (
+            <ActionButton
+              onClick={() => {
+                const events = getAvailableEvents(character, currentLocation);
+                setCurrentEvent(events[Math.floor(Math.random() * events.length)]);
+              }}
+            >
+              <h4>🤔 Philosophical Encounter</h4>
+              <p>Engage with deep philosophical questions relevant to this place</p>
+            </ActionButton>
+          )}
         </ActionGrid>
 
         {location.connections.length > 0 && (

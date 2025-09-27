@@ -52,6 +52,70 @@ const CharacterCard = styled.div<{ isEnemy?: boolean }>`
   box-shadow: ${theme.shadows.panel};
   position: relative;
   z-index: 1;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`;
+
+const CharacterImage = styled.div`
+  width: 150px;
+  height: 150px;
+  margin: 0 auto ${theme.spacing.md} auto;
+  border-radius: ${theme.borderRadius.lg};
+  overflow: hidden;
+  background: ${theme.colors.background.secondary};
+  border: 2px solid ${theme.colors.border.primary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .placeholder {
+    font-size: 3rem;
+    opacity: 0.6;
+  }
+`;
+
+const EnemyDescription = styled.div`
+  margin: ${theme.spacing.sm} 0;
+  padding: ${theme.spacing.sm};
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: ${theme.borderRadius.sm};
+  font-size: 0.85rem;
+  color: ${theme.colors.text.secondary};
+  line-height: 1.3;
+  font-style: italic;
+`;
+
+const WeaknessStrengthInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: ${theme.spacing.sm};
+  font-size: 0.75rem;
+  
+  .weakness, .strength {
+    padding: 2px 6px;
+    border-radius: ${theme.borderRadius.sm};
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  .weakness {
+    background: rgba(220, 38, 38, 0.2);
+    color: #fca5a5;
+  }
+  
+  .strength {
+    background: rgba(16, 185, 129, 0.2);
+    color: #86efac;
+  }
 `;
 
 const CharacterName = styled.h2`
@@ -503,20 +567,38 @@ const actionData = {
     icon: '✨',
     name: 'Special',
     description: 'Unique philosophical technique'
+  },
+  skill: {
+    icon: '📚',
+    name: 'Use Skill',
+    description: 'Employ learned philosophical techniques'
   }
 };
 
 export const CombatScreen = React.memo(() => {
   const { gameState, endCombat, updateCharacter } = useGame();
-  const { character } = gameState;
+  const { character, combat } = gameState;
 
-  const [enemy, setEnemy] = useState(() => createPhilosophicalGoblin());
+  const [enemy, setEnemy] = useState(() => combat?.enemy || createPhilosophicalGoblin());
   const [phase, setPhase] = useState<'choosing_aspect' | 'choosing_action' | 'resolving' | 'ended'>('choosing_aspect');
   const [playerChoice, setPlayerChoice] = useState<Partial<CombatChoice>>({});
   const [roundResult, setRoundResult] = useState<CombatRoundResult | null>(null);
   const [round, setRound] = useState(1);
   const [advantages, setAdvantages] = useState({ player: 0, enemy: 0 });
   const [playerChoiceHistory, setPlayerChoiceHistory] = useState<CombatChoice[]>([]);
+
+  // Update enemy when combat state changes
+  useEffect(() => {
+    if (combat?.enemy) {
+      setEnemy(combat.enemy);
+      setPhase('choosing_aspect');
+      setPlayerChoice({});
+      setRoundResult(null);
+      setRound(1);
+      setAdvantages({ player: 0, enemy: 0 });
+      setPlayerChoiceHistory([]);
+    }
+  }, [combat?.enemy?.id]);
 
   const selectAspect = (aspect: PhilosophicalAspect) => {
     setPlayerChoice({ aspect });
@@ -612,31 +694,64 @@ export const CombatScreen = React.memo(() => {
       <BattleArea>
         <CharacterSide>
           <CharacterCard>
-            <CharacterName>{character.name}</CharacterName>
-            <HealthBar>
-              <HealthFill percentage={playerHealthPercent} />
-            </HealthBar>
-            <HealthText>{character.health} / {character.maxHealth} HP</HealthText>
-            <ManaBar>
-              <ManaFill percentage={playerManaPercent} />
-            </ManaBar>
-            <ManaText>{character.mana} / {character.maxMana} MP</ManaText>
+            <div>
+              <CharacterImage>
+                <div className="placeholder">🧙‍♂️</div>
+              </CharacterImage>
+              <CharacterName>{character.name}</CharacterName>
+            </div>
+            <div>
+              <HealthBar>
+                <HealthFill percentage={playerHealthPercent} />
+              </HealthBar>
+              <HealthText>{character.health} / {character.maxHealth} HP</HealthText>
+              <ManaBar>
+                <ManaFill percentage={playerManaPercent} />
+              </ManaBar>
+              <ManaText>{character.mana} / {character.maxMana} MP</ManaText>
+            </div>
           </CharacterCard>
         </CharacterSide>
 
-        <div style={{ textAlign: 'center', fontSize: '3rem' }}>⚔️</div>
+        <div style={{ textAlign: 'center', fontSize: '3rem', position: 'relative', zIndex: 1 }}>⚔️</div>
 
         <CharacterSide>
           <CharacterCard isEnemy>
-            <CharacterName>{enemy.name}</CharacterName>
-            <HealthBar>
-              <HealthFill percentage={enemyHealthPercent} isEnemy />
-            </HealthBar>
-            <HealthText>{enemy.health} / {enemy.maxHealth} HP</HealthText>
-            <ManaBar>
-              <ManaFill percentage={enemyManaPercent} />
-            </ManaBar>
-            <ManaText>{enemy.mana} / {enemy.maxMana} MP</ManaText>
+            <div>
+              <CharacterImage>
+                {enemy.image ? (
+                  <img src={enemy.image} alt={enemy.name} />
+                ) : (
+                  <div className="placeholder">👹</div>
+                )}
+              </CharacterImage>
+              <CharacterName>{enemy.name}</CharacterName>
+              <EnemyDescription>{enemy.description}</EnemyDescription>
+              {(enemy.weaknesses || enemy.strengths) && (
+                <WeaknessStrengthInfo>
+                  {enemy.weaknesses && (
+                    <div className="weakness">
+                      Weak: {enemy.weaknesses.join(', ')}
+                    </div>
+                  )}
+                  {enemy.strengths && (
+                    <div className="strength">
+                      Strong: {enemy.strengths.join(', ')}
+                    </div>
+                  )}
+                </WeaknessStrengthInfo>
+              )}
+            </div>
+            <div>
+              <HealthBar>
+                <HealthFill percentage={enemyHealthPercent} isEnemy />
+              </HealthBar>
+              <HealthText>{enemy.health} / {enemy.maxHealth} HP</HealthText>
+              <ManaBar>
+                <ManaFill percentage={enemyManaPercent} />
+              </ManaBar>
+              <ManaText>{enemy.mana} / {enemy.maxMana} MP</ManaText>
+            </div>
           </CharacterCard>
         </CharacterSide>
       </BattleArea>

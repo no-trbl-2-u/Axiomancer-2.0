@@ -29,6 +29,14 @@ export interface Skill {
   damage?: number;
   effect?: string;
   icon: string;
+  type: 'fallacy' | 'virtue' | 'logic' | 'rhetoric' | 'meditation';
+  philosophicalAspect?: PhilosophicalAspect;
+  fallacyType?: 'formal' | 'informal' | 'cognitive_bias';
+  learningRequirement?: {
+    level: number;
+    stats?: Partial<Character['stats']>;
+    philosophicalAlignment?: Partial<PhilosophicalStance>;
+  };
 }
 
 export interface Equipment {
@@ -66,6 +74,8 @@ export interface GameLocation {
   npcs: NPC[];
   resources: string[];
   events: GameEvent[];
+  mapImage?: string;
+  coordinates?: { x: number; y: number };
 }
 
 export interface NPC {
@@ -126,14 +136,20 @@ export interface Enemy {
   skills: Skill[];
   loot: Item[];
   philosophicalAlignment?: PhilosophicalStance;
+  type: 'fallacy' | 'sophist' | 'skeptic' | 'nihilist' | 'beast' | 'guardian';
+  image?: string;
+  description: string;
+  weaknesses?: PhilosophicalAspect[];
+  strengths?: PhilosophicalAspect[];
 }
 
 export type PhilosophicalAspect = 'body' | 'mind' | 'heart';
-export type CombatAction = 'attack' | 'defend' | 'special';
+export type CombatAction = 'attack' | 'defend' | 'special' | 'skill';
 
 export interface CombatChoice {
   aspect: PhilosophicalAspect;
   action: CombatAction;
+  selectedSkill?: string;
 }
 
 export interface CombatRoundResult {
@@ -213,4 +229,4 @@ export interface QuestObjective {
 
 export type EquipmentType = 'weapon' | 'armor' | 'accessory' | 'consumable';
 export type ItemType = 'weapon' | 'armor' | 'consumable' | 'crafting' | 'quest' | 'misc';
-export type GameScreen = 'exploration' | 'combat' | 'character' | 'inventory' | 'dialogue' | 'map';
+export type GameScreen = 'exploration' | 'combat' | 'character' | 'inventory' | 'dialogue' | 'map' | 'skills';
