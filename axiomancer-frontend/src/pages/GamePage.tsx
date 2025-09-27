@@ -8,6 +8,7 @@ import { CharacterScreen } from '../components/game/CharacterScreen';
 import { InventoryScreen } from '../components/game/InventoryScreen';
 import { MapScreen } from '../components/game/MapScreen';
 import { DialogueScreen } from '../components/game/DialogueScreen';
+import { SkillScreen } from '../components/game/SkillScreen';
 import { GameUI } from '../components/game/GameUI';
 
 const GameContainer = styled.div`
@@ -37,6 +38,8 @@ export const GamePage = React.memo(() => {
         return <CharacterScreen />;
       case 'inventory':
         return <InventoryScreen />;
+      case 'skills':
+        return <SkillScreen />;
       case 'map':
         return <MapScreen />;
       case 'dialogue':

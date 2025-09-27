@@ -43,7 +43,19 @@ const initialGameState: GameState = {
       dexterity: 10,
       charisma: 10,
     },
-    skills: [],
+    skills: [
+      {
+        id: 'basic_reasoning',
+        name: 'Basic Reasoning',
+        description: 'Fundamental logical thinking skills.',
+        level: 1,
+        manaCost: 5,
+        damage: 10,
+        icon: '🤔',
+        type: 'logic',
+        philosophicalAspect: 'mind',
+      }
+    ],
     equipment: [],
     inventory: [],
     philosophicalStance: {
@@ -54,7 +66,7 @@ const initialGameState: GameState = {
   },
   currentLocation: 'fishing_town',
   locations: getInitialLocations(),
-  questLog: [],
+  questLog: require('../utils/questSystem').initialQuests,
   gamePhase: 'childhood',
   story: {
     visitedFriend: false,
@@ -77,7 +89,9 @@ function getInitialLocations(): Record<string, GameLocation> {
       name: 'Small Fishing Town',
       description: 'A peaceful town by the water where you grew up with your guardian.',
       type: 'town',
-      connections: ['forest'],
+      connections: ['forest', 'coastal_cliffs'],
+      mapImage: '/maps/map01.jpeg',
+      coordinates: { x: 1, y: 2 },
       npcs: [
         {
           id: 'guardian',
@@ -106,14 +120,24 @@ function getInitialLocations(): Record<string, GameLocation> {
         },
       ],
       resources: ['fish'],
-      events: [],
+      events: [
+        {
+          id: 'trolley_dilemma',
+          name: 'The Trolley Problem',
+          description: 'A philosophical dilemma about moral responsibility presents itself.',
+          type: 'philosophical_dilemma',
+          triggered: false,
+        },
+      ],
     },
     forest: {
       id: 'forest',
       name: 'Whispering Forest',
       description: 'A dense forest full of ancient trees and the sounds of nature.',
       type: 'forest',
-      connections: ['fishing_town', 'cave'],
+      connections: ['fishing_town', 'cave', 'ancient_ruins'],
+      mapImage: '/maps/map02.jpg',
+      coordinates: { x: 1, y: 1 },
       npcs: [],
       resources: ['wood'],
       events: [
@@ -124,17 +148,187 @@ function getInitialLocations(): Record<string, GameLocation> {
           type: 'philosophical_dilemma',
           triggered: false,
         },
+        {
+          id: 'fallacy_encounter',
+          name: 'Encounter with Abortive Fallacy',
+          description: 'A dangerous logical fallacy manifests as a creature in the woods.',
+          type: 'combat',
+          triggered: false,
+        },
+        {
+          id: 'strawman_ambush',
+          name: 'Strawman Ambush',
+          description: 'Twisted arguments take physical form and attack unsuspecting travelers.',
+          type: 'combat',
+          triggered: false,
+        },
       ],
     },
     cave: {
       id: 'cave',
-      name: 'Iron Ore Cave',
-      description: 'A deep cave rich with iron ore deposits.',
+      name: 'Crystal Caverns',
+      description: 'Deep caverns filled with glowing crystals that reflect philosophical truths.',
       type: 'cave',
-      connections: ['forest'],
+      connections: ['forest', 'underground_lake'],
+      mapImage: '/maps/map03.jpg',
+      coordinates: { x: 2, y: 0 },
       npcs: [],
-      resources: ['iron_ore'],
-      events: [],
+      resources: ['crystal_wisdom', 'iron_ore'],
+      events: [
+        {
+          id: 'crystal_meditation',
+          name: 'Crystal Meditation Chamber',
+          description: 'Ancient crystals that enhance philosophical understanding.',
+          type: 'philosophical_dilemma',
+          triggered: false,
+        },
+        {
+          id: 'circular_reasoning_demon',
+          name: 'Demon of Circular Logic',
+          description: 'A demon trapped in the crystal caves, endlessly reasoning in circles.',
+          type: 'combat',
+          triggered: false,
+        },
+      ],
+    },
+    ancient_ruins: {
+      id: 'ancient_ruins',
+      name: 'Ancient Philosophical Ruins',
+      description: 'Ruins of an ancient academy where philosophers once debated the nature of reality.',
+      type: 'city',
+      connections: ['forest', 'mountaintop_temple'],
+      mapImage: '/maps/map04.jpg',
+      coordinates: { x: 0, y: 1 },
+      npcs: [
+        {
+          id: 'ancient_sage',
+          name: 'Spirit of an Ancient Sage',
+          description: 'The ghostly presence of a long-dead philosopher.',
+          dialogue: [
+            {
+              id: 'sage_wisdom',
+              text: 'Truth is not found in certainty, but in the courage to question.',
+              choices: [
+                {
+                  id: 'accept_uncertainty',
+                  text: 'I embrace the uncertainty of knowledge.',
+                  philosophicalAlignment: { epistemology: 'skeptical' },
+                  outcome: { type: 'stat_change', key: 'wisdom', value: 2 },
+                },
+                {
+                  id: 'seek_certainty',
+                  text: 'There must be certain truths we can discover.',
+                  philosophicalAlignment: { epistemology: 'rationalist' },
+                  outcome: { type: 'stat_change', key: 'intelligence', value: 2 },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      resources: ['ancient_scrolls'],
+      events: [
+        {
+          id: 'philosophical_trial',
+          name: 'Trial of the Sophists',
+          description: 'Ancient mechanisms test your philosophical prowess.',
+          type: 'combat',
+          triggered: false,
+        },
+        {
+          id: 'confirmation_bias_beast',
+          name: 'Confirmation Bias Beast',
+          description: 'A creature that only sees what it wants to see lurks in the ruins.',
+          type: 'combat',
+          triggered: false,
+        },
+      ],
+    },
+    mountaintop_temple: {
+      id: 'mountaintop_temple',
+      name: 'Temple of Contemplation',
+      description: 'A serene temple atop a mountain, dedicated to deep philosophical thought.',
+      type: 'city',
+      connections: ['ancient_ruins'],
+      mapImage: '/maps/map05.png',
+      coordinates: { x: 0, y: 0 },
+      npcs: [
+        {
+          id: 'meditation_master',
+          name: 'Master of Contemplation',
+          description: 'A wise teacher who has spent decades in philosophical meditation.',
+          dialogue: [
+            {
+              id: 'meditation_teaching',
+              text: 'The mind that grasps for truth often pushes it away. What is your approach to understanding?',
+              choices: [
+                {
+                  id: 'mystical_path',
+                  text: 'Through intuition and spiritual insight.',
+                  philosophicalAlignment: { epistemology: 'mystical' },
+                  outcome: { type: 'stat_change', key: 'wisdom', value: 3 },
+                },
+                {
+                  id: 'rational_path',
+                  text: 'Through careful reasoning and logic.',
+                  philosophicalAlignment: { epistemology: 'rationalist' },
+                  outcome: { type: 'stat_change', key: 'intelligence', value: 3 },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      resources: ['meditation_herbs'],
+      events: [
+        {
+          id: 'wisdom_guardian_trial',
+          name: 'Trial of the Wisdom Guardian',
+          description: 'The temple\'s ancient guardian tests those who seek ultimate wisdom.',
+          type: 'combat',
+          triggered: false,
+        },
+      ],
+    },
+    coastal_cliffs: {
+      id: 'coastal_cliffs',
+      name: 'Windswept Coastal Cliffs',
+      description: 'Dramatic cliffs overlooking the endless ocean, where the wind carries philosophical whispers.',
+      type: 'island',
+      connections: ['fishing_town', 'underground_lake'],
+      mapImage: '/maps/map02.jpg',
+      coordinates: { x: 2, y: 2 },
+      npcs: [],
+      resources: ['sea_salt', 'philosophical_pearls'],
+      events: [
+        {
+          id: 'wind_wisdom',
+          name: 'Whispers in the Wind',
+          description: 'The coastal winds seem to carry ancient philosophical insights.',
+          type: 'philosophical_dilemma',
+          triggered: false,
+        },
+      ],
+    },
+    underground_lake: {
+      id: 'underground_lake',
+      name: 'Underground Lake of Reflection',
+      description: 'A mystical underground lake where the water reflects not just images, but truths.',
+      type: 'river',
+      connections: ['cave', 'coastal_cliffs'],
+      mapImage: '/maps/map03.jpg',
+      coordinates: { x: 2, y: 1 },
+      npcs: [],
+      resources: ['reflection_water'],
+      events: [
+        {
+          id: 'lake_reflection',
+          name: 'Gaze into the Reflecting Waters',
+          description: 'The lake shows you truths about yourself and the nature of reality.',
+          type: 'philosophical_dilemma',
+          triggered: false,
+        },
+      ],
     },
   };
 }
@@ -167,8 +361,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
 
     case 'START_COMBAT':
-      const { createPhilosophicalGoblin } = require('../utils/combatMechanics');
-      const enemy = createPhilosophicalGoblin();
+      const { createEnemyByType } = require('../utils/combatMechanics');
+      const enemy = createEnemyByType(action.payload.enemyId);
       return {
         ...state,
         combat: {

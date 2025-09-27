@@ -233,6 +233,7 @@ const tabs: { id: GameScreen; label: string }[] = [
   { id: 'exploration', label: 'Explore' },
   { id: 'character', label: 'Character' },
   { id: 'inventory', label: 'Inventory' },
+  { id: 'skills', label: 'Skills' },
   { id: 'map', label: 'Map' },
 ];
 
