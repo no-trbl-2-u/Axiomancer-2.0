@@ -12,6 +12,7 @@ import { SkillScreen } from '../components/game/SkillScreen';
 import { NodeMapScreen } from '../components/game/NodeMapScreen';
 import { SimpleNodeMap } from '../components/game/SimpleNodeMap';
 import { VisxNodeMapScreen } from '../components/game/VisxNodeMapScreen';
+import { UnifiedMapScreen } from '../components/game/UnifiedMapScreen';
 import { FishingScreen } from '../components/game/FishingScreen';
 import { GameUI } from '../components/game/GameUI';
 
@@ -53,7 +54,7 @@ export const GamePage = React.memo(() => {
       case 'skills':
         return <SkillScreen />;
       case 'map':
-        return <MapScreen />;
+        return <UnifiedMapScreen />;
       case 'dialogue':
         return <DialogueScreen />;
       default:

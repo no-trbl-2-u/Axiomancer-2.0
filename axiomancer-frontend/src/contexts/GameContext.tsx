@@ -76,7 +76,12 @@ const initialGameState: GameState = {
   },
   currentLocation: 'fishing_town',
   currentNode: 'home',
+  currentGlobalNode: 'fishing_village',
+  currentExplorationNode: undefined,
+  mapEnergy: 10,
+  maxMapEnergy: 10,
   locations: getInitialLocations(),
+  globalMap: {},
   questLog: initialQuests,
   gamePhase: 'childhood',
   story: {

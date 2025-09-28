@@ -280,7 +280,12 @@ export interface GameState {
   character: Character;
   currentLocation: string;
   currentNode?: string;
+  currentGlobalNode?: string;
+  currentExplorationNode?: string;
+  mapEnergy: number;
+  maxMapEnergy: number;
   locations: Record<string, GameLocation>;
+  globalMap: Record<string, GlobalMapNode>;
   questLog: Quest[];
   gamePhase: 'childhood' | 'labyrinth' | 'adulthood';
   story: {
