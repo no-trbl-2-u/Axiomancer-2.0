@@ -73,16 +73,24 @@ const generateLocalNodes = (areaId: string): LocalNode[] => {
   const nodeCount = 5 + Math.floor(Math.random() * 3); // 5-7 nodes
   const nodes: LocalNode[] = [];
 
+  // Forest-themed names that don't reveal the danger level
+  const forestNames = [
+    'Whispering Glade', 'Moonlit Clearing', 'Ancient Hollow', 'Mossy Grove',
+    'Twilight Path', 'Hidden Spring', 'Verdant Circle', 'Shaded Bower',
+    'Rustling Thicket', 'Serene Meadow', 'Quiet Haven', 'Emerald Dell',
+    'Misty Hollow', 'Babbling Brook', 'Shadowed Vale', 'Sunlit Copse',
+    'Peaceful Glen', 'Dappled Grove', 'Silent Pool', 'Fern Sanctuary'
+  ];
+
   for (let i = 0; i < nodeCount; i++) {
     const nodeTypes: LocalNode['type'][] = ['safe', 'event', 'combat', 'treasure'];
     const randomType = nodeTypes[Math.floor(Math.random() * nodeTypes.length)];
+    const randomName = forestNames[Math.floor(Math.random() * forestNames.length)];
 
     nodes.push({
       id: `${areaId}_node_${i}`,
-      name: `${randomType === 'safe' ? 'Safe Haven' :
-             randomType === 'event' ? 'Mysterious Event' :
-             randomType === 'combat' ? 'Dangerous Encounter' : 'Hidden Treasure'}`,
-      description: `A ${randomType} location in the ${areaId.replace('_', ' ')}.`,
+      name: randomName,
+      description: `A tranquil forest location that beckons exploration.`,
       type: randomType,
       completed: false,
       position: {
