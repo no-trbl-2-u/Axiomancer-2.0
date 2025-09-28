@@ -20,6 +20,7 @@
     "react-router-dom": "^6.15.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.1",
     "@types/bcryptjs": "^3.0.0",
     "@types/node": "^24.5.2",
     "@types/react": "^18.2.21",

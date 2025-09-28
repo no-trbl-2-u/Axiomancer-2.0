@@ -39,7 +39,7 @@ type GameAction =
 const initialGameState: GameState = {
   character: {
     id: '',
-    name: '',
+    name: '', // Empty name triggers character creation
     level: 1,
     health: 100,
     maxHealth: 100,

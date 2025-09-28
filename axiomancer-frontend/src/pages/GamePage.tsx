@@ -5,6 +5,8 @@ import { useGame } from '../contexts/GameContext';
 import { ExplorationScreen } from '../components/game/ExplorationScreen';
 import { CombatScreen } from '../components/game/CombatScreen';
 import { CharacterScreen } from '../components/game/CharacterScreen';
+import { CharacterCreationScreen } from '../components/character/CharacterCreationScreen';
+import { MainGameInterface } from '../components/game/MainGameInterface';
 import { InventoryScreen } from '../components/game/InventoryScreen';
 import { MapScreen } from '../components/game/MapScreen';
 import { DialogueScreen } from '../components/game/DialogueScreen';
@@ -33,41 +35,11 @@ const ScreenContainer = styled.div`
 export const GamePage = React.memo(() => {
   const { currentScreen, gameState } = useGame();
 
-  const renderCurrentScreen = () => {
-    // Check if current location uses node-based exploration
-    const currentLocation = gameState.locations[gameState.currentLocation];
-    const shouldUseNodeMap = currentLocation?.isNodeMap;
+  // If no character name, show character creation
+  if (!gameState.character.name) {
+    return <CharacterCreationScreen />;
+  }
 
-    switch (currentScreen) {
-      case 'exploration':
-        return shouldUseNodeMap ? <VisxNodeMapScreen /> : <ExplorationScreen />;
-      case 'node_travel':
-        return <VisxNodeMapScreen />;
-      case 'fishing':
-        return <FishingScreen />;
-      case 'combat':
-        return <CombatScreen />;
-      case 'character':
-        return <CharacterScreen />;
-      case 'inventory':
-        return <InventoryScreen />;
-      case 'skills':
-        return <SkillScreen />;
-      case 'map':
-        return <UnifiedMapScreen />;
-      case 'dialogue':
-        return <DialogueScreen />;
-      default:
-        return shouldUseNodeMap ? <VisxNodeMapScreen /> : <ExplorationScreen />;
-    }
-  };
-
-  return (
-    <GameContainer>
-      <ScreenContainer>
-        {renderCurrentScreen()}
-      </ScreenContainer>
-      <GameUI />
-    </GameContainer>
-  );
+  // Show the main game interface
+  return <MainGameInterface />;
 });

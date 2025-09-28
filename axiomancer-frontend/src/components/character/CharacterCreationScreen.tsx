@@ -3,298 +3,380 @@ import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGame } from '../../contexts/GameContext';
 
-interface Portrait {
-  id: string;
-  name: string;
-  imageUrl: string;
-  gender: 'male' | 'female' | 'non-binary';
-}
+const MALE_PORTRAITS = [
+  '/portraits/a-paladin.png',
+  '/portraits/c-begger.png',
+  '/portraits/e-rogue.png',
+  '/portraits/g-traveler.png'
+];
 
-const AVAILABLE_PORTRAITS: Portrait[] = [
-  {
-    id: 'beggar',
-    name: 'The Wandering Philosopher',
-    imageUrl: '/portraits/c-begger.png',
-    gender: 'non-binary'
-  },
-  {
-    id: 'link',
-    name: 'The Young Seeker',
-    imageUrl: '/portraits/mc-link.jpg',
-    gender: 'male'
-  },
-  {
-    id: 'father',
-    name: 'The Wise Guardian',
-    imageUrl: '/portraits/npc-father.jpg',
-    gender: 'male'
-  }
+const FEMALE_PORTRAITS = [
+  '/portraits/b-captain.png',
+  '/portraits/d-cleric.png',
+  '/portraits/f-villager.png',
+  '/portraits/h-warrior.png'
 ];
 
 const Container = styled.div`
-  width: 100%;
+  width: 100vw;
   height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+  padding: ${theme.spacing.lg};
+`;
+
+const CreationContainer = styled.div`
+  display: flex;
+  gap: ${theme.spacing.xl};
+  max-width: 1000px;
+  width: 100%;
+`;
+
+const LeftSquare = styled.div`
+  flex: 1;
+  background: ${theme.colors.background.panel};
+  border: 2px solid ${theme.colors.border.primary};
+  border-radius: ${theme.borderRadius.lg};
+  padding: ${theme.spacing.xl};
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing.lg};
+
+  h2 {
+    color: ${theme.colors.text.accent};
+    margin: 0 0 ${theme.spacing.lg} 0;
+    text-align: center;
+    font-size: 1.5rem;
+  }
+`;
+
+const RightSquare = styled.div`
+  flex: 1;
+  background: ${theme.colors.background.panel};
+  border: 2px solid ${theme.colors.border.primary};
+  border-radius: ${theme.borderRadius.lg};
+  padding: ${theme.spacing.xl};
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-  padding: ${theme.spacing.xl};
+  gap: ${theme.spacing.lg};
+
+  h2 {
+    color: ${theme.colors.text.accent};
+    margin: 0;
+    text-align: center;
+    font-size: 1.5rem;
+  }
 `;
 
-const CreationPanel = styled.div`
-  background: ${theme.colors.background.panel};
-  border: 3px solid ${theme.colors.border.primary};
-  border-radius: ${theme.borderRadius.lg};
-  padding: ${theme.spacing.xl};
-  max-width: 600px;
-  width: 100%;
-  box-shadow: ${theme.shadows.panel};
-`;
-
-const Title = styled.h1`
-  color: ${theme.colors.text.accent};
-  text-align: center;
-  margin: 0 0 ${theme.spacing.xl} 0;
-  font-size: 2.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-`;
-
-const Subtitle = styled.p`
-  color: ${theme.colors.text.secondary};
-  text-align: center;
-  margin: 0 0 ${theme.spacing.xl} 0;
-  font-size: 1.1rem;
-  line-height: 1.6;
-`;
-
-const FormSection = styled.div`
-  margin-bottom: ${theme.spacing.lg};
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
 
   label {
-    display: block;
     color: ${theme.colors.text.primary};
     font-weight: 600;
     margin-bottom: ${theme.spacing.sm};
-    font-size: 1.1rem;
+  }
+
+  input, select {
+    padding: ${theme.spacing.md};
+    border: 2px solid ${theme.colors.border.secondary};
+    border-radius: ${theme.borderRadius.md};
+    background: ${theme.colors.background.secondary};
+    color: ${theme.colors.text.primary};
+    font-size: 1rem;
+
+    &:focus {
+      outline: none;
+      border-color: ${theme.colors.primary};
+    }
   }
 `;
 
-const TextInput = styled.input`
-  width: 100%;
-  padding: ${theme.spacing.md};
-  background: ${theme.colors.background.secondary};
-  border: 2px solid ${theme.colors.border.secondary};
-  border-radius: ${theme.borderRadius.md};
-  color: ${theme.colors.text.primary};
-  font-size: 1.1rem;
-
-  &:focus {
-    outline: none;
-    border-color: ${theme.colors.primary};
-    box-shadow: 0 0 0 2px rgba(218, 165, 32, 0.2);
-  }
-
-  &::placeholder {
-    color: ${theme.colors.text.muted};
-  }
-`;
-
-const GenderSelector = styled.div`
-  display: flex;
-  gap: ${theme.spacing.md};
-  margin-bottom: ${theme.spacing.md};
-`;
-
-const GenderButton = styled.button<{ selected: boolean }>`
-  flex: 1;
-  padding: ${theme.spacing.md};
-  background: ${props => props.selected ? theme.colors.primary : theme.colors.background.secondary};
-  color: ${props => props.selected ? theme.colors.dark : theme.colors.text.primary};
-  border: 2px solid ${props => props.selected ? theme.colors.primary : theme.colors.border.secondary};
-  border-radius: ${theme.borderRadius.md};
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: ${props => props.selected ? theme.colors.accent : theme.colors.primary};
-    color: ${theme.colors.dark};
-  }
-`;
-
-const PortraitSelector = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: ${theme.spacing.md};
-`;
-
-const PortraitOption = styled.div<{ selected: boolean }>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: ${theme.spacing.md};
-  background: ${props => props.selected ? theme.colors.primary : theme.colors.background.secondary};
-  border: 2px solid ${props => props.selected ? theme.colors.primary : theme.colors.border.secondary};
-  border-radius: ${theme.borderRadius.md};
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: ${props => props.selected ? theme.colors.accent : theme.colors.primary};
-    transform: translateY(-2px);
-  }
-
+const PortraitDisplay = styled.div`
   img {
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
+    border: 3px solid ${theme.colors.border.primary};
     object-fit: cover;
-    margin-bottom: ${theme.spacing.sm};
-    border: 2px solid ${theme.colors.border.primary};
   }
 
-  span {
-    color: ${props => props.selected ? theme.colors.dark : theme.colors.text.primary};
-    font-weight: 600;
+  .placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px dashed ${theme.colors.border.secondary};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: ${theme.colors.text.secondary};
+    font-style: italic;
+  }
+`;
+
+const StatsContainer = styled.div`
+  width: 100%;
+  color: ${theme.colors.text.primary};
+
+  .age-hp-mp {
     text-align: center;
-    font-size: 0.9rem;
+    margin-bottom: ${theme.spacing.lg};
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .stat-group {
+    margin-bottom: ${theme.spacing.md};
+
+    .group-title {
+      color: ${theme.colors.text.accent};
+      font-weight: 600;
+      margin-bottom: ${theme.spacing.sm};
+      border-bottom: 1px solid ${theme.colors.border.secondary};
+      padding-bottom: ${theme.spacing.xs};
+    }
+
+    .stat-line {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: ${theme.spacing.xs};
+      font-size: 0.9rem;
+
+      .stat-name {
+        color: ${theme.colors.text.secondary};
+      }
+
+      .stat-value {
+        color: ${theme.colors.text.primary};
+        font-weight: 600;
+      }
+    }
+  }
+
+  .derived-stats {
+    margin-top: ${theme.spacing.lg};
+    padding-top: ${theme.spacing.md};
+    border-top: 2px solid ${theme.colors.border.secondary};
+
+    .derived-title {
+      color: ${theme.colors.text.accent};
+      font-weight: 600;
+      margin-bottom: ${theme.spacing.sm};
+      text-align: center;
+    }
   }
 `;
 
 const CreateButton = styled.button`
-  width: 100%;
-  padding: ${theme.spacing.lg};
-  background: ${theme.colors.success};
+  background: ${theme.colors.primary};
   color: white;
   border: none;
+  padding: ${theme.spacing.md} ${theme.spacing.xl};
   border-radius: ${theme.borderRadius.md};
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  margin-top: ${theme.spacing.xl};
+  width: 100%;
   transition: all 0.3s ease;
+  margin-top: auto;
 
   &:hover {
-    background: ${theme.colors.warning};
+    background: ${theme.colors.accent};
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 
   &:disabled {
-    background: ${theme.colors.background.secondary};
-    color: ${theme.colors.text.muted};
+    opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-    box-shadow: none;
   }
 `;
 
 export const CharacterCreationScreen: React.FC = () => {
-  const { startNewGame } = useGame();
+  console.log('NEW CHARACTER CREATION SCREEN LOADED - TWO SQUARE LAYOUT');
+  const { createCharacter } = useGame();
   const [name, setName] = useState('');
-  const [gender, setGender] = useState<'male' | 'female' | 'non-binary'>('male');
-  const [selectedPortrait, setSelectedPortrait] = useState<string>('');
+  const [gender, setGender] = useState<'male' | 'female'>('male');
+  const [selectedPortrait, setSelectedPortrait] = useState('');
 
-  // Filter portraits based on gender
-  const availablePortraits = AVAILABLE_PORTRAITS.filter(
-    portrait => portrait.gender === gender || portrait.gender === 'non-binary'
-  );
+  const availablePortraits = gender === 'male' ? MALE_PORTRAITS : FEMALE_PORTRAITS;
 
-  // Auto-select first available portrait when gender changes
-  React.useEffect(() => {
-    if (availablePortraits.length > 0 && !availablePortraits.find(p => p.id === selectedPortrait)) {
-      setSelectedPortrait(availablePortraits[0].id);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (name.trim() && selectedPortrait) {
+      createCharacter({
+        name: name.trim(),
+        gender,
+        portrait: {
+          imageUrl: selectedPortrait,
+          description: `${gender} character portrait`
+        }
+      });
     }
-  }, [gender, availablePortraits, selectedPortrait]);
-
-  const handleCreateCharacter = () => {
-    if (!name.trim() || !selectedPortrait) return;
-
-    const selectedPortraitData = AVAILABLE_PORTRAITS.find(p => p.id === selectedPortrait);
-
-    // Create character and start game
-    startNewGame(name.trim());
-
-    // Store portrait selection in character data
-    const characterData = {
-      name: name.trim(),
-      gender,
-      portrait: selectedPortraitData
-    };
-
-    localStorage.setItem('axiomancer_character', JSON.stringify(characterData));
   };
 
-  const isFormValid = name.trim().length >= 2 && selectedPortrait;
+  const canSubmit = name.trim() && selectedPortrait;
+
+  // Starting stats
+  const bodyScore = 5;
+  const mindScore = 5;
+  const heartScore = 5;
 
   return (
     <Container>
-      <CreationPanel>
-        <Title>Create Your Philosopher</Title>
-        <Subtitle>
-          Begin your journey of wisdom and discovery. Who will you become in this world of moral choices and philosophical challenges?
-        </Subtitle>
+      <CreationContainer>
+        <LeftSquare>
+          <h2>Character Creation</h2>
 
-        <FormSection>
-          <label htmlFor="character-name">Character Name</label>
-          <TextInput
-            id="character-name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter your philosopher's name..."
-            maxLength={30}
-          />
-        </FormSection>
+          <FormGroup>
+            <label htmlFor="name">Enter Name</label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Character name"
+              autoFocus
+            />
+          </FormGroup>
 
-        <FormSection>
-          <label>Gender</label>
-          <GenderSelector>
-            <GenderButton
-              selected={gender === 'male'}
-              onClick={() => setGender('male')}
+          <FormGroup>
+            <label htmlFor="gender">Enter Gender</label>
+            <select
+              id="gender"
+              value={gender}
+              onChange={(e) => setGender(e.target.value as 'male' | 'female')}
             >
-              Male
-            </GenderButton>
-            <GenderButton
-              selected={gender === 'female'}
-              onClick={() => setGender('female')}
-            >
-              Female
-            </GenderButton>
-            <GenderButton
-              selected={gender === 'non-binary'}
-              onClick={() => setGender('non-binary')}
-            >
-              Non-Binary
-            </GenderButton>
-          </GenderSelector>
-        </FormSection>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </FormGroup>
 
-        <FormSection>
-          <label>Choose Your Portrait</label>
-          <PortraitSelector>
-            {availablePortraits.map((portrait) => (
-              <PortraitOption
-                key={portrait.id}
-                selected={selectedPortrait === portrait.id}
-                onClick={() => setSelectedPortrait(portrait.id)}
-              >
-                <img src={portrait.imageUrl} alt={portrait.name} />
-                <span>{portrait.name}</span>
-              </PortraitOption>
-            ))}
-          </PortraitSelector>
-        </FormSection>
+          <FormGroup>
+            <label htmlFor="portrait">Portrait Dropdown</label>
+            <select
+              id="portrait"
+              value={selectedPortrait}
+              onChange={(e) => setSelectedPortrait(e.target.value)}
+            >
+              <option value="">Select portrait...</option>
+              {availablePortraits.map((portrait) => (
+                <option key={portrait} value={portrait}>
+                  {portrait.split('/').pop()?.replace('.png', '').replace(/-/g, ' ')}
+                </option>
+              ))}
+            </select>
+          </FormGroup>
 
-        <CreateButton
-          onClick={handleCreateCharacter}
-          disabled={!isFormValid}
-        >
-          Begin Your Philosophical Journey
-        </CreateButton>
-      </CreationPanel>
+          <CreateButton type="submit" disabled={!canSubmit} onClick={handleSubmit}>
+            Begin Your Philosophical Journey
+          </CreateButton>
+        </LeftSquare>
+
+        <RightSquare>
+          <h2>Character Preview</h2>
+
+          <PortraitDisplay>
+            {selectedPortrait ? (
+              <img src={selectedPortrait} alt="Character portrait" />
+            ) : (
+              <div className="placeholder">
+                Select Portrait
+              </div>
+            )}
+          </PortraitDisplay>
+
+          <StatsContainer>
+            <div className="age-hp-mp">
+              Age: 10 • 50 HP • 20 MP
+            </div>
+
+            <div className="stat-group">
+              <div className="group-title">Body Stats</div>
+              <div className="stat-line">
+                <span className="stat-name">Body</span>
+                <span className="stat-value">{bodyScore}</span>
+              </div>
+              <div className="stat-line">
+                <span className="stat-name">Phys Atk</span>
+                <span className="stat-value">1</span>
+              </div>
+              <div className="stat-line">
+                <span className="stat-name">Phys Def</span>
+                <span className="stat-value">1</span>
+              </div>
+              <div className="stat-line">
+                <span className="stat-name">Constitution Save</span>
+                <span className="stat-value">1</span>
+              </div>
+            </div>
+
+            <div className="stat-group">
+              <div className="group-title">Mind Stats</div>
+              <div className="stat-line">
+                <span className="stat-name">Mind</span>
+                <span className="stat-value">{mindScore}</span>
+              </div>
+              <div className="stat-line">
+                <span className="stat-name">Mental Atk</span>
+                <span className="stat-value">1</span>
+              </div>
+              <div className="stat-line">
+                <span className="stat-name">Mental Def</span>
+                <span className="stat-value">1</span>
+              </div>
+              <div className="stat-line">
+                <span className="stat-name">Reflex Save</span>
+                <span className="stat-value">1</span>
+              </div>
+            </div>
+
+            <div className="stat-group">
+              <div className="group-title">Heart Stats</div>
+              <div className="stat-line">
+                <span className="stat-name">Heart</span>
+                <span className="stat-value">{heartScore}</span>
+              </div>
+              <div className="stat-line">
+                <span className="stat-name">Ailment Atk</span>
+                <span className="stat-value">1</span>
+              </div>
+              <div className="stat-line">
+                <span className="stat-name">Ailment Def</span>
+                <span className="stat-value">1</span>
+              </div>
+              <div className="stat-line">
+                <span className="stat-name">Critical Chance</span>
+                <span className="stat-value">1</span>
+              </div>
+              <div className="stat-line">
+                <span className="stat-name">Will Save</span>
+                <span className="stat-value">1</span>
+              </div>
+            </div>
+
+            <div className="derived-stats">
+              <div className="derived-title">Derived Stats</div>
+              <div className="stat-line">
+                <span className="stat-name">Accuracy</span>
+                <span className="stat-value">{bodyScore + mindScore}</span>
+              </div>
+              <div className="stat-line">
+                <span className="stat-name">Evasion</span>
+                <span className="stat-value">{mindScore + heartScore}</span>
+              </div>
+              <div className="stat-line">
+                <span className="stat-name">Luck</span>
+                <span className="stat-value">{bodyScore + heartScore}</span>
+              </div>
+            </div>
+          </StatsContainer>
+        </RightSquare>
+      </CreationContainer>
     </Container>
   );
 };
