@@ -230,7 +230,7 @@ export const CharacterCreationScreen: React.FC = () => {
     <Container>
       <CreationContainer>
         <LeftSquare>
-          <h2>Character Creation</h2>
+          <h2>Character Creation - UPDATED {new Date().toLocaleTimeString()}</h2>
 
           <FormGroup>
             <label htmlFor="name">Enter Name</label>
