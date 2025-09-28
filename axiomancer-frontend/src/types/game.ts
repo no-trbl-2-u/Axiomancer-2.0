@@ -1,3 +1,37 @@
+export interface CharacterPortrait {
+  imageUrl: string;
+  description: string;
+}
+
+export interface BaseStats {
+  heart: number;
+  body: number;
+  mind: number;
+}
+
+export interface DerivedStats {
+  // Body-derived stats
+  physicalAttack: number;
+  physicalDefense: number;
+  constitutionSave: number;
+
+  // Mind-derived stats
+  mindAttack: number;
+  mindDefense: number;
+  reflexSave: number;
+  perception: number;
+
+  // Heart-derived stats
+  ailmentAttack: number;
+  ailmentDefense: number;
+  willSave: number;
+
+  // Shared stats
+  evasion: number;
+  accuracy: number;
+  luck: number;
+}
+
 export interface Character {
   id: string;
   name: string;
@@ -6,14 +40,10 @@ export interface Character {
   maxHealth: number;
   mana: number;
   maxMana: number;
-  stats: {
-    strength: number;
-    constitution: number;
-    wisdom: number;
-    intelligence: number;
-    dexterity: number;
-    charisma: number;
-  };
+  portrait?: CharacterPortrait;
+  baseStats: BaseStats;
+  derivedStats: DerivedStats;
+  availableStatPoints: number;
   skills: Skill[];
   equipment: Equipment[];
   inventory: Item[];
@@ -195,9 +225,10 @@ export interface ChoiceRequirement {
 }
 
 export interface ChoiceOutcome {
-  type: 'stat_change' | 'item_gain' | 'item_loss' | 'health_change' | 'stance_change';
-  key: string;
-  value: number | string;
+  type: 'stat_change' | 'item_gain' | 'item_loss' | 'health_change' | 'stance_change' | 'unlock_progression';
+  key?: string;
+  value?: number | string;
+  description?: string;
 }
 
 export interface GameEvent {

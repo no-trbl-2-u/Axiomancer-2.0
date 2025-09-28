@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGame } from '../../contexts/GameContext';
+import { EventModal } from './EventModal';
+import { saveCharacter } from '../../utils/characterSave';
 
 interface GlobalArea {
   id: string;
@@ -17,9 +19,14 @@ interface LocalNode {
   id: string;
   name: string;
   description: string;
-  type: 'safe' | 'event' | 'combat' | 'treasure';
+  type: 'start' | 'resource' | 'encounter' | 'person' | 'event' | 'boss' | 'exit' | 'explore' | 'building';
   completed: boolean;
+  visited: boolean;
+  unlocked: boolean;
   position: { x: number; y: number };
+  icon?: string;
+  eventType?: 'moral' | 'gathering' | 'rest' | 'combat';
+  connections?: string[];
 }
 
 const GLOBAL_AREAS: GlobalArea[] = [
@@ -69,38 +76,12 @@ const GLOBAL_AREAS: GlobalArea[] = [
   }
 ];
 
-const generateLocalNodes = (areaId: string): LocalNode[] => {
-  const nodeCount = 5 + Math.floor(Math.random() * 3); // 5-7 nodes
-  const nodes: LocalNode[] = [];
-
-  // Forest-themed names that don't reveal the danger level
-  const forestNames = [
-    'Whispering Glade', 'Moonlit Clearing', 'Ancient Hollow', 'Mossy Grove',
-    'Twilight Path', 'Hidden Spring', 'Verdant Circle', 'Shaded Bower',
-    'Rustling Thicket', 'Serene Meadow', 'Quiet Haven', 'Emerald Dell',
-    'Misty Hollow', 'Babbling Brook', 'Shadowed Vale', 'Sunlit Copse',
-    'Peaceful Glen', 'Dappled Grove', 'Silent Pool', 'Fern Sanctuary'
-  ];
-
-  for (let i = 0; i < nodeCount; i++) {
-    const nodeTypes: LocalNode['type'][] = ['safe', 'event', 'combat', 'treasure'];
-    const randomType = nodeTypes[Math.floor(Math.random() * nodeTypes.length)];
-    const randomName = forestNames[Math.floor(Math.random() * forestNames.length)];
-
-    nodes.push({
-      id: `${areaId}_node_${i}`,
-      name: randomName,
-      description: `A tranquil forest location that beckons exploration.`,
-      type: randomType,
-      completed: false,
-      position: {
-        x: 50 + (Math.cos(i * 2 * Math.PI / nodeCount) * 30),
-        y: 50 + (Math.sin(i * 2 * Math.PI / nodeCount) * 30)
-      }
-    });
-  }
-
-  return nodes;
+const assignRandomEventType = (): 'moral' | 'gathering' | 'rest' | 'combat' => {
+  const rand = Math.random();
+  if (rand < 0.30) return 'combat';
+  if (rand < 0.55) return 'moral';
+  if (rand < 0.80) return 'gathering';
+  return 'rest';
 };
 
 const Container = styled.div`
@@ -224,34 +205,77 @@ const LocalMapContainer = styled.div`
   overflow: hidden;
 `;
 
-const LocalNode = styled.div<{ nodeType: LocalNode['type']; completed: boolean }>`
+const ConnectionLines = styled.svg`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+`;
+
+const ConnectionLine = styled.line<{ isActive: boolean }>`
+  stroke: ${props => props.isActive ? '#10b981' : theme.colors.gray[600]};
+  stroke-width: ${props => props.isActive ? '4px' : '2px'};
+  stroke-dasharray: ${props => props.isActive ? 'none' : '5,5'};
+  opacity: ${props => props.isActive ? 0.9 : 0.4};
+  transition: all 0.3s ease;
+  filter: ${props => props.isActive ? 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.8))' : 'none'};
+`;
+
+const LocalNodeElement = styled.div<{ nodeType: string; completed: boolean; visited: boolean; unlocked: boolean }>`
   position: absolute;
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: ${props =>
-    props.completed ? theme.colors.success :
-    props.nodeType === 'safe' ? theme.colors.info :
-    props.nodeType === 'event' ? theme.colors.warning :
-    props.nodeType === 'combat' ? theme.colors.danger :
-    theme.colors.primary
-  };
-  border: 2px solid ${theme.colors.border.primary};
+  background: ${props => {
+    if (props.completed) return theme.colors.success;
+    if (props.nodeType === 'person' || props.nodeType === 'start') return theme.colors.info;
+    if (props.visited) {
+      // Show different colors based on discovered event type
+      return theme.colors.warning;
+    }
+    // Unexplored nodes
+    return theme.colors.gray[600];
+  }};
+  border: 3px solid ${props => {
+    if (props.unlocked && props.nodeType !== 'person' && props.nodeType !== 'start') {
+      return '#10b981'; // Green border for unlocked nodes
+    }
+    if (props.nodeType === 'person' || props.nodeType === 'start') {
+      return theme.colors.border.primary;
+    }
+    return theme.colors.gray[500];
+  }};
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
   transform: translate(-50%, -50%);
+  box-shadow: ${props => {
+    if (props.unlocked && props.nodeType !== 'person' && props.nodeType !== 'start') {
+      return '0 0 8px rgba(16, 185, 129, 0.6)';
+    }
+    return 'none';
+  }};
 
   &:hover {
     transform: translate(-50%, -50%) scale(1.2);
     z-index: 10;
+    box-shadow: ${props => {
+      if (props.unlocked && props.nodeType !== 'person' && props.nodeType !== 'start') {
+        return '0 0 12px rgba(16, 185, 129, 0.8)';
+      }
+      return '0 0 8px rgba(255, 255, 255, 0.4)';
+    }};
   }
 
   .icon {
     color: white;
     font-size: 1.2rem;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
   }
 `;
 
@@ -307,17 +331,23 @@ const ProgressBar = styled.div`
 `;
 
 export const GlobalLocalMapScreen: React.FC = () => {
-  const { gameState, changeScreen } = useGame();
-  const [selectedArea, setSelectedArea] = useState<string>('fishing_village');
-  const [localNodes, setLocalNodes] = useState<LocalNode[]>([]);
+  const { gameState, changeScreen, moveToNode, updateStory, unlockNode, unlockGuardianProgression } = useGame();
+  const [selectedArea, setSelectedArea] = useState<string>('fishing_town');
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-
-  // Generate local nodes when area is selected
-  useEffect(() => {
-    if (selectedArea) {
-      setLocalNodes(generateLocalNodes(selectedArea));
-    }
-  }, [selectedArea]);
+  
+  // Event modal state
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [currentEventType, setCurrentEventType] = useState<'combat' | 'moral' | 'gathering' | 'rest'>('combat');
+  const [currentNodeId, setCurrentNodeId] = useState<string>('');
+  
+  // Get nodes from game context
+  const currentLocation = gameState.locations[selectedArea];
+  const localNodes: LocalNode[] = currentLocation?.nodes?.map(node => ({
+    ...node,
+    completed: node.visited && node.type !== 'person', // persons can be revisited
+    eventType: (node as any).eventType, // Will be assigned on first visit
+    connections: node.connections || []
+  })) || [];
 
   const handleAreaSelect = (areaId: string) => {
     const area = GLOBAL_AREAS.find(a => a.id === areaId);
@@ -326,43 +356,106 @@ export const GlobalLocalMapScreen: React.FC = () => {
     }
   };
 
-  const handleNodeClick = (node: LocalNode) => {
-    if (node.completed) return;
-
-    // Trigger random event based on node type
-    switch (node.type) {
-      case 'combat':
-        changeScreen('combat');
-        break;
-      case 'event':
-        // Could trigger philosophical dilemma
-        changeScreen('exploration');
-        break;
-      case 'treasure':
-        // Could give items
-        alert(`You found treasure: Ancient Scroll of Wisdom!`);
-        break;
-      case 'safe':
-        alert(`You rest safely and restore 10 health.`);
-        break;
+  const handleNodeClick = async (node: LocalNode) => {
+    // Check if node is accessible
+    if (!node.unlocked && node.type !== 'person' && node.type !== 'start') {
+      alert('This path is not yet accessible.');
+      return;
     }
+    
+    // Handle guardian/person nodes
+    if (node.type === 'person') {
+      if (node.id === 'guardian') {
+        // Show guardian dialogue in modal
+        setCurrentEventType('moral'); // Use moral type for dialogue
+        setCurrentNodeId(node.id);
+        setShowEventModal(true);
+      }
+      moveToNode(node.id);
+      return;
+    }
+    
+    // Check if player has Basic Reasoning skill for other events
+    const talkedToGuardian = gameState.story.talkedToGuardian;
+    console.log('🔍 Story check - talkedToGuardian:', talkedToGuardian);
+    console.log('🔍 Character skills:', gameState.character.skills);
+    
+    if (!talkedToGuardian) {
+      // Show modal instead of alert
+      setCurrentEventType('moral');
+      setCurrentNodeId('need_guardian');
+      setShowEventModal(true);
+      return;
+    }
+    
+    // Handle revisiting completed nodes
+    if (node.completed) {
+      const revisitChance = Math.random();
+      if (revisitChance < 0.75) {
+        // Show "nothing here" modal instead of alert
+        setCurrentEventType('rest'); // Use rest type for "nothing here" message
+        setCurrentNodeId(node.id + '_empty');
+        setShowEventModal(true);
+        return;
+      } else {
+        // 25% chance of combat when revisiting
+        setCurrentEventType('combat');
+        setCurrentNodeId(node.id);
+        setShowEventModal(true);
+        return;
+      }
+    }
+    
+    // First time visiting - assign random event type if not already assigned
+    let eventType = (node as any).eventType;
+    if (!eventType) {
+      eventType = assignRandomEventType();
+      // TODO: Update the node in game state with this event type
+    }
+    
+    // Handle different event types in modal
+    setCurrentEventType(eventType);
+    setCurrentNodeId(node.id);
+    setShowEventModal(true);
+    
+    // Mark node as visited and unlock connected nodes
+    moveToNode(node.id);
 
-    // Mark node as completed
-    setLocalNodes(prev => prev.map(n =>
-      n.id === node.id ? { ...n, completed: true } : n
-    ));
+    // Unlock connected nodes
+    node.connections?.forEach(connectionId => {
+      const targetNode = localNodes.find(n => n.id === connectionId);
+      if (targetNode) {
+        unlockNode(selectedArea, connectionId);
+      }
+    });
+
+    // Auto-save after node completion
+    console.log('💾 Auto-saving after node interaction:', node.id);
+    await saveCharacter(gameState);
   };
 
-  const getNodeIcon = (type: LocalNode['type'], completed: boolean) => {
-    if (completed) return '✅';
-
-    switch (type) {
-      case 'safe': return '🏠';
-      case 'event': return '❓';
-      case 'combat': return '⚔️';
-      case 'treasure': return '💎';
-      default: return '❓';
+  const getNodeIcon = (node: LocalNode) => {
+    // Guardian/starting nodes show their actual icon
+    if (node.type === 'person' || node.type === 'start') {
+      return node.icon || '👨‍🏫';
     }
+    
+    // Completed nodes show checkmark
+    if (node.completed) return '✅';
+    
+    // Visited nodes show their actual event type icon
+    if (node.visited && node.eventType) {
+      switch (node.eventType) {
+        case 'combat': return '⚔️';
+        case 'moral': return '💭';
+        case 'gathering': return '🌾';
+        case 'rest': return '🏕️';
+        default: return '❓';
+      }
+    }
+    
+    // Unvisited nodes show ?
+    return '❓';
   };
 
   const selectedAreaData = GLOBAL_AREAS.find(a => a.id === selectedArea);
@@ -403,26 +496,53 @@ export const GlobalLocalMapScreen: React.FC = () => {
         {selectedArea ? (
           <>
             <LocalMapContainer>
+              {/* Connection Lines */}
+              <ConnectionLines>
+                {localNodes.map((node) => 
+                  node.connections?.map((connectionId) => {
+                    const targetNode = localNodes.find(n => n.id === connectionId);
+                    if (!targetNode) return null;
+                    
+                    const isActive = node.unlocked && targetNode.unlocked;
+                    
+                    return (
+                      <ConnectionLine
+                        key={`${node.id}-${connectionId}`}
+                        x1={`${node.position.x}%`}
+                        y1={`${node.position.y}%`}
+                        x2={`${targetNode.position.x}%`}
+                        y2={`${targetNode.position.y}%`}
+                        isActive={isActive}
+                      />
+                    );
+                  })
+                ).flat()}
+              </ConnectionLines>
+              
+              {/* Nodes */}
               {localNodes.map((node) => (
-                <LocalNode
+                <LocalNodeElement
                   key={node.id}
                   nodeType={node.type}
                   completed={node.completed}
+                  visited={node.visited}
+                  unlocked={node.unlocked}
                   style={{
                     left: `${node.position.x}%`,
-                    top: `${node.position.y}%`
+                    top: `${node.position.y}%`,
+                    zIndex: 2
                   }}
                   onClick={() => handleNodeClick(node)}
                   onMouseEnter={() => setHoveredNode(node.id)}
                   onMouseLeave={() => setHoveredNode(null)}
                 >
                   <div className="icon">
-                    {getNodeIcon(node.type, node.completed)}
+                    {getNodeIcon(node)}
                   </div>
                   <NodeTooltip show={hoveredNode === node.id}>
-                    {node.name}
+                    {node.visited || node.type === 'person' || node.type === 'start' ? node.name : 'Unknown Location'}
                   </NodeTooltip>
-                </LocalNode>
+                </LocalNodeElement>
               ))}
             </LocalMapContainer>
 
@@ -442,6 +562,28 @@ export const GlobalLocalMapScreen: React.FC = () => {
           </div>
         )}
       </LocalMapSection>
-    </Container>
-  );
+        
+          {/* Event Modal */}
+        <EventModal
+          isOpen={showEventModal}
+          eventType={currentEventType}
+          nodeId={currentNodeId}
+          onClose={() => {
+            setShowEventModal(false);
+            // Mark node as visited and unlock connected nodes after event
+            const node = localNodes.find(n => n.id === currentNodeId);
+            if (node && !node.visited) {
+              moveToNode(node.id);
+              // Unlock connected nodes
+              node.connections?.forEach(connectionId => {
+                const targetNode = localNodes.find(n => n.id === connectionId);
+                if (targetNode) {
+                  unlockNode(selectedArea, connectionId);
+                }
+              });
+            }
+          }}
+        />
+      </Container>
+    );
 };

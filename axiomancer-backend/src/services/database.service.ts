@@ -60,18 +60,51 @@ export class DatabaseService {
       )
     `;
 
+    const createCharacterStatesTable = `
+      CREATE TABLE IF NOT EXISTS character_states (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        character_data TEXT NOT NULL,
+        current_location TEXT NOT NULL,
+        current_node TEXT NOT NULL,
+        story_data TEXT NOT NULL,
+        inventory_data TEXT NOT NULL,
+        locations_data TEXT NOT NULL,
+        quest_log_data TEXT NOT NULL,
+        map_energy INTEGER DEFAULT 100,
+        max_map_energy INTEGER DEFAULT 100,
+        game_phase TEXT DEFAULT 'exploration',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      )
+    `;
+
     if (this.sqliteDb) {
       return new Promise((resolve, reject) => {
         this.sqliteDb!.run(createUsersTable, (err) => {
-          if (err) reject(err);
-          else resolve();
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          this.sqliteDb!.run(createCharacterStatesTable, (err) => {
+            if (err) reject(err);
+            else resolve();
+          });
         });
       });
     } else if (this.pgPool) {
       const pgCreateUsersTable = createUsersTable
         .replace('INTEGER PRIMARY KEY AUTOINCREMENT', 'SERIAL PRIMARY KEY')
         .replace('DATETIME', 'TIMESTAMP');
+
+      const pgCreateCharacterStatesTable = createCharacterStatesTable
+        .replace('INTEGER PRIMARY KEY AUTOINCREMENT', 'SERIAL PRIMARY KEY')
+        .replace('DATETIME', 'TIMESTAMP');
+
       await this.pgPool.query(pgCreateUsersTable);
+      await this.pgPool.query(pgCreateCharacterStatesTable);
     }
   }
 
@@ -170,6 +203,176 @@ export class DatabaseService {
       lastName: row.last_name,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
+    };
+  }
+
+  static async saveCharacterState(userId: number, characterState: any): Promise<void> {
+    const {
+      character,
+      currentLocation,
+      currentNode,
+      story,
+      inventory,
+      locations,
+      questLog,
+      mapEnergy,
+      maxMapEnergy,
+      gamePhase
+    } = characterState;
+
+    if (this.sqliteDb) {
+      return new Promise((resolve, reject) => {
+        // First check if character state exists
+        this.sqliteDb!.get(
+          'SELECT id FROM character_states WHERE user_id = ?',
+          [userId],
+          (err, row) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+
+            const query = row
+              ? `UPDATE character_states SET
+                   character_data = ?,
+                   current_location = ?,
+                   current_node = ?,
+                   story_data = ?,
+                   inventory_data = ?,
+                   locations_data = ?,
+                   quest_log_data = ?,
+                   map_energy = ?,
+                   max_map_energy = ?,
+                   game_phase = ?,
+                   updated_at = CURRENT_TIMESTAMP
+                 WHERE user_id = ?`
+              : `INSERT INTO character_states (
+                   character_data, current_location, current_node, story_data,
+                   inventory_data, locations_data, quest_log_data, map_energy,
+                   max_map_energy, game_phase, user_id
+                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+            const params = [
+              JSON.stringify(character),
+              currentLocation,
+              currentNode,
+              JSON.stringify(story),
+              JSON.stringify(inventory),
+              JSON.stringify(locations),
+              JSON.stringify(questLog),
+              mapEnergy,
+              maxMapEnergy,
+              gamePhase,
+              userId
+            ];
+
+            this.sqliteDb!.run(query, params, (err) => {
+              if (err) reject(err);
+              else resolve();
+            });
+          }
+        );
+      });
+    } else if (this.pgPool) {
+      // Check if character state exists
+      const existing = await this.pgPool.query(
+        'SELECT id FROM character_states WHERE user_id = $1',
+        [userId]
+      );
+
+      if (existing.rows.length > 0) {
+        // Update existing
+        await this.pgPool.query(
+          `UPDATE character_states SET
+             character_data = $1, current_location = $2, current_node = $3,
+             story_data = $4, inventory_data = $5, locations_data = $6,
+             quest_log_data = $7, map_energy = $8, max_map_energy = $9,
+             game_phase = $10, updated_at = CURRENT_TIMESTAMP
+           WHERE user_id = $11`,
+          [
+            JSON.stringify(character), currentLocation, currentNode,
+            JSON.stringify(story), JSON.stringify(inventory), JSON.stringify(locations),
+            JSON.stringify(questLog), mapEnergy, maxMapEnergy, gamePhase, userId
+          ]
+        );
+      } else {
+        // Insert new
+        await this.pgPool.query(
+          `INSERT INTO character_states (
+             character_data, current_location, current_node, story_data,
+             inventory_data, locations_data, quest_log_data, map_energy,
+             max_map_energy, game_phase, user_id
+           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+          [
+            JSON.stringify(character), currentLocation, currentNode,
+            JSON.stringify(story), JSON.stringify(inventory), JSON.stringify(locations),
+            JSON.stringify(questLog), mapEnergy, maxMapEnergy, gamePhase, userId
+          ]
+        );
+      }
+    } else {
+      throw new Error('Database not initialized');
+    }
+  }
+
+  static async getCharacterState(userId: number): Promise<any | null> {
+    if (this.sqliteDb) {
+      return new Promise((resolve, reject) => {
+        this.sqliteDb!.get(
+          'SELECT * FROM character_states WHERE user_id = ?',
+          [userId],
+          (err, row) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+            resolve(row ? this.mapRowToCharacterState(row) : null);
+          }
+        );
+      });
+    } else if (this.pgPool) {
+      const result = await this.pgPool.query(
+        'SELECT * FROM character_states WHERE user_id = $1',
+        [userId]
+      );
+      return result.rows[0] ? this.mapRowToCharacterState(result.rows[0]) : null;
+    }
+
+    throw new Error('Database not initialized');
+  }
+
+  static async deleteCharacterState(userId: number): Promise<void> {
+    if (this.sqliteDb) {
+      return new Promise((resolve, reject) => {
+        this.sqliteDb!.run(
+          'DELETE FROM character_states WHERE user_id = ?',
+          [userId],
+          (err) => {
+            if (err) reject(err);
+            else resolve();
+          }
+        );
+      });
+    } else if (this.pgPool) {
+      await this.pgPool.query('DELETE FROM character_states WHERE user_id = $1', [userId]);
+    } else {
+      throw new Error('Database not initialized');
+    }
+  }
+
+  private static mapRowToCharacterState(row: any): any {
+    return {
+      character: JSON.parse(row.character_data),
+      currentLocation: row.current_location,
+      currentNode: row.current_node,
+      story: JSON.parse(row.story_data),
+      inventory: JSON.parse(row.inventory_data),
+      locations: JSON.parse(row.locations_data),
+      questLog: JSON.parse(row.quest_log_data),
+      mapEnergy: row.map_energy,
+      maxMapEnergy: row.max_map_energy,
+      gamePhase: row.game_phase,
+      savedAt: new Date(row.updated_at).getTime()
     };
   }
 }

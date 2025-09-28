@@ -1,21 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
+import { useNavigate } from 'react-router-dom';
 import { theme } from '../../styles/theme';
 import { useGame } from '../../contexts/GameContext';
-
-const MALE_PORTRAITS = [
-  '/portraits/a-paladin.png',
-  '/portraits/c-begger.png',
-  '/portraits/e-rogue.png',
-  '/portraits/g-traveler.png'
-];
-
-const FEMALE_PORTRAITS = [
-  '/portraits/b-captain.png',
-  '/portraits/d-cleric.png',
-  '/portraits/f-villager.png',
-  '/portraits/h-warrior.png'
-];
+import { loadAvailablePortraits, getFallbackPortraits, Portrait } from '../../utils/portraitLoader';
 
 const Container = styled.div`
   width: 100vw;
@@ -199,11 +187,36 @@ const CreateButton = styled.button`
 export const CharacterCreationScreen: React.FC = () => {
   console.log('NEW CHARACTER CREATION SCREEN LOADED - TWO SQUARE LAYOUT');
   const { createCharacter } = useGame();
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [gender, setGender] = useState<'male' | 'female'>('male');
   const [selectedPortrait, setSelectedPortrait] = useState('');
+  const [portraits, setPortraits] = useState<{male: Portrait[], female: Portrait[]}>({ male: [], female: [] });
+  const [portraitsLoading, setPortraitsLoading] = useState(true);
 
-  const availablePortraits = gender === 'male' ? MALE_PORTRAITS : FEMALE_PORTRAITS;
+  // Load available portraits dynamically
+  useEffect(() => {
+    const loadPortraits = async () => {
+      try {
+        const availablePortraits = await loadAvailablePortraits();
+        if (availablePortraits.male.length > 0 || availablePortraits.female.length > 0) {
+          setPortraits(availablePortraits);
+        } else {
+          // Fallback to hardcoded portraits if none found
+          setPortraits(getFallbackPortraits());
+        }
+      } catch (error) {
+        console.error('Failed to load portraits, using fallback:', error);
+        setPortraits(getFallbackPortraits());
+      } finally {
+        setPortraitsLoading(false);
+      }
+    };
+
+    loadPortraits();
+  }, []);
+
+  const availablePortraits = portraits[gender] || [];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -216,6 +229,7 @@ export const CharacterCreationScreen: React.FC = () => {
           description: `${gender} character portrait`
         }
       });
+      navigate('/game');
     }
   };
 
@@ -262,18 +276,21 @@ export const CharacterCreationScreen: React.FC = () => {
               id="portrait"
               value={selectedPortrait}
               onChange={(e) => setSelectedPortrait(e.target.value)}
+              disabled={portraitsLoading}
             >
-              <option value="">Select portrait...</option>
+              <option value="">
+                {portraitsLoading ? 'Loading portraits...' : 'Select portrait...'}
+              </option>
               {availablePortraits.map((portrait) => (
-                <option key={portrait} value={portrait}>
-                  {portrait.split('/').pop()?.replace('.png', '').replace(/-/g, ' ')}
+                <option key={portrait.id} value={portrait.imageUrl}>
+                  {portrait.name}
                 </option>
               ))}
             </select>
           </FormGroup>
 
-          <CreateButton type="submit" disabled={!canSubmit} onClick={handleSubmit}>
-            Begin Your Philosophical Journey
+          <CreateButton type="submit" disabled={!canSubmit || portraitsLoading} onClick={handleSubmit}>
+            {portraitsLoading ? 'Loading...' : 'Begin Your Philosophical Journey'}
           </CreateButton>
         </LeftSquare>
 

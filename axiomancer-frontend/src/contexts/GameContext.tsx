@@ -1,12 +1,21 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { GameState, Character, GameLocation, Quest, CombatState, GameScreen } from '../types/game';
+import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, CharacterPortrait } from '../types/game';
 import { initialQuests } from '../utils/questSystem';
 import { createEnemyByType } from '../utils/combatMechanics';
+import { loadCharacter } from '../utils/characterSave';
+
+interface CreateCharacterData {
+  name: string;
+  gender: 'male' | 'female';
+  portrait: CharacterPortrait;
+}
 
 interface GameContextType {
   gameState: GameState;
   currentScreen: GameScreen;
   startNewGame: (characterName: string) => void;
+  createCharacter: (characterData: CreateCharacterData) => void;
+  loadSavedCharacter: () => Promise<boolean>;
   moveToLocation: (locationId: string) => void;
   moveToNode: (nodeId: string) => void;
   updateCharacter: (updates: Partial<Character>) => void;
@@ -19,10 +28,13 @@ interface GameContextType {
   addQuest: (quest: Quest) => void;
   makePhilosophicalChoice: (choiceId: string, outcome: any) => void;
   unlockNode: (locationId: string, nodeId: string) => void;
+  unlockGuardianProgression: () => void;
 }
 
 type GameAction =
   | { type: 'START_NEW_GAME'; payload: { characterName: string } }
+  | { type: 'CREATE_CHARACTER'; payload: CreateCharacterData }
+  | { type: 'LOAD_SAVED_CHARACTER'; payload: { savedData: any } }
   | { type: 'MOVE_TO_LOCATION'; payload: { locationId: string } }
   | { type: 'MOVE_TO_NODE'; payload: { nodeId: string } }
   | { type: 'UPDATE_CHARACTER'; payload: Partial<Character> }
@@ -53,19 +65,7 @@ const initialGameState: GameState = {
       dexterity: 10,
       charisma: 10,
     },
-    skills: [
-      {
-        id: 'basic_reasoning',
-        name: 'Basic Reasoning',
-        description: 'Fundamental logical thinking skills.',
-        level: 1,
-        manaCost: 5,
-        damage: 10,
-        icon: '🤔',
-        type: 'logic',
-        philosophicalAspect: 'mind',
-      }
-    ],
+    skills: [],
     equipment: [],
     inventory: [],
     philosophicalStance: {
@@ -128,7 +128,7 @@ function getInitialLocations(): Record<string, GameLocation> {
           description: 'The cozy house where you live with your guardian.',
           type: 'start',
           position: { x: 50, y: 80 },
-          connections: ['guardian', 'docks'],
+          connections: ['guardian', 'town_square'],
           unlocked: true,
           visited: true,
           icon: '🏠'
@@ -138,8 +138,8 @@ function getInitialLocations(): Record<string, GameLocation> {
           name: 'Talk to Guardian',
           description: 'Your guardian has wisdom to share before you begin your journey.',
           type: 'person',
-          position: { x: 30, y: 60 },
-          connections: ['docks'],
+          position: { x: 30, y: 70 },
+          connections: ['town_square', 'meditation_garden'],
           unlocked: true,
           visited: false,
           event: {
@@ -151,12 +151,78 @@ function getInitialLocations(): Record<string, GameLocation> {
           icon: '👨‍🏫'
         },
         {
+          id: 'town_square',
+          name: 'Town Square',
+          description: 'The bustling center of your small fishing village.',
+          type: 'event',
+          position: { x: 50, y: 60 },
+          connections: ['home', 'guardian', 'marketplace', 'docks', 'library'],
+          unlocked: false,
+          visited: false,
+          icon: '🏛️'
+        },
+        {
+          id: 'marketplace',
+          name: 'Village Marketplace',
+          description: 'Local vendors sell goods and share wisdom.',
+          type: 'event',
+          position: { x: 70, y: 60 },
+          connections: ['town_square', 'bakery', 'smithy'],
+          unlocked: false,
+          visited: false,
+          icon: '🏪'
+        },
+        {
+          id: 'bakery',
+          name: 'Village Bakery',
+          description: 'Sweet aromas and philosophical conversations.',
+          type: 'event',
+          position: { x: 80, y: 70 },
+          connections: ['marketplace', 'old_well'],
+          unlocked: false,
+          visited: false,
+          icon: '🥖'
+        },
+        {
+          id: 'smithy',
+          name: 'Village Smithy',
+          description: 'The blacksmith forges tools and wisdom alike.',
+          type: 'event',
+          position: { x: 80, y: 50 },
+          connections: ['marketplace', 'training_ground'],
+          unlocked: false,
+          visited: false,
+          icon: '⚒️'
+        },
+        {
+          id: 'library',
+          name: 'Village Library',
+          description: 'Ancient books hold philosophical secrets.',
+          type: 'event',
+          position: { x: 30, y: 50 },
+          connections: ['town_square', 'meditation_garden', 'secret_chamber'],
+          unlocked: false,
+          visited: false,
+          icon: '📚'
+        },
+        {
+          id: 'meditation_garden',
+          name: 'Meditation Garden',
+          description: 'A peaceful place for reflection and growth.',
+          type: 'event',
+          position: { x: 20, y: 60 },
+          connections: ['guardian', 'library', 'shrine'],
+          unlocked: false,
+          visited: false,
+          icon: '🌸'
+        },
+        {
           id: 'docks',
           name: 'Town Docks',
           description: 'The wooden docks where fishing boats come and go.',
           type: 'resource',
           position: { x: 70, y: 40 },
-          connections: ['fishing_spot'],
+          connections: ['town_square', 'fishing_spot', 'lighthouse'],
           unlocked: false,
           visited: false,
           event: {
@@ -172,8 +238,8 @@ function getInitialLocations(): Record<string, GameLocation> {
           name: 'Fishing Waters',
           description: 'Rich fishing waters where you can catch fish for your journey.',
           type: 'resource',
-          position: { x: 90, y: 20 },
-          connections: ['boat_builder'],
+          position: { x: 85, y: 30 },
+          connections: ['docks', 'boat_builder', 'secret_cove'],
           unlocked: false,
           visited: false,
           event: {
@@ -186,12 +252,23 @@ function getInitialLocations(): Record<string, GameLocation> {
           icon: '🎣'
         },
         {
+          id: 'lighthouse',
+          name: 'Old Lighthouse',
+          description: 'A weathered lighthouse with mysterious engravings.',
+          type: 'event',
+          position: { x: 90, y: 40 },
+          connections: ['docks', 'clifftop_view'],
+          unlocked: false,
+          visited: false,
+          icon: '🗼'
+        },
+        {
           id: 'boat_builder',
           name: 'Boat Workshop',
           description: 'Where you can build a boat to explore beyond the town.',
           type: 'building',
-          position: { x: 50, y: 20 },
-          connections: ['forest_path'],
+          position: { x: 60, y: 20 },
+          connections: ['fishing_spot', 'shipyard', 'workshop'],
           unlocked: false,
           visited: false,
           event: {
@@ -203,12 +280,166 @@ function getInitialLocations(): Record<string, GameLocation> {
           icon: '🚤'
         },
         {
+          id: 'training_ground',
+          name: 'Training Ground',
+          description: 'Practice your philosophical combat skills.',
+          type: 'event',
+          position: { x: 90, y: 60 },
+          connections: ['smithy', 'arena'],
+          unlocked: false,
+          visited: false,
+          icon: '⚔️'
+        },
+        {
+          id: 'old_well',
+          name: 'Ancient Well',
+          description: 'An old well with strange echoes from below.',
+          type: 'event',
+          position: { x: 80, y: 80 },
+          connections: ['bakery', 'underground_tunnel'],
+          unlocked: false,
+          visited: false,
+          icon: '🕳️'
+        },
+        {
+          id: 'shrine',
+          name: 'Village Shrine',
+          description: 'A small shrine dedicated to wisdom and learning.',
+          type: 'event',
+          position: { x: 10, y: 70 },
+          connections: ['meditation_garden', 'hidden_grove'],
+          unlocked: false,
+          visited: false,
+          icon: '⛩️'
+        },
+        {
+          id: 'secret_chamber',
+          name: 'Secret Chamber',
+          description: 'A hidden room beneath the library.',
+          type: 'event',
+          position: { x: 20, y: 40 },
+          connections: ['library'],
+          unlocked: false,
+          visited: false,
+          icon: '🔒'
+        },
+        {
+          id: 'clifftop_view',
+          name: 'Clifftop Viewpoint',
+          description: 'A scenic overlook of the entire village.',
+          type: 'event',
+          position: { x: 95, y: 30 },
+          connections: ['lighthouse', 'eagle_nest'],
+          unlocked: false,
+          visited: false,
+          icon: '🏔️'
+        },
+        {
+          id: 'secret_cove',
+          name: 'Hidden Cove',
+          description: 'A secluded cove with unusual philosophical properties.',
+          type: 'event',
+          position: { x: 95, y: 20 },
+          connections: ['fishing_spot'],
+          unlocked: false,
+          visited: false,
+          icon: '🏝️'
+        },
+        {
+          id: 'arena',
+          name: 'Philosophy Arena',
+          description: 'Where young philosophers test their skills.',
+          type: 'event',
+          position: { x: 95, y: 70 },
+          connections: ['training_ground'],
+          unlocked: false,
+          visited: false,
+          icon: '🏟️'
+        },
+        {
+          id: 'shipyard',
+          name: 'Village Shipyard',
+          description: 'Where larger vessels are constructed.',
+          type: 'event',
+          position: { x: 50, y: 10 },
+          connections: ['boat_builder', 'workshop', 'harbor_master'],
+          unlocked: false,
+          visited: false,
+          icon: '🛠️'
+        },
+        {
+          id: 'workshop',
+          name: 'Artisan Workshop',
+          description: 'Craftspeople create tools and philosophical instruments.',
+          type: 'event',
+          position: { x: 40, y: 15 },
+          connections: ['boat_builder', 'shipyard'],
+          unlocked: false,
+          visited: false,
+          icon: '🔧'
+        },
+        {
+          id: 'underground_tunnel',
+          name: 'Underground Tunnel',
+          description: 'A mysterious tunnel system beneath the village.',
+          type: 'event',
+          position: { x: 70, y: 85 },
+          connections: ['old_well', 'ancient_chamber'],
+          unlocked: false,
+          visited: false,
+          icon: '🕳️'
+        },
+        {
+          id: 'hidden_grove',
+          name: 'Hidden Grove',
+          description: 'A magical grove where nature spirits dwell.',
+          type: 'event',
+          position: { x: 5, y: 80 },
+          connections: ['shrine', 'forest_path'],
+          unlocked: false,
+          visited: false,
+          icon: '🌳'
+        },
+        {
+          id: 'eagle_nest',
+          name: 'Eagle\'s Nest',
+          description: 'High perch where wise eagles make their home.',
+          type: 'event',
+          position: { x: 98, y: 15 },
+          connections: ['clifftop_view'],
+          unlocked: false,
+          visited: false,
+          icon: '🦅'
+        },
+        {
+          id: 'harbor_master',
+          name: 'Harbor Master\'s Office',
+          description: 'The harbor master keeps records of all journeys.',
+          type: 'event',
+          position: { x: 40, y: 5 },
+          connections: ['shipyard'],
+          unlocked: false,
+          visited: false,
+          icon: '📋'
+        },
+        {
+          id: 'ancient_chamber',
+          name: 'Ancient Chamber',
+          description: 'A chamber with ancient philosophical artifacts.',
+          type: 'event',
+          position: { x: 60, y: 90 },
+          connections: ['underground_tunnel'],
+          unlocked: false,
+          visited: false,
+          icon: '🏺'
+        },
+        {
           id: 'forest_path',
           name: 'Path to Forest',
           description: 'The beginning of your journey into the wider world.',
           type: 'exit',
-          position: { x: 20, y: 20 },
-          connections: [],
+          position: { x: 5, y: 90 },
+          connections: ['hidden_grove'],
           unlocked: false,
           visited: false,
           event: {
@@ -228,19 +459,25 @@ function getInitialLocations(): Record<string, GameLocation> {
           dialogue: [
             {
               id: 'guardian_intro',
-              text: 'Young one, I see the curiosity in your eyes. You wish to explore beyond our small town, don\'t you? Remember, every choice you make shapes who you become.',
+              text: 'Young one, I see the curiosity in your eyes. You wish to explore beyond our small town, don\'t you? Before you begin your journey, let me teach you the fundamental skill of reasoning. This will serve you well in the philosophical challenges ahead.',
               choices: [
                 {
-                  id: 'respect',
-                  text: 'I will be careful and honor your teachings.',
+                  id: 'learn_reasoning',
+                  text: 'Please teach me, Guardian. I am ready to learn.',
                   philosophicalAlignment: { ethics: 'virtue' },
-                  outcome: { type: 'stat_change', key: 'wisdom', value: 1 },
+                  outcome: {
+                    type: 'unlock_progression',
+                    description: 'Your guardian teaches you Basic Reasoning and encourages you to explore the village.'
+                  },
                 },
                 {
-                  id: 'independent',
-                  text: 'I need to make my own way and learn from experience.',
+                  id: 'learn_reasoning_eager',
+                  text: 'I\'m eager to begin! What should I know?',
                   philosophicalAlignment: { epistemology: 'empiricist' },
-                  outcome: { type: 'stat_change', key: 'dexterity', value: 1 },
+                  outcome: {
+                    type: 'unlock_progression',
+                    description: 'Your guardian smiles and teaches you Basic Reasoning, opening new paths for exploration.'
+                  },
                 },
               ],
             },
@@ -585,6 +822,33 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         },
       };
 
+    case 'CREATE_CHARACTER':
+      return {
+        ...initialGameState,
+        character: {
+          ...initialGameState.character,
+          id: Date.now().toString(),
+          name: action.payload.name,
+          portrait: action.payload.portrait,
+        },
+      };
+
+    case 'LOAD_SAVED_CHARACTER':
+      const savedData = action.payload.savedData;
+      return {
+        character: savedData.character,
+        currentLocation: savedData.currentLocation,
+        currentNode: savedData.currentNode,
+        story: savedData.story,
+        inventory: savedData.inventory,
+        locations: savedData.locations,
+        questLog: savedData.questLog,
+        mapEnergy: savedData.mapEnergy,
+        maxMapEnergy: savedData.maxMapEnergy,
+        gamePhase: savedData.gamePhase,
+        combat: initialGameState.combat, // Reset combat state
+      };
+
     case 'MOVE_TO_LOCATION':
       return {
         ...state,
@@ -638,20 +902,23 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
 
     case 'UNLOCK_NODE':
-      return {
+      console.log(`🔓 UNLOCK_NODE reducer: unlocking ${action.payload.nodeId} in ${action.payload.locationId}`);
+      const updatedState = {
         ...state,
         locations: {
           ...state.locations,
           [action.payload.locationId]: {
             ...state.locations[action.payload.locationId],
-            nodes: state.locations[action.payload.locationId].nodes?.map(node => 
-              node.id === action.payload.nodeId 
+            nodes: state.locations[action.payload.locationId].nodes?.map(node =>
+              node.id === action.payload.nodeId
                 ? { ...node, unlocked: true }
                 : node
             )
           }
         }
       };
+      console.log('🔓 Node unlocked, updated state:', updatedState.locations[action.payload.locationId].nodes?.find(n => n.id === action.payload.nodeId));
+      return updatedState;
 
     case 'START_COMBAT':
 
@@ -718,6 +985,29 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setCurrentScreen('exploration');
   };
 
+  const createCharacter = (characterData: CreateCharacterData) => {
+    dispatch({ type: 'CREATE_CHARACTER', payload: characterData });
+    setCurrentScreen('exploration');
+  };
+
+  const loadSavedCharacter = async (): Promise<boolean> => {
+    try {
+      const savedData = await loadCharacter();
+      if (!savedData) {
+        console.log('No saved character found');
+        return false;
+      }
+
+      console.log('Loading saved character:', savedData.character.name);
+      dispatch({ type: 'LOAD_SAVED_CHARACTER', payload: { savedData } });
+      setCurrentScreen('exploration');
+      return true;
+    } catch (error) {
+      console.error('Failed to load saved character:', error);
+      return false;
+    }
+  };
+
   const moveToLocation = (locationId: string) => {
     dispatch({ type: 'MOVE_TO_LOCATION', payload: { locationId } });
   };
@@ -740,6 +1030,50 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const unlockNode = (locationId: string, nodeId: string) => {
     dispatch({ type: 'UNLOCK_NODE', payload: { locationId, nodeId } });
+  };
+
+  const unlockGuardianProgression = () => {
+    console.log('🌟 unlockGuardianProgression() called!');
+    console.log('📍 Current Location:', gameState.currentLocation);
+
+    // Unlock Basic Reasoning skill
+    const basicReasoningSkill = {
+      id: 'basic_reasoning',
+      name: 'Basic Reasoning',
+      description: 'Fundamental logical thinking skills unlocked by your guardian.',
+      level: 1,
+      manaCost: 5,
+      damage: 10,
+      icon: '🤔',
+      type: 'logic',
+      philosophicalAspect: 'mind',
+    };
+
+    console.log('✅ Adding Basic Reasoning skill:', basicReasoningSkill);
+
+    // Update story to mark guardian as talked to
+    dispatch({ type: 'UPDATE_STORY', payload: { talkedToGuardian: true } });
+    console.log('✅ Set talkedToGuardian to true');
+
+    // Add the Basic Reasoning skill
+    dispatch({ type: 'UPDATE_CHARACTER', payload: {
+      skills: [basicReasoningSkill]
+    }});
+
+    // Unlock all nodes connected to the guardian
+    const guardianNode = gameState.locations[gameState.currentLocation]?.nodes?.find(n => n.id === 'guardian');
+    console.log('🏰 Guardian Node:', guardianNode);
+    console.log('🔗 Guardian Connections:', guardianNode?.connections);
+
+    if (guardianNode?.connections) {
+      guardianNode.connections.forEach(connectedNodeId => {
+        console.log(`🔓 Unlocking node: ${connectedNodeId}`);
+        dispatch({ type: 'UNLOCK_NODE', payload: {
+          locationId: gameState.currentLocation,
+          nodeId: connectedNodeId
+        }});
+      });
+    }
   };
 
   const startCombat = (enemyId: string) => {
@@ -774,6 +1108,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         gameState,
         currentScreen,
         startNewGame,
+        createCharacter,
+        loadSavedCharacter,
         moveToLocation,
         moveToNode,
         updateCharacter,
@@ -786,6 +1122,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         addQuest,
         makePhilosophicalChoice,
         unlockNode,
+        unlockGuardianProgression,
       }}
     >
       {children}

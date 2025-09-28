@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { authRoutes } from './routes/auth.routes';
+import { characterRoutes } from './routes/character.routes';
 import { errorHandler } from './middleware/error.middleware';
 import { DatabaseService } from './services/database.service';
 
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/character', characterRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

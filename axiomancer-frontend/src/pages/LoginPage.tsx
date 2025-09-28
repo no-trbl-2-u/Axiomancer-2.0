@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
@@ -38,24 +39,21 @@ const ErrorMessage = styled.div`
   font-size: 0.875rem;
 `;
 
-const LinkButton = styled.button`
+const StyledLink = styled(Link)`
   background: none;
   color: ${theme.colors.primary};
   text-decoration: underline;
   font-size: 0.875rem;
   text-align: center;
   margin-top: ${theme.spacing.md};
+  display: block;
   
   &:hover {
     color: ${theme.colors.secondary};
   }
 `;
 
-interface LoginPageProps {
-  onSwitchToRegister: () => void;
-}
-
-export const LoginPage = React.memo<LoginPageProps>(({ onSwitchToRegister }) => {
+export const LoginPage = React.memo(() => {
   const { login, isLoading } = useAuth();
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
@@ -111,9 +109,9 @@ export const LoginPage = React.memo<LoginPageProps>(({ onSwitchToRegister }) => 
         >
           {isLoading ? 'Signing In...' : 'Sign In'}
         </Button>
-        <LinkButton type="button" onClick={onSwitchToRegister}>
+        <StyledLink to="/register">
           Don't have an account? Sign up
-        </LinkButton>
+        </StyledLink>
       </Form>
     </LoginContainer>
   );

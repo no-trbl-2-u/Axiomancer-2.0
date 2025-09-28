@@ -4,17 +4,12 @@ import { theme } from '../../styles/theme';
 import { useGame } from '../../contexts/GameContext';
 
 // Import all our game screens
-import { ExplorationScreen } from './ExplorationScreen';
-import { ImprovedExplorationScreen } from './ImprovedExplorationScreen';
-import { CombatScreen } from './CombatScreen';
-import { FixedCombatScreen } from './FixedCombatScreen';
 import { CharacterScreen } from './CharacterScreen';
 import { InventoryScreen } from './InventoryScreen';
 import { SkillScreen } from './SkillScreen';
-import { UnifiedMapScreen } from './UnifiedMapScreen';
 import { GlobalLocalMapScreen } from './GlobalLocalMapScreen';
 
-type ActiveTab = 'explore' | 'character' | 'inventory' | 'skills' | 'map' | 'combat';
+type ActiveTab = 'character' | 'inventory' | 'skills' | 'map';
 
 const GameContainer = styled.div`
   width: 100vw;
@@ -158,7 +153,7 @@ const QuickActions = styled.div`
 
 export const MainGameInterface: React.FC = () => {
   const { gameState, currentScreen, changeScreen } = useGame();
-  const [activeTab, setActiveTab] = useState<ActiveTab>('explore');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('map');
 
   // Get character portrait from localStorage
   const characterData = JSON.parse(localStorage.getItem('axiomancer_character') || '{}');
@@ -169,12 +164,10 @@ export const MainGameInterface: React.FC = () => {
 
     // Map our tabs to game screens
     const screenMap: Record<ActiveTab, any> = {
-      explore: 'exploration',
       character: 'character',
       inventory: 'inventory',
       skills: 'skills',
-      map: 'map',
-      combat: 'combat'
+      map: 'map'
     };
 
     changeScreen(screenMap[tab]);
@@ -182,8 +175,6 @@ export const MainGameInterface: React.FC = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'explore':
-        return <ImprovedExplorationScreen />;
       case 'character':
         return <CharacterScreen />;
       case 'inventory':
@@ -192,10 +183,8 @@ export const MainGameInterface: React.FC = () => {
         return <SkillScreen />;
       case 'map':
         return <GlobalLocalMapScreen />;
-      case 'combat':
-        return <FixedCombatScreen />;
       default:
-        return <ExplorationScreen />;
+        return <GlobalLocalMapScreen />;
     }
   };
 
@@ -244,29 +233,11 @@ export const MainGameInterface: React.FC = () => {
             </div>
           </div>
         </StatsBar>
-
-        <QuickActions>
-          <button onClick={() => handleTabChange('combat')}>
-            ⚔️ Combat
-          </button>
-          <button onClick={() => console.log('Rest')}>
-            😴 Rest
-          </button>
-          <button onClick={() => console.log('Meditate')}>
-            🧘 Meditate
-          </button>
-        </QuickActions>
       </TopBar>
 
       {/* Navigation Tabs */}
       <Navigation>
-        <NavTab
-          active={activeTab === 'explore'}
-          onClick={() => handleTabChange('explore')}
-        >
-          <span className="icon">🗺️</span>
-          Explore
-        </NavTab>
+
 
         <NavTab
           active={activeTab === 'map'}

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { theme } from '../styles/theme';
 import { RegisterData } from '../types';
+import { hasExistingCharacter } from '../utils/characterSave';
 
 const RegisterContainer = styled.div`
   background: rgba(255, 255, 255, 0.95);
@@ -38,25 +40,23 @@ const ErrorMessage = styled.div`
   font-size: 0.875rem;
 `;
 
-const LinkButton = styled.button`
+const StyledLink = styled(Link)`
   background: none;
   color: ${theme.colors.primary};
   text-decoration: underline;
   font-size: 0.875rem;
   text-align: center;
   margin-top: ${theme.spacing.md};
+  display: block;
   
   &:hover {
     color: ${theme.colors.secondary};
   }
 `;
 
-interface RegisterPageProps {
-  onSwitchToLogin: () => void;
-}
-
-export const RegisterPage = React.memo<RegisterPageProps>(({ onSwitchToLogin }) => {
+export const RegisterPage = React.memo(() => {
   const { register, isLoading } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<RegisterData>({
     email: '',
     password: '',
@@ -71,6 +71,12 @@ export const RegisterPage = React.memo<RegisterPageProps>(({ onSwitchToLogin }) 
 
     try {
       await register(formData);
+      // After successful registration, redirect based on existing character
+      if (hasExistingCharacter()) {
+        navigate('/character-selection');
+      } else {
+        navigate('/character-creation');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     }
@@ -133,9 +139,9 @@ export const RegisterPage = React.memo<RegisterPageProps>(({ onSwitchToLogin }) 
         >
           {isLoading ? 'Creating Account...' : 'Create Account'}
         </Button>
-        <LinkButton type="button" onClick={onSwitchToLogin}>
+        <StyledLink to="/login">
           Already have an account? Sign in
-        </LinkButton>
+        </StyledLink>
       </Form>
     </RegisterContainer>
   );
