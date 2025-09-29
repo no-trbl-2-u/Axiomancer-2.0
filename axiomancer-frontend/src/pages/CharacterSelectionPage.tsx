@@ -401,17 +401,17 @@ export const CharacterSelectionPage: React.FC = () => {
             <div className="stats-row">
               <StatCard>
                 <div className="stat-label">Heart</div>
-                <div className="stat-value">{savedCharacter.character.stats.heart}</div>
+                <div className="stat-value">{savedCharacter.character.baseStats.heart}</div>
               </StatCard>
 
               <StatCard>
                 <div className="stat-label">Body</div>
-                <div className="stat-value">{savedCharacter.character.stats.body}</div>
+                <div className="stat-value">{savedCharacter.character.baseStats.body}</div>
               </StatCard>
 
               <StatCard>
                 <div className="stat-label">Mind</div>
-                <div className="stat-value">{savedCharacter.character.stats.mind}</div>
+                <div className="stat-value">{savedCharacter.character.baseStats.mind}</div>
               </StatCard>
             </div>
           </StatsGrid>
