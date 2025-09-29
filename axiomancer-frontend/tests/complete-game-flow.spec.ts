@@ -30,12 +30,12 @@ test.describe('Complete Axiomancer Game Flow', () => {
     await page.getByRole('button', { name: /sign in/i }).click();
     console.log('✅ Signed in successfully');
 
-    // Step 3: Character Creation (Two-Square Layout)
+    // Step 3: Character Creation (Heart/Body/Mind System)
     console.log('📍 Step 3: Character creation');
-    await expect(page.locator('h2')).toContainText('Character Creation - NEW TWO SQUARE LAYOUT!', { timeout: 15000 });
+    await expect(page.locator('h2')).toContainText('Character Creation - UPDATED', { timeout: 15000 });
     await page.screenshot({ path: 'testing-suite/screenshots/03-character-creation.png', fullPage: true });
 
-    // Verify two-square layout exists
+    // Verify Heart/Body/Mind character creation system exists
     await expect(page.locator('text=Enter Name')).toBeVisible();
     await expect(page.locator('text=Enter Gender')).toBeVisible();
     await expect(page.locator('text=Portrait Dropdown')).toBeVisible();
@@ -46,11 +46,20 @@ test.describe('Complete Axiomancer Game Flow', () => {
     await page.selectOption('select#gender', 'male');
     await page.selectOption('select#portrait', { index: 1 }); // Select first available portrait
 
-    // Verify character preview shows stats
-    await expect(page.locator('text=Age: 10 • 50 HP • 20 MP')).toBeVisible();
-    await expect(page.locator('text=Body Stats')).toBeVisible();
-    await expect(page.locator('text=Mind Stats')).toBeVisible();
-    await expect(page.locator('text=Heart Stats')).toBeVisible();
+    // Test Heart/Body/Mind stat allocation
+    await expect(page.locator('text=Stat Allocation')).toBeVisible();
+    await expect(page.locator('text=Heart:')).toBeVisible();
+    await expect(page.locator('text=Body:')).toBeVisible();
+    await expect(page.locator('text=Mind:')).toBeVisible();
+
+    // Test stat allocation buttons (increase/decrease)
+    await page.locator('[data-testid="heart-increase"]').click();
+    await page.locator('[data-testid="body-increase"]').click();
+
+    // Verify derived stats are displayed
+    await expect(page.locator('text=Physical Attack:')).toBeVisible();
+    await expect(page.locator('text=Mind Attack:')).toBeVisible();
+    await expect(page.locator('text=Ailment Attack:')).toBeVisible();
 
     await page.screenshot({ path: 'testing-suite/screenshots/04-character-filled.png', fullPage: true });
 
@@ -173,7 +182,7 @@ test.describe('Complete Axiomancer Game Flow', () => {
     await page.getByRole('button', { name: /sign in/i }).click();
 
     // Test female character creation
-    await expect(page.locator('h2')).toContainText('Character Creation - NEW TWO SQUARE LAYOUT!', { timeout: 15000 });
+    await expect(page.locator('h2')).toContainText('Character Creation - UPDATED', { timeout: 15000 });
 
     await page.fill('input#name', 'TestWoman');
     await page.selectOption('select#gender', 'female');

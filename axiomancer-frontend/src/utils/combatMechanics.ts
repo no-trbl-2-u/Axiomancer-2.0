@@ -1,4 +1,67 @@
-import { PhilosophicalAspect, CombatChoice, CombatRoundResult, Character, Enemy } from '../types/game';
+import { PhilosophicalAspect, CombatChoice, CombatRoundResult, Character, Enemy, BaseStats, DerivedStats, Skill } from '../types/game';
+import { calculateDerivedStats, calculateMaxHP, calculateMaxMP } from './statCalculations';
+import { getFallacyById } from './fallacies';
+import { createMindAttackBuff, createHeartAttackDebuff, createReflectionBuff, createCounterArgumentBuff, createForesightBuff, createBodyDefenseBuff, createMindDefenseBuff, createHeartDefenseBuff, applyBuffDebuff } from './buffDebuffEngine';
+
+/**
+ * Combat result structure for UI-agnostic combat resolution
+ */
+export interface CombatActionResult {
+  hit: boolean;
+  damage: number;
+  effects: string[];
+  buffsApplied: any[];
+  debuffsApplied: any[];
+  critical: boolean;
+  targetBuffsUpdated?: import('../types/game').CombatantBuffs;
+  attackerBuffsUpdated?: import('../types/game').CombatantBuffs;
+}
+
+/**
+ * D20 attack system utilities
+ */
+
+/**
+ * Roll a D20 die
+ */
+export function rollD20(): number {
+  return Math.floor(Math.random() * 20) + 1;
+}
+
+/**
+ * Calculate if an attack hits using D20 system
+ * Formula: D20 + (Accuracy / 10) - (Evasion / 10) >= 10
+ */
+export function calculateHitChance(
+  attackerStats: DerivedStats,
+  defenderStats: DerivedStats
+): boolean {
+  const d20Roll = rollD20();
+  const accuracyBonus = Math.floor(attackerStats.accuracy / 10);
+  const evasionPenalty = Math.floor(defenderStats.evasion / 10);
+
+  const hitRoll = d20Roll + accuracyBonus - evasionPenalty;
+
+  return hitRoll >= 10;
+}
+
+/**
+ * Check for critical hit (natural 20 or modified roll >= 25)
+ */
+export function checkCriticalHit(
+  attackerStats: DerivedStats,
+  defenderStats: DerivedStats,
+  d20Roll?: number
+): boolean {
+  const roll = d20Roll || rollD20();
+  if (roll === 20) return true; // Natural 20 is always critical
+
+  const accuracyBonus = Math.floor(attackerStats.accuracy / 10);
+  const evasionPenalty = Math.floor(defenderStats.evasion / 10);
+  const finalRoll = roll + accuracyBonus - evasionPenalty;
+
+  return finalRoll >= 25; // Very high rolls can also crit
+}
 
 /**
  * Philosophy-based rock-paper-scissors combat system
@@ -19,38 +82,247 @@ export function determineAspectWinner(playerAspect: PhilosophicalAspect, enemyAs
 }
 
 /**
- * Calculate damage based on action type and advantage
+ * Calculate combat action result with D20 system integration
+ * UI-agnostic function that returns structured combat result
  */
-export function calculateDamage(
+export function executeCombatAction(
   attacker: Character | Enemy,
   defender: Character | Enemy,
+  argumentType: PhilosophicalAspect,
   action: string,
   hasAdvantage: boolean
-): number {
+): CombatActionResult {
+  const result: CombatActionResult = {
+    hit: false,
+    damage: 0,
+    effects: [],
+    buffsApplied: [],
+    debuffsApplied: [],
+    critical: false,
+  };
+
+  // Handle non-attack actions (always hit)
+  if (action === 'defend' || action === 'flee') {
+    result.hit = true;
+    if (action === 'defend') {
+      result.damage = calculateReflectionDamage(attacker, argumentType);
+      result.effects.push(`${attacker.name} takes a defensive stance`);
+    }
+    return result;
+  }
+
+  // Check hit/miss for attacks using D20 system
+  const hit = calculateHitChance(attacker.derivedStats, defender.derivedStats);
+  result.hit = hit;
+
+  if (!hit) {
+    result.effects.push(`${attacker.name}'s attack misses!`);
+    return result;
+  }
+
+  // Check for critical hit
+  result.critical = checkCriticalHit(attacker.derivedStats, defender.derivedStats);
+
+  // Calculate base damage
   let baseDamage = 0;
+  let defense = 0;
 
   switch (action) {
     case 'attack':
-      baseDamage = Math.floor(attacker.stats.strength * 0.8 + Math.random() * 10);
-      break;
-    case 'defend':
-      baseDamage = Math.floor(attacker.stats.constitution * 0.4 + Math.random() * 5);
+      if (argumentType === 'body') {
+        baseDamage = attacker.derivedStats.physicalAttack;
+        defense = defender.derivedStats.physicalDefense;
+        if (hasAdvantage) {
+          baseDamage = Math.floor(baseDamage * 1.5);
+          result.effects.push('Body argument advantage: +50% damage!');
+        }
+      } else if (argumentType === 'mind') {
+        baseDamage = Math.floor(attacker.derivedStats.mindAttack * 0.75);
+        defense = defender.derivedStats.mindDefense;
+        if (hasAdvantage) {
+          baseDamage = attacker.derivedStats.mindAttack;
+          result.effects.push('Mind argument advantage: Full damage + stronger follow-up!');
+        }
+        result.effects.push('Mind attack creates follow-up damage next turn');
+        // Note: Mind attack buff will be handled by buff system
+      } else if (argumentType === 'heart') {
+        baseDamage = Math.floor(attacker.derivedStats.ailmentAttack * 0.5);
+        defense = defender.derivedStats.ailmentDefense;
+        if (hasAdvantage) {
+          baseDamage = Math.floor(attacker.derivedStats.ailmentAttack * 0.75);
+          result.effects.push('Heart argument advantage: Increased damage + stronger guilt!');
+        }
+        result.effects.push('Heart attack inflicts emotional guilt');
+        // Note: Heart attack debuff will be handled by buff system
+      }
       break;
     case 'special':
-      baseDamage = Math.floor(attacker.stats.intelligence * 0.6 + Math.random() * 8);
+      // Special attacks (fallacies) will be handled separately
+      baseDamage = Math.floor(attacker.derivedStats.mindAttack * 0.6);
+      defense = defender.derivedStats.mindDefense;
       break;
   }
 
-  // Apply advantage bonus
-  if (hasAdvantage) {
-    baseDamage = Math.floor(baseDamage * 1.5);
+  // Apply critical hit multiplier
+  if (result.critical) {
+    baseDamage = Math.floor(baseDamage * 2);
+    result.effects.push('CRITICAL HIT! Double damage!');
   }
 
-  // Apply defender's constitution as damage reduction
-  const damageReduction = Math.floor(defender.stats.constitution * 0.2);
-  const finalDamage = Math.max(1, baseDamage - damageReduction);
+  // Calculate final damage
+  result.damage = Math.max(1, baseDamage - defense);
 
-  return finalDamage;
+  return result;
+}
+
+/**
+ * Execute a fallacy skill with its specific effects
+ */
+export function executeFallacy(
+  attacker: Character | Enemy,
+  defender: Character | Enemy,
+  fallacyId: string,
+  targetBuffs: import('../types/game').CombatantBuffs,
+  attackerBuffs: import('../types/game').CombatantBuffs
+): CombatActionResult {
+  const fallacy = getFallacyById(fallacyId);
+  if (!fallacy) {
+    return {
+      hit: false,
+      damage: 0,
+      effects: ['Fallacy not found!'],
+      buffsApplied: [],
+      debuffsApplied: [],
+      critical: false,
+    };
+  }
+
+  const result: CombatActionResult = {
+    hit: false,
+    damage: 0,
+    effects: [],
+    buffsApplied: [],
+    debuffsApplied: [],
+    critical: false,
+    targetBuffsUpdated: { ...targetBuffs },
+    attackerBuffsUpdated: { ...attackerBuffs },
+  };
+
+  // Check mana cost
+  if (attacker.mana < fallacy.manaCost) {
+    result.effects.push(`${attacker.name} doesn't have enough mana to use ${fallacy.name}!`);
+    return result;
+  }
+
+  // Deduct mana (this would be handled by the UI)
+  result.effects.push(`${attacker.name} uses ${fallacy.name}! (-${fallacy.manaCost} MP)`);
+
+  // Check hit using D20 system
+  result.hit = calculateHitChance(attacker.derivedStats, defender.derivedStats);
+
+  if (!result.hit) {
+    result.effects.push(`${fallacy.name} misses ${defender.name}!`);
+    return result;
+  }
+
+  // Check for critical hit
+  result.critical = checkCriticalHit(attacker.derivedStats, defender.derivedStats);
+
+  // Calculate base damage from fallacy
+  let baseDamage = fallacy.damage || 0;
+
+  // Add stat-based damage based on fallacy type
+  if (fallacy.philosophicalAspect === 'body') {
+    baseDamage += Math.floor(attacker.derivedStats.physicalAttack * 0.5);
+  } else if (fallacy.philosophicalAspect === 'mind') {
+    baseDamage += Math.floor(attacker.derivedStats.mindAttack * 0.5);
+  } else if (fallacy.philosophicalAspect === 'heart') {
+    baseDamage += Math.floor(attacker.derivedStats.ailmentAttack * 0.5);
+  }
+
+  // Apply critical hit multiplier
+  if (result.critical) {
+    baseDamage = Math.floor(baseDamage * 2);
+    result.effects.push('CRITICAL FALLACY! Double damage!');
+  }
+
+  // Calculate defense
+  let defense = 0;
+  if (fallacy.philosophicalAspect === 'body') {
+    defense = defender.derivedStats.physicalDefense;
+  } else if (fallacy.philosophicalAspect === 'mind') {
+    defense = defender.derivedStats.mindDefense;
+  } else if (fallacy.philosophicalAspect === 'heart') {
+    defense = defender.derivedStats.ailmentDefense;
+  }
+
+  // Final damage calculation
+  result.damage = Math.max(1, baseDamage - defense);
+
+  // Apply fallacy-specific effects
+  result.effects.push(`${fallacy.name} hits for ${result.damage} damage!`);
+  if (fallacy.effect) {
+    result.effects.push(fallacy.effect);
+  }
+
+  // Handle special fallacy effects
+  switch (fallacy.id) {
+    case 'guilt_trip':
+      // Heart attack - applies guilt debuff
+      const heartDebuff = createHeartAttackDebuff(8);
+      result.targetBuffsUpdated = applyBuffDebuff(result.targetBuffsUpdated!, heartDebuff);
+      result.debuffsApplied.push(heartDebuff);
+      break;
+
+    case 'straw_man':
+      // Reduces opponent's next attack damage
+      result.effects.push(`${defender.name} will deal reduced damage on their next attack!`);
+      break;
+
+    case 'circular_reasoning':
+      // Causes confusion - chance to hit themselves
+      result.effects.push(`${defender.name} is confused by the circular logic!`);
+      break;
+
+    case 'appeal_to_force':
+      // Chance to cause fear
+      if (Math.random() < 0.3) {
+        result.effects.push(`${defender.name} is intimidated and will skip their next turn!`);
+      }
+      break;
+
+    case 'gaslighting':
+      // Reverses buffs to debuffs (complex effect)
+      result.effects.push(`${defender.name}'s perception of reality is distorted!`);
+      break;
+
+    case 'paradox_weapon':
+      // Ignores all defenses (already calculated above)
+      result.damage = fallacy.damage || 40;
+      result.effects[result.effects.length - 1] = `${fallacy.name} deals ${result.damage} fixed damage that ignores all defenses!`;
+      break;
+  }
+
+  return result;
+}
+
+/**
+ * Calculate reflection damage for defend actions
+ */
+function calculateReflectionDamage(
+  attacker: Character | Enemy,
+  argumentType: PhilosophicalAspect
+): number {
+  switch (argumentType) {
+    case 'body':
+      return Math.floor(attacker.derivedStats.physicalAttack * 0.25);
+    case 'mind':
+      return Math.floor(attacker.derivedStats.mindAttack * 0.25);
+    case 'heart':
+      return Math.floor(attacker.derivedStats.ailmentAttack * 0.25);
+    default:
+      return 0;
+  }
 }
 
 /**
@@ -93,7 +365,7 @@ export function generateEnemyChoice(enemy: Enemy, playerPreviousChoices: CombatC
 
   // Choose action based on enemy stats
   let chosenAction: 'attack' | 'defend' | 'special';
-  if (enemy.stats.strength > enemy.stats.intelligence) {
+  if (enemy.derivedStats.physicalAttack > enemy.derivedStats.mindAttack) {
     chosenAction = Math.random() > 0.3 ? 'attack' : 'defend';
   } else {
     chosenAction = Math.random() > 0.4 ? 'special' : 'attack';
@@ -106,7 +378,7 @@ export function generateEnemyChoice(enemy: Enemy, playerPreviousChoices: CombatC
 }
 
 /**
- * Resolve a complete combat round
+ * Resolve a complete combat round using UI-agnostic combat action execution
  */
 export function resolveCombatRound(
   player: Character,
@@ -121,26 +393,28 @@ export function resolveCombatRound(
     advantage = aspectWinner;
   }
 
-  // Calculate damage based on actions and advantage
-  const playerDamage = calculateDamage(
+  // Execute combat actions using the new system
+  const playerResult = executeCombatAction(
     player,
     enemy,
+    playerChoice.aspect,
     playerChoice.action,
     advantage === 'player'
   );
 
-  const enemyDamage = calculateDamage(
+  const enemyResult = executeCombatAction(
     enemy,
     player,
+    enemyChoice.aspect,
     enemyChoice.action,
     advantage === 'enemy'
   );
 
   // Determine overall winner based on damage dealt
   let winner: 'player' | 'enemy' | 'tie' = 'tie';
-  if (playerDamage > enemyDamage) {
+  if (playerResult.damage > enemyResult.damage) {
     winner = 'player';
-  } else if (enemyDamage > playerDamage) {
+  } else if (enemyResult.damage > playerResult.damage) {
     winner = 'enemy';
   }
 
@@ -157,357 +431,322 @@ export function resolveCombatRound(
     effects.push('Both combatants chose the same philosophical aspect - no advantage gained.');
   }
 
+  // Add hit/miss/critical information
+  if (!playerResult.hit) {
+    effects.push(`${player.name}'s attack misses!`);
+  } else if (playerResult.critical) {
+    effects.push(`${player.name} scores a critical hit!`);
+  }
+
+  if (!enemyResult.hit) {
+    effects.push(`${enemy.name}'s attack misses!`);
+  } else if (enemyResult.critical) {
+    effects.push(`${enemy.name} scores a critical hit!`);
+  }
+
+  // Add any special effects
+  effects.push(...playerResult.effects);
+  effects.push(...enemyResult.effects);
+
   return {
     playerChoice,
     enemyChoice,
     winner,
     advantage,
     damage: {
-      toPlayer: enemyDamage,
-      toEnemy: playerDamage,
+      toPlayer: enemyResult.damage,
+      toEnemy: playerResult.damage,
     },
     effects,
   };
 }
 
 /**
+ * Helper function to create enemy with new stat system
+ */
+function createEnemyWithStats(baseStats: BaseStats, enemyData: Partial<Enemy>): Enemy {
+  const derivedStats = calculateDerivedStats(baseStats);
+  const maxHP = calculateMaxHP(baseStats);
+  const maxMP = calculateMaxMP(baseStats);
+
+  return {
+    baseStats,
+    derivedStats,
+    availableStatPoints: 0,
+    health: maxHP,
+    maxHealth: maxHP,
+    mana: maxMP,
+    maxMana: maxMP,
+    ...enemyData,
+  } as Enemy;
+}
+
+/**
  * Create philosophical enemies based on fallacies and philosophical concepts
  */
 export function createAbortiveFallacy(): Enemy {
-  return {
-    id: 'abortive_fallacy',
-    name: 'Abortive Fallacy',
-    level: 2,
-    health: 45,
-    maxHealth: 45,
-    mana: 30,
-    maxMana: 30,
-    stats: {
-      strength: 6,
-      constitution: 8,
-      wisdom: 4,
-      intelligence: 16,
-      dexterity: 12,
-      charisma: 8,
-    },
-    skills: [],
-    loot: [
-      {
-        id: 'fallacy_essence',
-        name: 'Essence of Flawed Logic',
-        description: 'A crystallized fragment of a defeated logical fallacy.',
-        type: 'crafting',
-        value: 25,
-        stackable: true,
-        quantity: 1,
-        icon: '🔮',
+  return createEnemyWithStats(
+    { heart: 2, body: 3, mind: 4 },
+    {
+      id: 'abortive_fallacy',
+      name: 'Abortive Fallacy',
+      level: 2,
+      skills: [],
+      loot: [
+        {
+          id: 'fallacy_essence',
+          name: 'Essence of Flawed Logic',
+          description: 'A crystallized fragment of a defeated logical fallacy.',
+          type: 'crafting',
+          value: 25,
+          stackable: true,
+          quantity: 1,
+          icon: '🔮',
+        },
+      ],
+      philosophicalAlignment: {
+        ethics: 'nihilistic',
+        metaphysics: 'idealist',
+        epistemology: 'skeptical',
       },
-    ],
-    philosophicalAlignment: {
-      ethics: 'nihilistic',
-      metaphysics: 'idealist',
-      epistemology: 'skeptical',
-    },
-    type: 'fallacy',
-    image: '/monsters/Abortive.jpg',
-    description: 'A manifestation of incomplete reasoning - an argument that fails to reach its logical conclusion.',
-    weaknesses: ['mind'],
-    strengths: ['heart'],
-  };
+      type: 'fallacy',
+      image: '/monsters/Abortive.jpg',
+      description: 'A manifestation of incomplete reasoning - an argument that fails to reach its logical conclusion.',
+      weaknesses: ['mind'],
+      strengths: ['heart'],
+    }
+  );
 }
 
 export function createSophist(): Enemy {
-  return {
-    id: 'sophist',
-    name: 'Deceiving Sophist',
-    level: 3,
-    health: 55,
-    maxHealth: 55,
-    mana: 40,
-    maxMana: 40,
-    stats: {
-      strength: 7,
-      constitution: 9,
-      wisdom: 8,
-      intelligence: 14,
-      dexterity: 13,
-      charisma: 18,
-    },
-    skills: [],
-    loot: [
-      {
-        id: 'sophist_rhetoric',
-        name: 'Persuasive Rhetoric',
-        description: 'A scroll containing powerful but misleading arguments.',
-        type: 'quest',
-        value: 40,
-        stackable: true,
-        quantity: 1,
-        icon: '📃',
+  return createEnemyWithStats(
+    { heart: 4, body: 2, mind: 6 },
+    {
+      id: 'sophist',
+      name: 'Deceiving Sophist',
+      level: 3,
+      skills: [],
+      loot: [
+        {
+          id: 'sophist_rhetoric',
+          name: 'Persuasive Rhetoric',
+          description: 'A scroll containing powerful but misleading arguments.',
+          type: 'quest',
+          value: 40,
+          stackable: true,
+          quantity: 1,
+          icon: '📃',
+        },
+      ],
+      philosophicalAlignment: {
+        ethics: 'consequentialist',
+        metaphysics: 'pragmatist',
+        epistemology: 'skeptical',
       },
-    ],
-    philosophicalAlignment: {
-      ethics: 'consequentialist',
-      metaphysics: 'pragmatist',
-      epistemology: 'skeptical',
-    },
-    type: 'sophist',
-    description: 'A master of persuasion who values winning arguments over finding truth.',
-    weaknesses: ['body'],
-    strengths: ['mind'],
-  };
+      type: 'sophist',
+      description: 'A master of persuasion who values winning arguments over finding truth.',
+      weaknesses: ['body'],
+      strengths: ['mind'],
+    }
+  );
 }
 
 export function createNihilisticVoid(): Enemy {
-  return {
-    id: 'nihilistic_void',
-    name: 'Nihilistic Void',
-    level: 4,
-    health: 65,
-    maxHealth: 65,
-    mana: 50,
-    maxMana: 50,
-    stats: {
-      strength: 12,
-      constitution: 15,
-      wisdom: 20,
-      intelligence: 18,
-      dexterity: 8,
-      charisma: 3,
-    },
-    skills: [],
-    loot: [
-      {
-        id: 'void_fragment',
-        name: 'Fragment of Meaninglessness',
-        description: 'A piece of the void that questions all meaning and purpose.',
-        type: 'quest',
-        value: 60,
-        stackable: true,
-        quantity: 1,
-        icon: '🕳️',
+  return createEnemyWithStats(
+    { heart: 1, body: 4, mind: 7 },
+    {
+      id: 'nihilistic_void',
+      name: 'Nihilistic Void',
+      level: 4,
+      skills: [],
+      loot: [
+        {
+          id: 'void_fragment',
+          name: 'Fragment of Meaninglessness',
+          description: 'A piece of the void that questions all meaning and purpose.',
+          type: 'quest',
+          value: 60,
+          stackable: true,
+          quantity: 1,
+          icon: '🕳️',
+        },
+      ],
+      philosophicalAlignment: {
+        ethics: 'nihilistic',
+        metaphysics: 'materialist',
+        epistemology: 'skeptical',
       },
-    ],
-    philosophicalAlignment: {
-      ethics: 'nihilistic',
-      metaphysics: 'materialist',
-      epistemology: 'skeptical',
-    },
-    type: 'nihilist',
-    description: 'An embodiment of existential emptiness that seeks to drain meaning from all things.',
-    weaknesses: ['heart'],
-    strengths: ['mind'],
-  };
+      type: 'nihilist',
+      description: 'An embodiment of existential emptiness that seeks to drain meaning from all things.',
+      weaknesses: ['heart'],
+      strengths: ['mind'],
+    }
+  );
 }
 
 export function createPhilosophicalGoblin(): Enemy {
-  return {
-    id: 'philosophical_goblin',
-    name: 'Philosophical Goblin',
-    level: 1,
-    health: 35,
-    maxHealth: 35,
-    mana: 20,
-    maxMana: 20,
-    stats: {
-      strength: 8,
-      constitution: 6,
-      wisdom: 12,
-      intelligence: 10,
-      dexterity: 9,
-      charisma: 5,
-    },
-    skills: [],
-    loot: [
-      {
-        id: 'goblin_wisdom',
-        name: 'Goblin Wisdom',
-        description: 'A small scroll containing a philosophical question.',
-        type: 'quest',
-        value: 10,
-        stackable: true,
-        quantity: 1,
-        icon: '📜',
+  return createEnemyWithStats(
+    { heart: 2, body: 2, mind: 3 },
+    {
+      id: 'philosophical_goblin',
+      name: 'Philosophical Goblin',
+      level: 1,
+      skills: [],
+      loot: [
+        {
+          id: 'goblin_wisdom',
+          name: 'Goblin Wisdom',
+          description: 'A small scroll containing a philosophical question.',
+          type: 'quest',
+          value: 10,
+          stackable: true,
+          quantity: 1,
+          icon: '📜',
+        },
+      ],
+      philosophicalAlignment: {
+        ethics: 'nihilistic',
+        metaphysics: 'idealist',
+        epistemology: 'skeptical',
       },
-    ],
-    philosophicalAlignment: {
-      ethics: 'nihilistic',
-      metaphysics: 'idealist',
-      epistemology: 'skeptical',
-    },
-    type: 'beast',
-    description: 'A small creature that has gained intelligence through exposure to philosophical debates.',
-    weaknesses: ['body'],
-    strengths: ['heart'],
-  };
+      type: 'beast',
+      description: 'A small creature that has gained intelligence through exposure to philosophical debates.',
+      weaknesses: ['body'],
+      strengths: ['heart'],
+    }
+  );
 }
 
 export function createStrawmanArgument(): Enemy {
-  return {
-    id: 'strawman_argument',
-    name: 'Strawman Argument',
-    level: 2,
-    health: 40,
-    maxHealth: 40,
-    mana: 25,
-    maxMana: 25,
-    stats: {
-      strength: 5,
-      constitution: 7,
-      wisdom: 6,
-      intelligence: 12,
-      dexterity: 15,
-      charisma: 14,
-    },
-    skills: [],
-    loot: [
-      {
-        id: 'distorted_reasoning',
-        name: 'Distorted Reasoning',
-        description: 'A twisted logic pattern that misrepresents arguments.',
-        type: 'crafting',
-        value: 20,
-        stackable: true,
-        quantity: 1,
-        icon: '🎭',
+  return createEnemyWithStats(
+    { heart: 3, body: 2, mind: 4 },
+    {
+      id: 'strawman_argument',
+      name: 'Strawman Argument',
+      level: 2,
+      skills: [],
+      loot: [
+        {
+          id: 'distorted_reasoning',
+          name: 'Distorted Reasoning',
+          description: 'A twisted logic pattern that misrepresents arguments.',
+          type: 'crafting',
+          value: 20,
+          stackable: true,
+          quantity: 1,
+          icon: '🎭',
+        },
+      ],
+      philosophicalAlignment: {
+        ethics: 'consequentialist',
+        metaphysics: 'pragmatist',
+        epistemology: 'skeptical',
       },
-    ],
-    philosophicalAlignment: {
-      ethics: 'consequentialist',
-      metaphysics: 'pragmatist',
-      epistemology: 'skeptical',
-    },
-    type: 'fallacy',
-    description: 'A misrepresentation of opposing arguments that makes them easier to attack.',
-    weaknesses: ['mind'],
-    strengths: ['body'],
-  };
+      type: 'fallacy',
+      description: 'A misrepresentation of opposing arguments that makes them easier to attack.',
+      weaknesses: ['mind'],
+      strengths: ['body'],
+    }
+  );
 }
 
 export function createCircularReasoningDemon(): Enemy {
-  return {
-    id: 'circular_reasoning',
-    name: 'Circular Reasoning Demon',
-    level: 3,
-    health: 50,
-    maxHealth: 50,
-    mana: 35,
-    maxMana: 35,
-    stats: {
-      strength: 8,
-      constitution: 12,
-      wisdom: 8,
-      intelligence: 16,
-      dexterity: 10,
-      charisma: 11,
-    },
-    skills: [],
-    loot: [
-      {
-        id: 'endless_loop',
-        name: 'Endless Logic Loop',
-        description: 'A paradoxical reasoning pattern that goes nowhere.',
-        type: 'quest',
-        value: 35,
-        stackable: true,
-        quantity: 1,
-        icon: '🔄',
+  return createEnemyWithStats(
+    { heart: 2, body: 3, mind: 5 },
+    {
+      id: 'circular_reasoning',
+      name: 'Circular Reasoning Demon',
+      level: 3,
+      skills: [],
+      loot: [
+        {
+          id: 'endless_loop',
+          name: 'Endless Logic Loop',
+          description: 'A paradoxical reasoning pattern that goes nowhere.',
+          type: 'quest',
+          value: 35,
+          stackable: true,
+          quantity: 1,
+          icon: '🔄',
+        },
+      ],
+      philosophicalAlignment: {
+        ethics: 'deontological',
+        metaphysics: 'idealist',
+        epistemology: 'rationalist',
       },
-    ],
-    philosophicalAlignment: {
-      ethics: 'deontological',
-      metaphysics: 'idealist',
-      epistemology: 'rationalist',
-    },
-    type: 'fallacy',
-    description: 'An entity trapped in endless loops of self-justifying logic.',
-    weaknesses: ['body'],
-    strengths: ['mind'],
-  };
+      type: 'fallacy',
+      description: 'An entity trapped in endless loops of self-justifying logic.',
+      weaknesses: ['body'],
+      strengths: ['mind'],
+    }
+  );
 }
 
 export function createConfirmationBiasBeast(): Enemy {
-  return {
-    id: 'confirmation_bias',
-    name: 'Confirmation Bias Beast',
-    level: 2,
-    health: 42,
-    maxHealth: 42,
-    mana: 28,
-    maxMana: 28,
-    stats: {
-      strength: 9,
-      constitution: 11,
-      wisdom: 5,
-      intelligence: 13,
-      dexterity: 12,
-      charisma: 10,
-    },
-    skills: [],
-    loot: [
-      {
-        id: 'selective_evidence',
-        name: 'Selective Evidence',
-        description: 'Information that only supports pre-existing beliefs.',
-        type: 'crafting',
-        value: 22,
-        stackable: true,
-        quantity: 1,
-        icon: '👁️',
+  return createEnemyWithStats(
+    { heart: 2, body: 3, mind: 4 },
+    {
+      id: 'confirmation_bias',
+      name: 'Confirmation Bias Beast',
+      level: 2,
+      skills: [],
+      loot: [
+        {
+          id: 'selective_evidence',
+          name: 'Selective Evidence',
+          description: 'Information that only supports pre-existing beliefs.',
+          type: 'crafting',
+          value: 22,
+          stackable: true,
+          quantity: 1,
+          icon: '👁️',
+        },
+      ],
+      philosophicalAlignment: {
+        ethics: 'consequentialist',
+        metaphysics: 'materialist',
+        epistemology: 'empiricist',
       },
-    ],
-    philosophicalAlignment: {
-      ethics: 'consequentialist',
-      metaphysics: 'materialist',
-      epistemology: 'empiricist',
-    },
-    type: 'fallacy',
-    description: 'A creature that only sees evidence that confirms what it already believes.',
-    weaknesses: ['mind', 'heart'],
-    strengths: ['body'],
-  };
+      type: 'fallacy',
+      description: 'A creature that only sees evidence that confirms what it already believes.',
+      weaknesses: ['mind', 'heart'],
+      strengths: ['body'],
+    }
+  );
 }
 
 export function createWisdomGuardian(): Enemy {
-  return {
-    id: 'wisdom_guardian',
-    name: 'Guardian of Ancient Wisdom',
-    level: 5,
-    health: 80,
-    maxHealth: 80,
-    mana: 60,
-    maxMana: 60,
-    stats: {
-      strength: 15,
-      constitution: 18,
-      wisdom: 22,
-      intelligence: 20,
-      dexterity: 12,
-      charisma: 16,
-    },
-    skills: [],
-    loot: [
-      {
-        id: 'wisdom_crystal',
-        name: 'Crystal of Ancient Wisdom',
-        description: 'A crystallized piece of pure philosophical understanding.',
-        type: 'quest',
-        value: 100,
-        stackable: false,
-        quantity: 1,
-        icon: '💎',
+  return createEnemyWithStats(
+    { heart: 6, body: 5, mind: 8 },
+    {
+      id: 'wisdom_guardian',
+      name: 'Guardian of Ancient Wisdom',
+      level: 5,
+      skills: [],
+      loot: [
+        {
+          id: 'wisdom_crystal',
+          name: 'Crystal of Ancient Wisdom',
+          description: 'A crystallized piece of pure philosophical understanding.',
+          type: 'quest',
+          value: 100,
+          stackable: false,
+          quantity: 1,
+          icon: '💎',
+        },
+      ],
+      philosophicalAlignment: {
+        ethics: 'virtue',
+        metaphysics: 'dualist',
+        epistemology: 'mystical',
       },
-    ],
-    philosophicalAlignment: {
-      ethics: 'virtue',
-      metaphysics: 'dualist',
-      epistemology: 'mystical',
-    },
-    type: 'guardian',
-    description: 'An ancient protector of philosophical knowledge, testing worthy seekers.',
-    weaknesses: [],
-    strengths: ['mind', 'heart'],
-  };
+      type: 'guardian',
+      description: 'An ancient protector of philosophical knowledge, testing worthy seekers.',
+      weaknesses: [],
+      strengths: ['mind', 'heart'],
+    }
+  );
 }
 
 /**
@@ -532,5 +771,206 @@ export function createEnemyByType(enemyType: string): Enemy {
     case 'philosophical_goblin':
     default:
       return createPhilosophicalGoblin();
+  }
+}
+
+/**
+ * UI-agnostic Combat State Manager
+ * Handles turn-based combat flow independently of React components
+ */
+export class CombatStateManager {
+  private player: Character;
+  private enemy: Enemy;
+  private playerBuffs: import('../types/game').CombatantBuffs;
+  private enemyBuffs: import('../types/game').CombatantBuffs;
+  private round: number = 1;
+  private agreeToDisagreeCounter: number = 0;
+  private turnEffects: string[] = [];
+  private combatLog: string[] = [];
+  private playerChoiceHistory: CombatChoice[] = [];
+
+  constructor(player: Character, enemy: Enemy) {
+    this.player = { ...player };
+    this.enemy = { ...enemy };
+    this.playerBuffs = { buffs: [], debuffs: [] };
+    this.enemyBuffs = { buffs: [], debuffs: [] };
+  }
+
+  /**
+   * Process start of turn effects (buffs/debuffs)
+   */
+  private processStartOfTurn(): void {
+    import('./buffDebuffEngine').then(({ processBuffsDebuffs }) => {
+      // Process player buffs/debuffs
+      const playerResult = processBuffsDebuffs(this.playerBuffs, true);
+      this.playerBuffs = playerResult.updatedBuffs;
+      this.turnEffects.push(...playerResult.turnEffects.map(effect => `Player: ${effect}`));
+
+      // Process enemy buffs/debuffs
+      const enemyResult = processBuffsDebuffs(this.enemyBuffs, true);
+      this.enemyBuffs = enemyResult.updatedBuffs;
+      this.turnEffects.push(...enemyResult.turnEffects.map(effect => `Enemy: ${effect}`));
+    });
+  }
+
+  /**
+   * Execute a combat turn with player and enemy choices
+   */
+  public executeTurn(playerChoice: CombatChoice): {
+    roundResult: CombatRoundResult;
+    combatEnded: boolean;
+    winner?: 'player' | 'enemy';
+    turnEffects: string[];
+  } {
+    this.turnEffects = [];
+    this.processStartOfTurn();
+
+    // Store player choice for AI analysis
+    this.playerChoiceHistory.push(playerChoice);
+
+    // Generate enemy choice
+    const enemyChoice = generateEnemyChoice(this.enemy, this.playerChoiceHistory);
+
+    // Handle special actions (fallacies)
+    let playerResult: CombatActionResult;
+    let enemyResult: CombatActionResult;
+
+    if (playerChoice.action === 'special' && playerChoice.selectedSkill) {
+      playerResult = executeFallacy(
+        this.player,
+        this.enemy,
+        playerChoice.selectedSkill,
+        this.enemyBuffs,
+        this.playerBuffs
+      );
+      // Deduct mana
+      this.player.mana = Math.max(0, this.player.mana - (getFallacyById(playerChoice.selectedSkill)?.manaCost || 0));
+    } else {
+      const aspectWinner = determineAspectWinner(playerChoice.aspect, enemyChoice.aspect);
+      playerResult = executeCombatAction(
+        this.player,
+        this.enemy,
+        playerChoice.aspect,
+        playerChoice.action,
+        aspectWinner === 'player'
+      );
+    }
+
+    if (enemyChoice.action === 'special' && enemyChoice.selectedSkill) {
+      enemyResult = executeFallacy(
+        this.enemy,
+        this.player,
+        enemyChoice.selectedSkill,
+        this.playerBuffs,
+        this.enemyBuffs
+      );
+      // Deduct mana
+      this.enemy.mana = Math.max(0, this.enemy.mana - (getFallacyById(enemyChoice.selectedSkill)?.manaCost || 0));
+    } else {
+      const aspectWinner = determineAspectWinner(playerChoice.aspect, enemyChoice.aspect);
+      enemyResult = executeCombatAction(
+        this.enemy,
+        this.player,
+        enemyChoice.aspect,
+        enemyChoice.action,
+        aspectWinner === 'enemy'
+      );
+    }
+
+    // Apply damage
+    this.enemy.health = Math.max(0, this.enemy.health - playerResult.damage);
+    this.player.health = Math.max(0, this.player.health - enemyResult.damage);
+
+    // Update buffs/debuffs if provided
+    if (playerResult.targetBuffsUpdated) {
+      this.enemyBuffs = playerResult.targetBuffsUpdated;
+    }
+    if (playerResult.attackerBuffsUpdated) {
+      this.playerBuffs = playerResult.attackerBuffsUpdated;
+    }
+    if (enemyResult.targetBuffsUpdated) {
+      this.playerBuffs = enemyResult.targetBuffsUpdated;
+    }
+    if (enemyResult.attackerBuffsUpdated) {
+      this.enemyBuffs = enemyResult.attackerBuffsUpdated;
+    }
+
+    // Create round result
+    const roundResult = resolveCombatRound(this.player, this.enemy, playerChoice, enemyChoice);
+
+    // Update combat log
+    this.combatLog.push(...roundResult.effects);
+
+    // Check for combat end
+    const combatEnded = this.player.health <= 0 || this.enemy.health <= 0;
+    let winner: 'player' | 'enemy' | undefined;
+
+    if (combatEnded) {
+      if (this.player.health <= 0 && this.enemy.health <= 0) {
+        winner = Math.random() > 0.5 ? 'player' : 'enemy'; // Tie-breaker
+      } else if (this.player.health <= 0) {
+        winner = 'enemy';
+      } else {
+        winner = 'player';
+      }
+    }
+
+    this.round++;
+
+    return {
+      roundResult,
+      combatEnded,
+      winner,
+      turnEffects: this.turnEffects,
+    };
+  }
+
+  /**
+   * Get current combat state for UI display
+   */
+  public getCurrentState(): {
+    player: Character;
+    enemy: Enemy;
+    playerBuffs: import('../types/game').CombatantBuffs;
+    enemyBuffs: import('../types/game').CombatantBuffs;
+    round: number;
+    combatLog: string[];
+    agreeToDisagreeCounter: number;
+  } {
+    return {
+      player: { ...this.player },
+      enemy: { ...this.enemy },
+      playerBuffs: { ...this.playerBuffs },
+      enemyBuffs: { ...this.enemyBuffs },
+      round: this.round,
+      combatLog: [...this.combatLog],
+      agreeToDisagreeCounter: this.agreeToDisagreeCounter,
+    };
+  }
+
+  /**
+   * Apply healing to a combatant
+   */
+  public applyHealing(target: 'player' | 'enemy', amount: number): void {
+    if (target === 'player') {
+      this.player.health = Math.min(this.player.maxHealth, this.player.health + amount);
+    } else {
+      this.enemy.health = Math.min(this.enemy.maxHealth, this.enemy.health + amount);
+    }
+  }
+
+  /**
+   * Check if player has enough mana for a skill
+   */
+  public canUseSkill(skillId: string): boolean {
+    const skill = getFallacyById(skillId);
+    return skill ? this.player.mana >= skill.manaCost : false;
+  }
+
+  /**
+   * Get available skills for the player
+   */
+  public getAvailableSkills(): Skill[] {
+    return this.player.skills.filter(skill => this.canUseSkill(skill.id));
   }
 }

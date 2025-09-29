@@ -3,11 +3,14 @@ import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, Cha
 import { initialQuests } from '../utils/questSystem';
 import { createEnemyByType } from '../utils/combatMechanics';
 import { loadCharacter } from '../utils/characterSave';
+import { createInitialBaseStats, calculateDerivedStats, calculateMaxHP, calculateMaxMP } from '../utils/statCalculations';
+import { clearAllBuffsDebuffs } from '../utils/buffDebuffEngine';
 
 interface CreateCharacterData {
   name: string;
   gender: 'male' | 'female';
   portrait: CharacterPortrait;
+  baseStats?: import('../types/game').BaseStats;
 }
 
 interface GameContextType {
@@ -48,23 +51,23 @@ type GameAction =
   | { type: 'MAKE_PHILOSOPHICAL_CHOICE'; payload: { choiceId: string; outcome: any } }
   | { type: 'UNLOCK_NODE'; payload: { locationId: string; nodeId: string } };
 
+const initialBaseStats = createInitialBaseStats();
+const initialDerivedStats = calculateDerivedStats(initialBaseStats);
+const initialMaxHP = calculateMaxHP(initialBaseStats);
+const initialMaxMP = calculateMaxMP(initialBaseStats);
+
 const initialGameState: GameState = {
   character: {
     id: '',
     name: '', // Empty name triggers character creation
     level: 1,
-    health: 100,
-    maxHealth: 100,
-    mana: 50,
-    maxMana: 50,
-    stats: {
-      strength: 10,
-      constitution: 10,
-      wisdom: 10,
-      intelligence: 10,
-      dexterity: 10,
-      charisma: 10,
-    },
+    health: initialMaxHP,
+    maxHealth: initialMaxHP,
+    mana: initialMaxMP,
+    maxMana: initialMaxMP,
+    baseStats: initialBaseStats,
+    derivedStats: initialDerivedStats,
+    availableStatPoints: 0,
     skills: [],
     equipment: [],
     inventory: [],
@@ -823,6 +826,11 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
 
     case 'CREATE_CHARACTER':
+      const finalBaseStats = action.payload.baseStats || createInitialBaseStats();
+      const finalDerivedStats = calculateDerivedStats(finalBaseStats);
+      const finalMaxHP = calculateMaxHP(finalBaseStats);
+      const finalMaxMP = calculateMaxMP(finalBaseStats);
+
       return {
         ...initialGameState,
         character: {
@@ -830,6 +838,13 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           id: Date.now().toString(),
           name: action.payload.name,
           portrait: action.payload.portrait,
+          baseStats: finalBaseStats,
+          derivedStats: finalDerivedStats,
+          health: finalMaxHP,
+          maxHealth: finalMaxHP,
+          mana: finalMaxMP,
+          maxMana: finalMaxMP,
+          availableStatPoints: 0,
         },
       };
 
@@ -936,6 +951,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           enemyChoice: {},
           roundResult: null,
           advantages: { player: 0, enemy: 0 },
+          playerBuffs: clearAllBuffsDebuffs(),
+          enemyBuffs: clearAllBuffsDebuffs(),
+          agreeToDisagreeCounter: 0,
           log: [
             { id: '1', timestamp: Date.now(), actor: 'System', action: 'start', target: 'combat' },
             { id: '2', timestamp: Date.now(), actor: enemy.name, action: 'appears', target: 'battlefield' }

@@ -155,12 +155,70 @@ export const CharacterScreen = React.memo(() => {
           <StatValue>{character.mana} / {character.maxMana}</StatValue>
         </StatRow>
 
-        {Object.entries(character.stats).map(([statName, value]) => (
-          <StatRow key={statName}>
-            <StatName>{statName}</StatName>
-            <StatValue>{value}</StatValue>
-          </StatRow>
-        ))}
+        <StatRow>
+          <StatName>Available Stat Points</StatName>
+          <StatValue>{character.availableStatPoints}</StatValue>
+        </StatRow>
+
+        <StatRow>
+          <StatName>Heart</StatName>
+          <StatValue>{character.baseStats.heart}</StatValue>
+        </StatRow>
+
+        <StatRow>
+          <StatName>Body</StatName>
+          <StatValue>{character.baseStats.body}</StatValue>
+        </StatRow>
+
+        <StatRow>
+          <StatName>Mind</StatName>
+          <StatValue>{character.baseStats.mind}</StatValue>
+        </StatRow>
+
+        <StatRow>
+          <StatName>Physical Attack</StatName>
+          <StatValue>{character.derivedStats.physicalAttack}</StatValue>
+        </StatRow>
+
+        <StatRow>
+          <StatName>Physical Defense</StatName>
+          <StatValue>{character.derivedStats.physicalDefense}</StatValue>
+        </StatRow>
+
+        <StatRow>
+          <StatName>Mind Attack</StatName>
+          <StatValue>{character.derivedStats.mindAttack}</StatValue>
+        </StatRow>
+
+        <StatRow>
+          <StatName>Mind Defense</StatName>
+          <StatValue>{character.derivedStats.mindDefense}</StatValue>
+        </StatRow>
+
+        <StatRow>
+          <StatName>Ailment Attack</StatName>
+          <StatValue>{character.derivedStats.ailmentAttack}</StatValue>
+        </StatRow>
+
+        <StatRow>
+          <StatName>Ailment Defense</StatName>
+          <StatValue>{character.derivedStats.ailmentDefense}</StatValue>
+        </StatRow>
+
+        <StatRow>
+          <StatName>Accuracy</StatName>
+          <StatValue>{character.derivedStats.accuracy}</StatValue>
+        </StatRow>
+
+        <StatRow>
+          <StatName>Evasion</StatName>
+          <StatValue>{character.derivedStats.evasion}</StatValue>
+        </StatRow>
+
+        <StatRow>
+          <StatName>Luck</StatName>
+          <StatValue>{character.derivedStats.luck}</StatValue>
+        </StatRow>
       </StatsPanel>
 
       <PhilosophyPanel>

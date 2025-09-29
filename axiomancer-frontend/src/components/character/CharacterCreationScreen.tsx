@@ -4,6 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { theme } from '../../styles/theme';
 import { useGame } from '../../contexts/GameContext';
 import { loadAvailablePortraits, getFallbackPortraits, Portrait } from '../../utils/portraitLoader';
+import { BaseStats, DerivedStats } from '../../types/game';
+import {
+  createInitialBaseStats,
+  calculateDerivedStats,
+  calculateMaxHP,
+  calculateMaxMP,
+  getCharacterCreationPoints,
+  getTotalInvestedPoints
+} from '../../utils/statCalculations';
 
 const Container = styled.div`
   width: 100vw;
@@ -184,6 +193,59 @@ const CreateButton = styled.button`
   }
 `;
 
+const StatAllocationRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: ${theme.spacing.sm};
+  background: ${theme.colors.background.secondary};
+  border-radius: ${theme.borderRadius.md};
+  margin-bottom: ${theme.spacing.sm};
+`;
+
+const StatButton = styled.button`
+  background: ${theme.colors.primary};
+  color: ${theme.colors.dark};
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: ${theme.colors.accent};
+    transform: scale(1.1);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
+const PointsDisplay = styled.div`
+  background: ${theme.colors.background.tertiary};
+  padding: ${theme.spacing.md};
+  border-radius: ${theme.borderRadius.md};
+  text-align: center;
+  margin-bottom: ${theme.spacing.md};
+
+  .points-label {
+    color: ${theme.colors.text.secondary};
+    font-size: 0.9rem;
+  }
+
+  .points-count {
+    color: ${theme.colors.text.accent};
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+`;
+
 export const CharacterCreationScreen: React.FC = () => {
   console.log('NEW CHARACTER CREATION SCREEN LOADED - TWO SQUARE LAYOUT');
   const { createCharacter } = useGame();
@@ -193,6 +255,14 @@ export const CharacterCreationScreen: React.FC = () => {
   const [selectedPortrait, setSelectedPortrait] = useState('');
   const [portraits, setPortraits] = useState<{male: Portrait[], female: Portrait[]}>({ male: [], female: [] });
   const [portraitsLoading, setPortraitsLoading] = useState(true);
+  const [baseStats, setBaseStats] = useState<BaseStats>(createInitialBaseStats());
+
+  // Calculate derived stats in real-time
+  const derivedStats = calculateDerivedStats(baseStats);
+  const maxHP = calculateMaxHP(baseStats);
+  const maxMP = calculateMaxMP(baseStats);
+  const availablePoints = getCharacterCreationPoints() - getTotalInvestedPoints(baseStats);
+  const canAllocatePoints = availablePoints > 0;
 
   // Load available portraits dynamically
   useEffect(() => {
@@ -218,6 +288,27 @@ export const CharacterCreationScreen: React.FC = () => {
 
   const availablePortraits = portraits[gender] || [];
 
+  // Stat allocation functions
+  const adjustStat = (statName: keyof BaseStats, delta: number) => {
+    setBaseStats(prev => {
+      const newStats = { ...prev };
+      const newValue = newStats[statName] + delta;
+
+      // Ensure stat doesn't go below 1
+      if (newValue < 1) return prev;
+
+      // Check if we have points to spend (when increasing)
+      if (delta > 0 && availablePoints <= 0) return prev;
+
+      newStats[statName] = newValue;
+      return newStats;
+    });
+  };
+
+  const resetStats = () => {
+    setBaseStats(createInitialBaseStats());
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim() && selectedPortrait) {
@@ -227,18 +318,14 @@ export const CharacterCreationScreen: React.FC = () => {
         portrait: {
           imageUrl: selectedPortrait,
           description: `${gender} character portrait`
-        }
+        },
+        baseStats: baseStats
       });
       navigate('/game');
     }
   };
 
   const canSubmit = name.trim() && selectedPortrait;
-
-  // Starting stats
-  const bodyScore = 5;
-  const mindScore = 5;
-  const heartScore = 5;
 
   return (
     <Container>
@@ -309,70 +396,123 @@ export const CharacterCreationScreen: React.FC = () => {
 
           <StatsContainer>
             <div className="age-hp-mp">
-              Age: 10 • 50 HP • 20 MP
+              Age: 16 • {maxHP} HP • {maxMP} MP
             </div>
+
+            <PointsDisplay>
+              <div className="points-label">Available Stat Points</div>
+              <div className="points-count">{availablePoints}</div>
+            </PointsDisplay>
 
             <div className="stat-group">
               <div className="group-title">Body Stats</div>
-              <div className="stat-line">
+              <StatAllocationRow>
                 <span className="stat-name">Body</span>
-                <span className="stat-value">{bodyScore}</span>
-              </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <StatButton
+                    onClick={() => adjustStat('body', -1)}
+                    disabled={baseStats.body <= 1}
+                  >
+                    -
+                  </StatButton>
+                  <span className="stat-value" style={{ minWidth: '20px', textAlign: 'center' }}>
+                    {baseStats.body}
+                  </span>
+                  <StatButton
+                    onClick={() => adjustStat('body', 1)}
+                    disabled={!canAllocatePoints}
+                  >
+                    +
+                  </StatButton>
+                </div>
+              </StatAllocationRow>
               <div className="stat-line">
                 <span className="stat-name">Phys Atk</span>
-                <span className="stat-value">1</span>
+                <span className="stat-value">{derivedStats.physicalAttack}</span>
               </div>
               <div className="stat-line">
                 <span className="stat-name">Phys Def</span>
-                <span className="stat-value">1</span>
+                <span className="stat-value">{derivedStats.physicalDefense}</span>
               </div>
               <div className="stat-line">
                 <span className="stat-name">Constitution Save</span>
-                <span className="stat-value">1</span>
+                <span className="stat-value">{derivedStats.constitutionSave}</span>
               </div>
             </div>
 
             <div className="stat-group">
               <div className="group-title">Mind Stats</div>
-              <div className="stat-line">
+              <StatAllocationRow>
                 <span className="stat-name">Mind</span>
-                <span className="stat-value">{mindScore}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <StatButton
+                    onClick={() => adjustStat('mind', -1)}
+                    disabled={baseStats.mind <= 1}
+                  >
+                    -
+                  </StatButton>
+                  <span className="stat-value" style={{ minWidth: '20px', textAlign: 'center' }}>
+                    {baseStats.mind}
+                  </span>
+                  <StatButton
+                    onClick={() => adjustStat('mind', 1)}
+                    disabled={!canAllocatePoints}
+                  >
+                    +
+                  </StatButton>
+                </div>
+              </StatAllocationRow>
+              <div className="stat-line">
+                <span className="stat-name">Mind Atk</span>
+                <span className="stat-value">{derivedStats.mindAttack}</span>
               </div>
               <div className="stat-line">
-                <span className="stat-name">Mental Atk</span>
-                <span className="stat-value">1</span>
-              </div>
-              <div className="stat-line">
-                <span className="stat-name">Mental Def</span>
-                <span className="stat-value">1</span>
+                <span className="stat-name">Mind Def</span>
+                <span className="stat-value">{derivedStats.mindDefense}</span>
               </div>
               <div className="stat-line">
                 <span className="stat-name">Reflex Save</span>
-                <span className="stat-value">1</span>
+                <span className="stat-value">{derivedStats.reflexSave}</span>
+              </div>
+              <div className="stat-line">
+                <span className="stat-name">Perception</span>
+                <span className="stat-value">{derivedStats.perception}</span>
               </div>
             </div>
 
             <div className="stat-group">
               <div className="group-title">Heart Stats</div>
-              <div className="stat-line">
+              <StatAllocationRow>
                 <span className="stat-name">Heart</span>
-                <span className="stat-value">{heartScore}</span>
-              </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <StatButton
+                    onClick={() => adjustStat('heart', -1)}
+                    disabled={baseStats.heart <= 1}
+                  >
+                    -
+                  </StatButton>
+                  <span className="stat-value" style={{ minWidth: '20px', textAlign: 'center' }}>
+                    {baseStats.heart}
+                  </span>
+                  <StatButton
+                    onClick={() => adjustStat('heart', 1)}
+                    disabled={!canAllocatePoints}
+                  >
+                    +
+                  </StatButton>
+                </div>
+              </StatAllocationRow>
               <div className="stat-line">
                 <span className="stat-name">Ailment Atk</span>
-                <span className="stat-value">1</span>
+                <span className="stat-value">{derivedStats.ailmentAttack}</span>
               </div>
               <div className="stat-line">
                 <span className="stat-name">Ailment Def</span>
-                <span className="stat-value">1</span>
-              </div>
-              <div className="stat-line">
-                <span className="stat-name">Critical Chance</span>
-                <span className="stat-value">1</span>
+                <span className="stat-value">{derivedStats.ailmentDefense}</span>
               </div>
               <div className="stat-line">
                 <span className="stat-name">Will Save</span>
-                <span className="stat-value">1</span>
+                <span className="stat-value">{derivedStats.willSave}</span>
               </div>
             </div>
 
@@ -380,16 +520,25 @@ export const CharacterCreationScreen: React.FC = () => {
               <div className="derived-title">Derived Stats</div>
               <div className="stat-line">
                 <span className="stat-name">Accuracy</span>
-                <span className="stat-value">{bodyScore + mindScore}</span>
+                <span className="stat-value">{derivedStats.accuracy}</span>
               </div>
               <div className="stat-line">
                 <span className="stat-name">Evasion</span>
-                <span className="stat-value">{mindScore + heartScore}</span>
+                <span className="stat-value">{derivedStats.evasion}</span>
               </div>
               <div className="stat-line">
                 <span className="stat-name">Luck</span>
-                <span className="stat-value">{bodyScore + heartScore}</span>
+                <span className="stat-value">{derivedStats.luck}</span>
               </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+              <StatButton
+                onClick={resetStats}
+                style={{ width: 'auto', padding: '8px 16px', borderRadius: '8px' }}
+              >
+                Reset
+              </StatButton>
             </div>
           </StatsContainer>
         </RightSquare>

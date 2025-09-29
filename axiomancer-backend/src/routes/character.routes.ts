@@ -7,7 +7,7 @@ const router = Router();
 // Save character state
 router.post('/save', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
@@ -30,13 +30,14 @@ router.post('/save', authenticateToken, async (req: AuthenticatedRequest, res: R
   } catch (error) {
     console.error('Error saving character state:', error);
     res.status(500).json({ error: 'Failed to save character state' });
+    return;
   }
 });
 
 // Load character state
 router.get('/load', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
@@ -53,13 +54,14 @@ router.get('/load', authenticateToken, async (req: AuthenticatedRequest, res: Re
   } catch (error) {
     console.error('Error loading character state:', error);
     res.status(500).json({ error: 'Failed to load character state' });
+    return;
   }
 });
 
 // Check if character exists
 router.get('/exists', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
@@ -74,13 +76,14 @@ router.get('/exists', authenticateToken, async (req: AuthenticatedRequest, res: 
   } catch (error) {
     console.error('Error checking character existence:', error);
     res.status(500).json({ error: 'Failed to check character existence' });
+    return;
   }
 });
 
 // Delete character state
 router.delete('/delete', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     if (!userId) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
@@ -92,6 +95,7 @@ router.delete('/delete', authenticateToken, async (req: AuthenticatedRequest, re
   } catch (error) {
     console.error('Error deleting character state:', error);
     res.status(500).json({ error: 'Failed to delete character state' });
+    return;
   }
 });
 

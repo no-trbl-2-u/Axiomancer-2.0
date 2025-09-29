@@ -189,19 +189,19 @@ export function awardQuestRewards(quest: Quest, character: Character): Partial<C
   
   switch (quest.philosophicalTheme?.toLowerCase()) {
     case 'critical thinking':
-      statBonuses.intelligence = (statBonuses.intelligence || 0) + 2;
-      statBonuses.wisdom = (statBonuses.wisdom || 0) + 1;
+      statBonuses.mind = (statBonuses.mind || 0) + 2;
+      statBonuses.body = (statBonuses.body || 0) + 1;
       break;
     case 'ancient wisdom':
-      statBonuses.wisdom = (statBonuses.wisdom || 0) + 3;
-      statBonuses.charisma = (statBonuses.charisma || 0) + 1;
+      statBonuses.mind = (statBonuses.mind || 0) + 3;
+      statBonuses.heart = (statBonuses.heart || 0) + 1;
       break;
     case 'moral reasoning':
-      statBonuses.charisma = (statBonuses.charisma || 0) + 2;
-      statBonuses.constitution = (statBonuses.constitution || 0) + 1;
+      statBonuses.heart = (statBonuses.heart || 0) + 2;
+      statBonuses.body = (statBonuses.body || 0) + 1;
       break;
     default:
-      statBonuses.wisdom = (statBonuses.wisdom || 0) + 1;
+      statBonuses.mind = (statBonuses.mind || 0) + 1;
   }
   
   return {

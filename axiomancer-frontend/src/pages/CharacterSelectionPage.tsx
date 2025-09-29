@@ -81,6 +81,14 @@ const StatsGrid = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: ${theme.spacing.md};
   margin-bottom: ${theme.spacing.lg};
+
+  /* Show 3 columns for stats when we have 5 total items (2 resources + 3 stats) */
+  .stats-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: ${theme.spacing.md};
+  }
 `;
 
 const StatCard = styled.div`
@@ -366,39 +374,46 @@ export const CharacterSelectionPage: React.FC = () => {
                 {savedCharacter.character.health} / {savedCharacter.character.maxHealth}
               </div>
               <div className="stat-bar">
-                <div 
-                  className="fill health" 
-                  style={{ 
-                    width: `${(savedCharacter.character.health / savedCharacter.character.maxHealth) * 100}%` 
-                  }} 
+                <div
+                  className="fill health"
+                  style={{
+                    width: `${(savedCharacter.character.health / savedCharacter.character.maxHealth) * 100}%`
+                  }}
                 />
               </div>
             </StatCard>
-            
+
             <StatCard>
               <div className="stat-label">Mana</div>
               <div className="stat-value">
                 {savedCharacter.character.mana} / {savedCharacter.character.maxMana}
               </div>
               <div className="stat-bar">
-                <div 
-                  className="fill mana" 
-                  style={{ 
-                    width: `${(savedCharacter.character.mana / savedCharacter.character.maxMana) * 100}%` 
-                  }} 
+                <div
+                  className="fill mana"
+                  style={{
+                    width: `${(savedCharacter.character.mana / savedCharacter.character.maxMana) * 100}%`
+                  }}
                 />
               </div>
             </StatCard>
-            
-            <StatCard>
-              <div className="stat-label">Wisdom</div>
-              <div className="stat-value">{savedCharacter.character.stats.wisdom}</div>
-            </StatCard>
-            
-            <StatCard>
-              <div className="stat-label">Intelligence</div>
-              <div className="stat-value">{savedCharacter.character.stats.intelligence}</div>
-            </StatCard>
+
+            <div className="stats-row">
+              <StatCard>
+                <div className="stat-label">Heart</div>
+                <div className="stat-value">{savedCharacter.character.stats.heart}</div>
+              </StatCard>
+
+              <StatCard>
+                <div className="stat-label">Body</div>
+                <div className="stat-value">{savedCharacter.character.stats.body}</div>
+              </StatCard>
+
+              <StatCard>
+                <div className="stat-label">Mind</div>
+                <div className="stat-value">{savedCharacter.character.stats.mind}</div>
+              </StatCard>
+            </div>
           </StatsGrid>
           
           <ProgressInfo>

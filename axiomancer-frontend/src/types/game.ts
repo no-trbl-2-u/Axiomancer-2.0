@@ -64,7 +64,7 @@ export interface Skill {
   fallacyType?: 'formal' | 'informal' | 'cognitive_bias';
   learningRequirement?: {
     level: number;
-    stats?: Partial<Character['stats']>;
+    stats?: Partial<Character['baseStats']>;
     philosophicalAlignment?: Partial<PhilosophicalStance>;
   };
 }
@@ -73,7 +73,7 @@ export interface Equipment {
   id: string;
   name: string;
   type: EquipmentType;
-  stats: Partial<Character['stats']>;
+  stats: Partial<Character['baseStats']>;
   special?: string;
   icon: string;
 }
@@ -248,7 +248,8 @@ export interface Enemy {
   maxHealth: number;
   mana: number;
   maxMana: number;
-  stats: Character['stats'];
+  baseStats: BaseStats;
+  derivedStats: DerivedStats;
   skills: Skill[];
   loot: Item[];
   philosophicalAlignment?: PhilosophicalStance;
@@ -294,6 +295,9 @@ export interface CombatState {
     player: number;
     enemy: number;
   };
+  playerBuffs: CombatantBuffs;
+  enemyBuffs: CombatantBuffs;
+  agreeToDisagreeCounter: number;
   log: CombatLogEntry[];
 }
 
@@ -305,6 +309,56 @@ export interface CombatLogEntry {
   target: string;
   damage?: number;
   effect?: string;
+}
+
+export interface BuffDebuff {
+  id: string;
+  name: string;
+  description: string;
+  type: 'buff' | 'debuff';
+  effect: BuffDebuffEffect;
+  duration: number;
+  remainingTurns: number;
+  stackable: boolean;
+  maxStacks?: number;
+  currentStacks: number;
+  icon: string;
+}
+
+export interface BuffDebuffEffect {
+  statModifiers?: {
+    physicalAttack?: number;
+    physicalDefense?: number;
+    mindAttack?: number;
+    mindDefense?: number;
+    ailmentAttack?: number;
+    ailmentDefense?: number;
+    accuracy?: number;
+    evasion?: number;
+  };
+  percentageModifiers?: {
+    physicalAttack?: number;
+    physicalDefense?: number;
+    mindAttack?: number;
+    mindDefense?: number;
+    ailmentAttack?: number;
+    ailmentDefense?: number;
+    accuracy?: number;
+    evasion?: number;
+  };
+  specialEffects?: {
+    reflection?: number; // Reflects damage back to attacker
+    fixedDamageNextTurn?: number; // Mind attack follow-up damage
+    damageOnAttack?: number; // Heart attack debuff damage
+    skipTurn?: boolean; // Fear, confusion effects
+    healPrevention?: boolean;
+    immuneToNextAttack?: boolean;
+  };
+}
+
+export interface CombatantBuffs {
+  buffs: BuffDebuff[];
+  debuffs: BuffDebuff[];
 }
 
 export interface GameState {

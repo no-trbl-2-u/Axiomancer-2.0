@@ -21,7 +21,7 @@ export const fallacySkills: Record<string, Skill> = {
     fallacyType: 'formal',
     learningRequirement: {
       level: 2,
-      stats: { intelligence: 12 }
+      stats: { mind: 12 }
     }
   },
 
@@ -39,7 +39,7 @@ export const fallacySkills: Record<string, Skill> = {
     fallacyType: 'formal',
     learningRequirement: {
       level: 3,
-      stats: { intelligence: 14 }
+      stats: { mind: 14 }
     }
   },
 
@@ -58,7 +58,7 @@ export const fallacySkills: Record<string, Skill> = {
     fallacyType: 'informal',
     learningRequirement: {
       level: 1,
-      stats: { charisma: 10 }
+      stats: { heart: 10 }
     }
   },
 
@@ -76,7 +76,7 @@ export const fallacySkills: Record<string, Skill> = {
     fallacyType: 'informal',
     learningRequirement: {
       level: 4,
-      stats: { charisma: 16 },
+      stats: { heart: 16 },
       philosophicalAlignment: { ethics: 'consequentialist' }
     }
   },
@@ -96,7 +96,7 @@ export const fallacySkills: Record<string, Skill> = {
     fallacyType: 'informal',
     learningRequirement: {
       level: 1,
-      stats: { dexterity: 12 }
+      stats: { body: 12 }
     }
   },
 
@@ -114,7 +114,7 @@ export const fallacySkills: Record<string, Skill> = {
     fallacyType: 'informal',
     learningRequirement: {
       level: 3,
-      stats: { intelligence: 13, dexterity: 11 }
+      stats: { mind: 13, body: 11 }
     }
   },
 
@@ -132,7 +132,7 @@ export const fallacySkills: Record<string, Skill> = {
     philosophicalAspect: 'mind',
     learningRequirement: {
       level: 2,
-      stats: { wisdom: 14 },
+      stats: { mind: 14 },
       philosophicalAlignment: { epistemology: 'rationalist' }
     }
   },
@@ -150,7 +150,7 @@ export const fallacySkills: Record<string, Skill> = {
     philosophicalAspect: 'mind',
     learningRequirement: {
       level: 3,
-      stats: { wisdom: 16, intelligence: 14 },
+      stats: { mind: 16 },
       philosophicalAlignment: { epistemology: 'skeptical' }
     }
   },
@@ -169,7 +169,7 @@ export const fallacySkills: Record<string, Skill> = {
     philosophicalAspect: 'heart',
     learningRequirement: {
       level: 2,
-      stats: { wisdom: 12, charisma: 12 },
+      stats: { mind: 12, heart: 12 },
       philosophicalAlignment: { ethics: 'virtue' }
     }
   },
@@ -187,7 +187,7 @@ export const fallacySkills: Record<string, Skill> = {
     philosophicalAspect: 'heart',
     learningRequirement: {
       level: 4,
-      stats: { constitution: 15, charisma: 14 },
+      stats: { body: 15, heart: 14 },
       philosophicalAlignment: { ethics: 'deontological' }
     }
   },
@@ -206,7 +206,7 @@ export const fallacySkills: Record<string, Skill> = {
     philosophicalAspect: 'mind',
     learningRequirement: {
       level: 3,
-      stats: { wisdom: 15 },
+      stats: { mind: 15 },
       philosophicalAlignment: { epistemology: 'mystical' }
     }
   },
@@ -225,7 +225,7 @@ export const fallacySkills: Record<string, Skill> = {
     philosophicalAspect: 'mind',
     learningRequirement: {
       level: 5,
-      stats: { intelligence: 18, charisma: 16 },
+      stats: { mind: 18, heart: 16 },
       philosophicalAlignment: { epistemology: 'rationalist' }
     }
   }
@@ -238,21 +238,23 @@ export function getAvailableSkills(character: any): Skill[] {
   return Object.values(fallacySkills).filter(skill => {
     if (!skill.learningRequirement) return true;
     
-    const req = skill.learningRequirement;
+    const {stats, level, philosophicalAlignment} = skill.learningRequirement;
     
     // Check level requirement
-    if (character.level < req.level) return false;
+    if (character.level < level) return false;
     
     // Check stat requirements
-    if (req.stats) {
-      for (const [stat, value] of Object.entries(req.stats)) {
-        if (character.stats[stat] < value) return false;
+    if (stats) {
+
+      /* Check if character meets stat requirement */
+      for (const [stat, value] of Object.entries(stats)) {
+        if (!character.baseStats || character.baseStats[stat] < value) return false;
       }
     }
     
     // Check philosophical alignment requirements
-    if (req.philosophicalAlignment) {
-      for (const [aspect, value] of Object.entries(req.philosophicalAlignment)) {
+    if (philosophicalAlignment) {
+      for (const [aspect, value] of Object.entries(philosophicalAlignment)) {
         if (character.philosophicalStance[aspect] !== value) return false;
       }
     }
@@ -287,16 +289,16 @@ export function applySkillEffect(skill: Skill, caster: any, target: any): {
   const statusChanges: any = {};
   
   // Apply philosophical aspect bonuses
-  if (skill.philosophicalAspect) {
+  if (skill.philosophicalAspect && caster.baseStats) {
     switch (skill.philosophicalAspect) {
       case 'mind':
-        damage += Math.floor(caster.stats.intelligence * 0.3);
+        damage += Math.floor(caster.baseStats.mind * 0.3);
         break;
       case 'heart':
-        damage += Math.floor(caster.stats.charisma * 0.3);
+        damage += Math.floor(caster.baseStats.heart * 0.3);
         break;
       case 'body':
-        damage += Math.floor(caster.stats.strength * 0.3);
+        damage += Math.floor(caster.baseStats.body * 0.3);
         break;
     }
   }
@@ -309,7 +311,7 @@ export function applySkillEffect(skill: Skill, caster: any, target: any): {
       break;
       
     case 'ad_hominem':
-      if (target.stats.charisma > caster.stats.charisma) {
+      if (target.baseStats?.heart > caster.baseStats?.heart) {
         damage *= 0.5;
         effects.push('Personal attack backfires against strong personality!');
       }

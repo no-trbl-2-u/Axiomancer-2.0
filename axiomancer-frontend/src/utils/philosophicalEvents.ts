@@ -37,8 +37,8 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Utilitarian/Consequentialist',
         alignment: { ethics: 'consequentialist' },
         outcomes: [
-          { type: 'stat_change', key: 'constitution', value: 2 },
-          { type: 'stat_change', key: 'charisma', value: -1 }
+          { type: 'stat_change', key: 'body', value: 1 },
+          { type: 'stat_change', key: 'heart', value: -1 }
         ],
         consequences: 'You prioritize the greater good, but feel the weight of directly causing harm.'
       },
@@ -48,8 +48,8 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Deontological',
         alignment: { ethics: 'deontological' },
         outcomes: [
-          { type: 'stat_change', key: 'wisdom', value: 2 },
-          { type: 'stat_change', key: 'strength', value: -1 }
+          { type: 'stat_change', key: 'mind', value: 2 },
+          { type: 'stat_change', key: 'body', value: -1 }
         ],
         consequences: 'You maintain moral purity by not directly harming anyone, despite the greater loss.'
       },
@@ -59,8 +59,8 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Meta-ethical Skepticism',
         alignment: { epistemology: 'skeptical' },
         outcomes: [
-          { type: 'stat_change', key: 'intelligence', value: 3 },
-          { type: 'stat_change', key: 'charisma', value: 1 }
+          { type: 'stat_change', key: 'mind', value: 3 },
+          { type: 'stat_change', key: 'heart', value: 1 }
         ],
         consequences: 'You realize that artificial dilemmas may not reflect real moral complexity.'
       }
@@ -81,8 +81,7 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Empiricist/Materialist',
         alignment: { epistemology: 'empiricist', metaphysics: 'materialist' },
         outcomes: [
-          { type: 'stat_change', key: 'constitution', value: 2 },
-          { type: 'stat_change', key: 'dexterity', value: 1 }
+          { type: 'stat_change', key: 'body', value: 2 }
         ],
         consequences: 'You ground yourself in observable reality, gaining practical strength.'
       },
@@ -92,8 +91,7 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Platonic Idealist',
         alignment: { metaphysics: 'idealist', epistemology: 'rationalist' },
         outcomes: [
-          { type: 'stat_change', key: 'intelligence', value: 3 },
-          { type: 'stat_change', key: 'wisdom', value: 2 }
+          { type: 'stat_change', key: 'mind', value: 3 }
         ],
         consequences: 'Your mind expands to contemplate higher realities beyond the physical.'
       },
@@ -103,9 +101,8 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Dualist/Pragmatic',
         alignment: { metaphysics: 'dualist' },
         outcomes: [
-          { type: 'stat_change', key: 'wisdom', value: 2 },
-          { type: 'stat_change', key: 'charisma', value: 2 },
-          { type: 'stat_change', key: 'intelligence', value: 1 }
+          { type: 'stat_change', key: 'mind', value: 2 },
+          { type: 'stat_change', key: 'heart', value: 2 }
         ],
         consequences: 'Your balanced perspective allows you to see value in multiple viewpoints.'
       }
@@ -114,7 +111,7 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
     oneTime: true,
     requirements: {
       level: 2,
-      stats: { intelligence: 12 }
+      stats: { mind: 12 }
     }
   },
 
@@ -130,8 +127,8 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Essentialist',
         alignment: { metaphysics: 'idealist' },
         outcomes: [
-          { type: 'stat_change', key: 'wisdom', value: 2 },
-          { type: 'stat_change', key: 'constitution', value: 1 }
+          { type: 'stat_change', key: 'mind', value: 2 },
+          { type: 'stat_change', key: 'body', value: 1 }
         ],
         consequences: 'You believe in persistent identity that transcends physical changes.'
       },
@@ -141,8 +138,8 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Materialist',
         alignment: { metaphysics: 'materialist' },
         outcomes: [
-          { type: 'stat_change', key: 'intelligence', value: 2 },
-          { type: 'stat_change', key: 'dexterity', value: 1 }
+          { type: 'stat_change', key: 'mind', value: 2 },
+          { type: 'stat_change', key: 'body', value: 1 }
         ],
         consequences: 'You ground identity in physical reality and observable change.'
       },
@@ -152,8 +149,8 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Process Philosophy',
         alignment: { epistemology: 'skeptical' },
         outcomes: [
-          { type: 'stat_change', key: 'wisdom', value: 3 },
-          { type: 'stat_change', key: 'charisma', value: 2 }
+          { type: 'stat_change', key: 'mind', value: 3 },
+          { type: 'stat_change', key: 'heart', value: 2 }
         ],
         consequences: 'You embrace the complexity of identity as an ongoing process rather than fixed state.'
       }
@@ -177,8 +174,8 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Moral Universalism',
         alignment: { ethics: 'deontological' },
         outcomes: [
-          { type: 'stat_change', key: 'constitution', value: 2 },
-          { type: 'stat_change', key: 'charisma', value: 1 }
+          { type: 'stat_change', key: 'body', value: 2 },
+          { type: 'stat_change', key: 'heart', value: 1 }
         ],
         consequences: 'Your conviction in universal principles strengthens your resolve.'
       },
@@ -188,8 +185,8 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Moral Relativism',
         alignment: { epistemology: 'empiricist' },
         outcomes: [
-          { type: 'stat_change', key: 'wisdom', value: 2 },
-          { type: 'stat_change', key: 'dexterity', value: 2 }
+          { type: 'stat_change', key: 'mind', value: 2 },
+          { type: 'stat_change', key: 'body', value: 2 }
         ],
         consequences: 'Your cultural sensitivity enhances your ability to adapt and understand others.'
       },
@@ -199,8 +196,8 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Virtue Ethics',
         alignment: { ethics: 'virtue' },
         outcomes: [
-          { type: 'stat_change', key: 'charisma', value: 3 },
-          { type: 'stat_change', key: 'wisdom', value: 1 }
+          { type: 'stat_change', key: 'heart', value: 3 },
+          { type: 'stat_change', key: 'mind', value: 1 }
         ],
         consequences: 'You prioritize the development of good character over abstract moral rules.'
       }
@@ -209,7 +206,7 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
     oneTime: true,
     requirements: {
       level: 4,
-      stats: { wisdom: 14 }
+      stats: { mind: 14 }
     }
   },
 
@@ -225,8 +222,8 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Buddhist Philosophy',
         alignment: { epistemology: 'mystical', ethics: 'virtue' },
         outcomes: [
-          { type: 'stat_change', key: 'wisdom', value: 4 },
-          { type: 'stat_change', key: 'constitution', value: -1 }
+          { type: 'stat_change', key: 'mind', value: 4 },
+          { type: 'stat_change', key: 'body', value: -1 }
         ],
         consequences: 'You gain profound wisdom but may become detached from physical concerns.'
       },
@@ -236,8 +233,8 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Stoicism',
         alignment: { ethics: 'virtue', metaphysics: 'dualist' },
         outcomes: [
-          { type: 'stat_change', key: 'constitution', value: 3 },
-          { type: 'stat_change', key: 'wisdom', value: 2 }
+          { type: 'stat_change', key: 'body', value: 3 },
+          { type: 'stat_change', key: 'mind', value: 2 }
         ],
         consequences: 'You develop resilience and inner strength through accepting hardship.'
       },
@@ -247,9 +244,8 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
         philosophicalPosition: 'Utilitarian Optimism',
         alignment: { ethics: 'consequentialist', epistemology: 'rationalist' },
         outcomes: [
-          { type: 'stat_change', key: 'intelligence', value: 2 },
-          { type: 'stat_change', key: 'strength', value: 2 },
-          { type: 'stat_change', key: 'dexterity', value: 1 }
+          { type: 'stat_change', key: 'mind', value: 2 },
+          { type: 'stat_change', key: 'body', value: 2 }
         ],
         consequences: 'Your commitment to reducing suffering motivates practical action.'
       }
@@ -258,7 +254,7 @@ export const philosophicalEvents: Record<string, PhilosophicalEvent> = {
     oneTime: true,
     requirements: {
       level: 5,
-      stats: { wisdom: 16 }
+      stats: { mind: 16 }
     }
   }
 };
@@ -374,7 +370,7 @@ export function createMeditationEvent(locationId: string): PhilosophicalEvent {
             text: 'Reflect on lessons from your guardian',
             philosophicalPosition: 'Gratitude and Tradition',
             alignment: { ethics: 'virtue' },
-            outcomes: [{ type: 'stat_change', key: 'wisdom', value: 1 }],
+            outcomes: [{ type: 'stat_change', key: 'mind', value: 1 }],
             consequences: 'You feel grounded in the wisdom passed down to you.'
           },
           {
@@ -382,7 +378,7 @@ export function createMeditationEvent(locationId: string): PhilosophicalEvent {
             text: 'Plan your future adventures and goals',
             philosophicalPosition: 'Forward-thinking Pragmatism',
             alignment: { metaphysics: 'pragmatist' },
-            outcomes: [{ type: 'stat_change', key: 'intelligence', value: 1 }],
+            outcomes: [{ type: 'stat_change', key: 'mind', value: 1 }],
             consequences: 'Clear planning sharpens your mind for challenges ahead.'
           }
         ]
@@ -399,7 +395,7 @@ export function createMeditationEvent(locationId: string): PhilosophicalEvent {
             text: 'Learn from the natural cycles of growth and decay',
             philosophicalPosition: 'Natural Philosophy',
             alignment: { epistemology: 'empiricist' },
-            outcomes: [{ type: 'stat_change', key: 'constitution', value: 1 }],
+            outcomes: [{ type: 'stat_change', key: 'body', value: 1 }],
             consequences: 'Nature teaches you about resilience and adaptation.'
           },
           {
@@ -407,7 +403,7 @@ export function createMeditationEvent(locationId: string): PhilosophicalEvent {
             text: 'Contemplate the interconnectedness of all life',
             philosophicalPosition: 'Holistic Thinking',
             alignment: { metaphysics: 'idealist' },
-            outcomes: [{ type: 'stat_change', key: 'charisma', value: 1 }],
+            outcomes: [{ type: 'stat_change', key: 'heart', value: 1 }],
             consequences: 'You feel your connection to the larger web of existence.'
           }
         ]
@@ -424,7 +420,7 @@ export function createMeditationEvent(locationId: string): PhilosophicalEvent {
             text: 'Consider what you have learned so far',
             philosophicalPosition: 'Self-Knowledge',
             alignment: {},
-            outcomes: [{ type: 'stat_change', key: 'wisdom', value: 1 }],
+            outcomes: [{ type: 'stat_change', key: 'mind', value: 1 }],
             consequences: 'Reflection brings clarity and understanding.'
           }
         ]
