@@ -3,8 +3,10 @@ import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGame } from '../../contexts/GameContext';
 import { getAvailableSkills, applySkillEffect } from '../../utils/fallacySkills';
-import { Skill } from '../../types/game';
+import { Skill, PhilosophicalAspect, BuffDebuff } from '../../types/game';
 import { saveCharacter } from '../../utils/characterSave';
+import { SkillSelectionModal } from '../combat/SkillSelectionModal';
+import { BuffDebuffDisplay } from '../combat/BuffDebuffDisplay';
 
 type EventType = 'combat' | 'moral' | 'gathering' | 'rest';
 type SkillCategory = 'body' | 'mind' | 'heart';
@@ -607,6 +609,9 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
   const [selectedCategory, setSelectedCategory] = useState<SkillCategory | null>(null);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [combatEnded, setCombatEnded] = useState(false);
+  const [showSkillModal, setShowSkillModal] = useState(false);
+  const [playerBuffs, setPlayerBuffs] = useState<BuffDebuff[]>([]);
+  const [enemyBuffs, setEnemyBuffs] = useState<BuffDebuff[]>([]);
   
   // Event state
   const [currentScenario, setCurrentScenario] = useState<MoralScenario | null>(null);
@@ -642,6 +647,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
         setSelectedCategory(null);
         setIsPlayerTurn(true);
         setCombatEnded(false);
+        setPlayerBuffs([]);
+        setEnemyBuffs([]);
         break;
       case 'moral':
         // Handle special cases first
@@ -677,6 +684,53 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
 
   const addToLog = (message: string, type: 'normal' | 'damage' | 'heal' = 'normal') => {
     setBattleLog(prev => [...prev, message]);
+  };
+
+  const handleSkillUse = (skill: Skill) => {
+    if (!enemy || !isPlayerTurn || combatEnded || !selectedCategory) return;
+
+    // Check if player has enough mana
+    if (gameState.character.mana < skill.manaCost) {
+      addToLog('Not enough mana to use this skill!');
+      return;
+    }
+
+    // Deduct mana cost
+    updateCharacter({ mana: Math.max(0, gameState.character.mana - skill.manaCost) });
+
+    // Apply skill effect using the existing system
+    const skillResult = applySkillEffect(skill, gameState.character, enemy);
+
+    // Calculate damage and apply to enemy
+    const finalDamage = Math.max(0, skillResult.damage);
+
+    setEnemyHealth(prev => {
+      const newHealth = Math.max(0, prev - finalDamage);
+      addToLog(`You use ${skill.name} for ${finalDamage} damage!`, 'damage');
+
+      // Add skill-specific effects to log
+      skillResult.effects.forEach(effect => addToLog(effect));
+
+      if (newHealth <= 0) {
+        addToLog(`${enemy.name} is defeated!`, 'heal');
+        setCombatEnded(true);
+        setEventCompleted(true);
+        setEventResult('Victory! You gain experience and wisdom from this encounter.');
+        return 0;
+      }
+
+      return newHealth;
+    });
+
+    setIsPlayerTurn(false);
+
+    // Enemy turn after skill use
+    setTimeout(() => {
+      const enemyDamage = 15 + Math.floor(Math.random() * 10);
+      updateCharacter({ health: Math.max(0, gameState.character.health - enemyDamage) });
+      addToLog(`${enemy.name} attacks for ${enemyDamage} damage!`, 'damage');
+      setIsPlayerTurn(true);
+    }, 1500);
   };
 
   const handleCombatAction = (actionType: 'attack' | 'special' | 'defend' | 'flee') => {
@@ -870,6 +924,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
                   </div>
                 </div>
               </div>
+
+              <BuffDebuffDisplay
+                buffs={enemyBuffs}
+                target="enemy"
+              />
             </MonsterDisplay>
             
             <CombatInterface>
@@ -908,9 +967,9 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
                   </ActionButton>
                   <ActionButton
                     disabled={!selectedCategory}
-                    onClick={() => handleCombatAction('special')}
+                    onClick={() => setShowSkillModal(true)}
                   >
-                    ✨ Special Attack
+                    ✨ Skills
                   </ActionButton>
                   <ActionButton onClick={() => handleCombatAction('defend')}>
                     🛡️ Defend
@@ -919,6 +978,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
                     🏃 Flee
                   </ActionButton>
                 </div>
+
+                <BuffDebuffDisplay
+                  buffs={playerBuffs}
+                  target="player"
+                />
               </ActionPanel>
             </CombatInterface>
           </CombatArea>
@@ -1005,6 +1069,17 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
           {renderEventContent()}
         </ModalBody>
       </ModalContent>
+
+      <SkillSelectionModal
+        isOpen={showSkillModal}
+        selectedAspect={selectedCategory as PhilosophicalAspect}
+        onSkillSelect={(skill) => {
+          handleSkillUse(skill);
+          setShowSkillModal(false);
+        }}
+        onClose={() => setShowSkillModal(false)}
+        playerMana={gameState.character.mana}
+      />
     </ModalOverlay>
   );
 };
