@@ -67,6 +67,16 @@ export interface Skill {
     stats?: Partial<Character['baseStats']>;
     philosophicalAlignment?: Partial<PhilosophicalStance>;
   };
+
+  // Combat.md required fields
+  combatEffects?: {
+    baseEffect?: string;
+    advantageEffect?: string;
+    baseDefendedEffect?: string;
+    defendedAgainstAdvantage?: string;
+    defendedWithAdvantage?: string;
+    specialScenario?: string;
+  };
 }
 
 export interface Equipment {
@@ -254,6 +264,7 @@ export interface Enemy {
   loot: Item[];
   philosophicalAlignment?: PhilosophicalStance;
   type: 'fallacy' | 'sophist' | 'skeptic' | 'nihilist' | 'beast' | 'guardian';
+  enemyTier?: 'normal' | 'elite' | 'boss';
   image?: string;
   description: string;
   weaknesses?: PhilosophicalAspect[];

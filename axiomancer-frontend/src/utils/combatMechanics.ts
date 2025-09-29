@@ -105,8 +105,23 @@ export function executeCombatAction(
   if (action === 'defend' || action === 'flee') {
     result.hit = true;
     if (action === 'defend') {
-      result.damage = calculateReflectionDamage(attacker, argumentType);
-      result.effects.push(`${attacker.name} takes a defensive stance`);
+      result.damage = 0; // Defend doesn't deal damage directly
+      result.effects.push(`${attacker.name} takes a ${argumentType.toUpperCase()} defensive stance`);
+
+      // Apply defend buffs based on argument type per Combat.md
+      if (argumentType === 'body') {
+        result.effects.push('Physical defense doubled, ailment defense halved');
+        const reflectBuff = createReflectionBuff(Math.floor(attacker.derivedStats.physicalAttack * (hasAdvantage ? 0.5 : 0.25)));
+        result.buffsApplied.push(reflectBuff);
+      } else if (argumentType === 'mind') {
+        result.effects.push('Mind defense doubled, physical defense halved');
+        const counterBuff = createCounterArgumentBuff(Math.floor(attacker.derivedStats.mindAttack * (hasAdvantage ? 0.5 : 0.25)), 3);
+        result.buffsApplied.push(counterBuff);
+      } else if (argumentType === 'heart') {
+        result.effects.push('Ailment defense doubled, mind defense halved');
+        const foresightBuff = createForesightBuff(hasAdvantage ? 'both' : 'attack', 3);
+        result.buffsApplied.push(foresightBuff);
+      }
     }
     return result;
   }
@@ -139,21 +154,35 @@ export function executeCombatAction(
       } else if (argumentType === 'mind') {
         baseDamage = Math.floor(attacker.derivedStats.mindAttack * 0.75);
         defense = defender.derivedStats.mindDefense;
+        let followUpDamage = Math.floor(attacker.derivedStats.mindAttack * 0.25);
         if (hasAdvantage) {
           baseDamage = attacker.derivedStats.mindAttack;
+          followUpDamage = Math.floor(attacker.derivedStats.mindAttack * 0.5);
           result.effects.push('Mind argument advantage: Full damage + stronger follow-up!');
         }
-        result.effects.push('Mind attack creates follow-up damage next turn');
-        // Note: Mind attack buff will be handled by buff system
+        const mindBuff = createMindAttackBuff(followUpDamage);
+        result.buffsApplied.push(mindBuff);
+        result.effects.push(`Mind attack creates follow-up damage next turn (${followUpDamage} fixed damage)`);
       } else if (argumentType === 'heart') {
         baseDamage = Math.floor(attacker.derivedStats.ailmentAttack * 0.5);
         defense = defender.derivedStats.ailmentDefense;
+        let guiltDamage = Math.floor((baseDamage - defense) * 0.5);
+        let chanceToFade: number | undefined = undefined;
         if (hasAdvantage) {
           baseDamage = Math.floor(attacker.derivedStats.ailmentAttack * 0.75);
+          guiltDamage = Math.floor((baseDamage - defense) * 1); // 100% of damage done
+          chanceToFade = 15; // 15% chance to fade per turn
           result.effects.push('Heart argument advantage: Increased damage + stronger guilt!');
+        } else {
+          guiltDamage = Math.floor((baseDamage - defense) * 0.5); // 50% of damage done
         }
-        result.effects.push('Heart attack inflicts emotional guilt');
-        // Note: Heart attack debuff will be handled by buff system
+
+        // Only apply debuff if damage > 0
+        if (guiltDamage > 0) {
+          const heartDebuff = createHeartAttackDebuff(guiltDamage, 3, chanceToFade);
+          result.debuffsApplied.push(heartDebuff);
+          result.effects.push(`Heart attack inflicts emotional guilt (${guiltDamage} damage when attacking)`);
+        }
       }
       break;
     case 'special':
@@ -799,37 +828,92 @@ export class CombatStateManager {
   /**
    * Process start of turn effects (buffs/debuffs)
    */
-  private processStartOfTurn(): void {
-    import('./buffDebuffEngine').then(({ processBuffsDebuffs }) => {
-      // Process player buffs/debuffs
-      const playerResult = processBuffsDebuffs(this.playerBuffs, true);
-      this.playerBuffs = playerResult.updatedBuffs;
-      this.turnEffects.push(...playerResult.turnEffects.map(effect => `Player: ${effect}`));
+  private async processStartOfTurn(): Promise<void> {
+    const { processBuffsDebuffs } = await import('./buffDebuffEngine');
 
-      // Process enemy buffs/debuffs
-      const enemyResult = processBuffsDebuffs(this.enemyBuffs, true);
-      this.enemyBuffs = enemyResult.updatedBuffs;
-      this.turnEffects.push(...enemyResult.turnEffects.map(effect => `Enemy: ${effect}`));
+    // Process player buffs/debuffs
+    const playerResult = processBuffsDebuffs(this.playerBuffs, true);
+    this.playerBuffs = playerResult.updatedBuffs;
+    this.turnEffects.push(...playerResult.turnEffects.map(effect => `Player: ${effect}`));
+
+    // Apply damage from player buff effects (like Mind Attack follow-up)
+    if (playerResult.damageDealt) {
+      this.enemy.health = Math.max(0, this.enemy.health - playerResult.damageDealt);
+      this.turnEffects.push(`Enemy takes ${playerResult.damageDealt} damage from ongoing effects!`);
+    }
+
+    // Process enemy buffs/debuffs
+    const enemyResult = processBuffsDebuffs(this.enemyBuffs, true);
+    this.enemyBuffs = enemyResult.updatedBuffs;
+    this.turnEffects.push(...enemyResult.turnEffects.map(effect => `Enemy: ${effect}`));
+
+    // Apply damage from enemy buff effects
+    if (enemyResult.damageDealt) {
+      this.player.health = Math.max(0, this.player.health - enemyResult.damageDealt);
+      this.turnEffects.push(`Player takes ${enemyResult.damageDealt} damage from ongoing effects!`);
+    }
+  }
+
+  /**
+   * Process damage-on-attack effects (like Heart Attack guilt)
+   */
+  private async processAttackEffects(attacker: Character | Enemy, defender: Character | Enemy, isPlayer: boolean): Promise<number> {
+    const { processBuffsDebuffs } = await import('./buffDebuffEngine');
+
+    const attackerBuffs = isPlayer ? this.playerBuffs : this.enemyBuffs;
+    const result = processBuffsDebuffs(attackerBuffs, false, {
+      isAttacking: true,
+      defender: defender
     });
+
+    // Update the attacker's buffs
+    if (isPlayer) {
+      this.playerBuffs = result.updatedBuffs;
+    } else {
+      this.enemyBuffs = result.updatedBuffs;
+    }
+
+    // Add effects to turn log
+    if (result.turnEffects.length > 0) {
+      this.turnEffects.push(...result.turnEffects.map(effect => `${isPlayer ? 'Player' : 'Enemy'}: ${effect}`));
+    }
+
+    return result.damageDealt || 0;
   }
 
   /**
    * Execute a combat turn with player and enemy choices
    */
-  public executeTurn(playerChoice: CombatChoice): {
+  public async executeTurn(playerChoice: CombatChoice): Promise<{
     roundResult: CombatRoundResult;
     combatEnded: boolean;
-    winner?: 'player' | 'enemy';
+    winner?: 'player' | 'enemy' | 'agree_to_disagree' | undefined;
     turnEffects: string[];
-  } {
+    agreeToDisagreeRewards?: any;
+  }> {
     this.turnEffects = [];
-    this.processStartOfTurn();
+    await this.processStartOfTurn();
 
     // Store player choice for AI analysis
     this.playerChoiceHistory.push(playerChoice);
 
     // Generate enemy choice
     const enemyChoice = generateEnemyChoice(this.enemy, this.playerChoiceHistory);
+
+    // Check for Agree to Disagree (Defend vs Defend)
+    if (playerChoice.action === 'defend' && enemyChoice.action === 'defend') {
+      this.agreeToDisagreeCounter++;
+      const agreeToDisagreeThreshold = this.getAgreeToDisagreeThreshold();
+
+      if (this.agreeToDisagreeCounter >= agreeToDisagreeThreshold) {
+        // Trigger Agree to Disagree resolution
+        return this.resolveAgreeToDisagree();
+      } else {
+        this.turnEffects.push(
+          `Both sides defend their positions. Agree to Disagree counter: ${this.agreeToDisagreeCounter}/${agreeToDisagreeThreshold}`
+        );
+      }
+    }
 
     // Handle special actions (fallacies)
     let playerResult: CombatActionResult;
@@ -877,11 +961,47 @@ export class CombatStateManager {
       );
     }
 
-    // Apply damage
-    this.enemy.health = Math.max(0, this.enemy.health - playerResult.damage);
-    this.player.health = Math.max(0, this.player.health - enemyResult.damage);
+    // Apply damage and process attack effects (like Heart Attack guilt)
+    let playerAttackEffectDamage = 0;
+    let enemyAttackEffectDamage = 0;
 
-    // Update buffs/debuffs if provided
+    if (playerChoice.action === 'attack') {
+      playerAttackEffectDamage = await this.processAttackEffects(this.player, this.enemy, true);
+    }
+    if (enemyChoice.action === 'attack') {
+      enemyAttackEffectDamage = await this.processAttackEffects(this.enemy, this.player, false);
+    }
+
+    // Apply all damage
+    this.enemy.health = Math.max(0, this.enemy.health - playerResult.damage);
+    this.player.health = Math.max(0, this.player.health - (enemyResult.damage + playerAttackEffectDamage));
+    this.enemy.health = Math.max(0, this.enemy.health - enemyAttackEffectDamage);
+
+    // Apply buffs and debuffs from player actions
+    if (playerResult.buffsApplied?.length > 0) {
+      playerResult.buffsApplied.forEach(buff => {
+        this.playerBuffs = applyBuffDebuff(this.playerBuffs, buff);
+      });
+    }
+    if (playerResult.debuffsApplied?.length > 0) {
+      playerResult.debuffsApplied.forEach(debuff => {
+        this.enemyBuffs = applyBuffDebuff(this.enemyBuffs, debuff);
+      });
+    }
+
+    // Apply buffs and debuffs from enemy actions
+    if (enemyResult.buffsApplied?.length > 0) {
+      enemyResult.buffsApplied.forEach(buff => {
+        this.enemyBuffs = applyBuffDebuff(this.enemyBuffs, buff);
+      });
+    }
+    if (enemyResult.debuffsApplied?.length > 0) {
+      enemyResult.debuffsApplied.forEach(debuff => {
+        this.playerBuffs = applyBuffDebuff(this.playerBuffs, debuff);
+      });
+    }
+
+    // Update buffs/debuffs if provided (legacy system)
     if (playerResult.targetBuffsUpdated) {
       this.enemyBuffs = playerResult.targetBuffsUpdated;
     }
@@ -923,6 +1043,103 @@ export class CombatStateManager {
       winner,
       turnEffects: this.turnEffects,
     };
+  }
+
+  /**
+   * Get Agree to Disagree threshold based on enemy tier
+   */
+  private getAgreeToDisagreeThreshold(): number {
+    const enemyTier = this.enemy.enemyTier || 'normal';
+    switch (enemyTier) {
+      case 'elite':
+        return 5;
+      case 'boss':
+        return 10;
+      case 'normal':
+      default:
+        return 3;
+    }
+  }
+
+  /**
+   * Resolve Agree to Disagree scenario
+   */
+  private resolveAgreeToDisagree(): {
+    roundResult: CombatRoundResult;
+    combatEnded: boolean;
+    winner?: 'player' | 'enemy' | 'agree_to_disagree';
+    turnEffects: string[];
+    agreeToDisagreeRewards?: {
+      lore?: string;
+      items?: any[];
+      questItems?: any[];
+    };
+  } {
+    const enemyTier = this.enemy.enemyTier || 'normal';
+    const rewards: any = {};
+
+    // Determine rewards based on enemy tier
+    switch (enemyTier) {
+      case 'normal':
+        rewards.lore = `You and ${this.enemy.name} reach a mutual understanding. You learn something about the nature of philosophical discourse.`;
+        break;
+      case 'elite':
+        rewards.lore = `Your reasoned debate with ${this.enemy.name} yields rare insights.`;
+        rewards.items = []; // TODO: Add rare items system
+        break;
+      case 'boss':
+        rewards.lore = `Through patient discourse, you and ${this.enemy.name} achieve philosophical harmony.`;
+        rewards.items = []; // TODO: Add unique boss items
+        rewards.questItems = []; // TODO: Add quest items for final area trade
+        break;
+    }
+
+    const roundResult: CombatRoundResult = {
+      playerChoice: { action: 'defend', aspect: 'mind' },
+      enemyChoice: { action: 'defend', aspect: 'mind' },
+      aspectWinner: 'tie',
+      effects: [
+        `After ${this.agreeToDisagreeCounter} rounds of mutual defense, you both agree to disagree.`,
+        rewards.lore || ''
+      ],
+      playerDamage: 0,
+      enemyDamage: 0,
+      playerBuffsApplied: [],
+      enemyBuffsApplied: [],
+      playerDebuffsApplied: [],
+      enemyDebuffsApplied: []
+    };
+
+    return {
+      roundResult,
+      combatEnded: true,
+      winner: 'agree_to_disagree',
+      turnEffects: this.turnEffects,
+      agreeToDisagreeRewards: rewards,
+    };
+  }
+
+  /**
+   * Get agree to disagree counter for UI display
+   */
+  public getAgreeToDisagreeProgress(): {
+    current: number;
+    threshold: number;
+    enemyTier: string;
+  } {
+    return {
+      current: this.agreeToDisagreeCounter,
+      threshold: this.getAgreeToDisagreeThreshold(),
+      enemyTier: this.enemy.enemyTier || 'normal'
+    };
+  }
+
+  /**
+   * Get visual state for UI display
+   */
+  public getVisualState(): any {
+    const { getCombatVisualState } = require('./combatVisuals');
+    return getCombatVisualState(this.playerBuffs, this.enemyBuffs, this.player.name, this.enemy.name);
   }
 
   /**

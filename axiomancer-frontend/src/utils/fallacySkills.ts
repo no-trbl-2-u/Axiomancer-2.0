@@ -22,6 +22,13 @@ export const fallacySkills: Record<string, Skill> = {
     learningRequirement: {
       level: 2,
       stats: { mind: 12 }
+    },
+    combatEffects: {
+      baseEffect: 'Deals 20 mind damage + confusion debuff for 2 turns',
+      advantageEffect: '30 mind damage + longer confusion (3 turns)',
+      baseDefendedEffect: 'Reduced to 10 damage, no confusion',
+      defendedAgainstAdvantage: 'Reduced to 5 damage, no confusion',
+      defendedWithAdvantage: 'Reflected back at attacker with double confusion'
     }
   },
 
@@ -59,6 +66,13 @@ export const fallacySkills: Record<string, Skill> = {
     learningRequirement: {
       level: 1,
       stats: { heart: 10 }
+    },
+    combatEffects: {
+      baseEffect: 'Deals 30 ailment damage, lowers opponent morale',
+      advantageEffect: '45 ailment damage + shame debuff (opponent takes penalty to confidence)',
+      baseDefendedEffect: 'Backfires: attacker takes 15 damage from guilt',
+      defendedAgainstAdvantage: 'Severely backfires: attacker takes 25 damage + guilt debuff',
+      defendedWithAdvantage: 'Complete reversal: defender gains moral high ground buff'
     }
   },
 
@@ -227,6 +241,80 @@ export const fallacySkills: Record<string, Skill> = {
       level: 5,
       stats: { mind: 18, heart: 16 },
       philosophicalAlignment: { epistemology: 'rationalist' }
+    }
+  },
+
+  // Additional Body fallacies
+  straw_man: {
+    id: 'straw_man',
+    name: 'Straw Man Fallacy',
+    description: 'Misrepresent the opponent\'s argument to make it easier to attack.',
+    level: 2,
+    manaCost: 14,
+    damage: 24,
+    effect: 'Creates false target, deals consistent damage',
+    icon: '🎯',
+    type: 'fallacy',
+    philosophicalAspect: 'body',
+    fallacyType: 'informal',
+    learningRequirement: {
+      level: 3,
+      stats: { body: 14 }
+    }
+  },
+
+  red_herring: {
+    id: 'red_herring',
+    name: 'Red Herring',
+    description: 'Divert attention from the real issue with irrelevant information.',
+    level: 2,
+    manaCost: 16,
+    damage: 22,
+    effect: 'Confuses opponent, chance to skip their turn',
+    icon: '🐟',
+    type: 'fallacy',
+    philosophicalAspect: 'body',
+    fallacyType: 'informal',
+    learningRequirement: {
+      level: 4,
+      stats: { body: 15, mind: 12 }
+    }
+  },
+
+  false_dichotomy: {
+    id: 'false_dichotomy',
+    name: 'False Dichotomy',
+    description: 'Present only two options when more exist, forcing opponent into bad choice.',
+    level: 3,
+    manaCost: 18,
+    damage: 26,
+    effect: 'Limits opponent responses, tactical advantage',
+    icon: '⚡',
+    type: 'fallacy',
+    philosophicalAspect: 'body',
+    fallacyType: 'informal',
+    learningRequirement: {
+      level: 5,
+      stats: { body: 16 }
+    }
+  },
+
+  // Additional Heart fallacy
+  appeal_to_authority: {
+    id: 'appeal_to_authority',
+    name: 'Appeal to Authority',
+    description: 'Use irrelevant authority to support your position emotionally.',
+    level: 2,
+    manaCost: 15,
+    damage: 28,
+    effect: 'Intimidates opponent with false credibility',
+    icon: '👑',
+    type: 'fallacy',
+    philosophicalAspect: 'heart',
+    fallacyType: 'informal',
+    learningRequirement: {
+      level: 3,
+      stats: { heart: 14 }
     }
   }
 };

@@ -51,14 +51,19 @@ export const createMindAttackBuff = (damage: number): BuffDebuff =>
   );
 
 // Heart Attack debuff - damage when attacking
-export const createHeartAttackDebuff = (damage: number): BuffDebuff =>
+export const createHeartAttackDebuff = (damage: number, duration: number = 3, chanceToFade?: number): BuffDebuff =>
   createBuffDebuff(
     'heart_attack_guilt',
     'Emotional Guilt',
     `Takes ${damage} damage when attacking`,
     'debuff',
-    { specialEffects: { damageOnAttack: damage } },
-    3,
+    {
+      specialEffects: {
+        damageOnAttack: damage,
+        chanceToFadePerTurn: chanceToFade
+      }
+    },
+    duration,
     '💔'
   );
 
@@ -75,26 +80,26 @@ export const createReflectionBuff = (damage: number): BuffDebuff =>
   );
 
 // Mind Defend counter-argument buff
-export const createCounterArgumentBuff = (mindAttackBonus: number): BuffDebuff =>
+export const createCounterArgumentBuff = (mindAttackBonus: number, duration: number): BuffDebuff =>
   createBuffDebuff(
     'mind_counter_argument',
     'Counter-Argument',
-    `+${mindAttackBonus} Mind Attack`,
+    `+${mindAttackBonus} Mind Attack for ${duration} turns`,
     'buff',
     { statModifiers: { mindAttack: mindAttackBonus } },
-    3,
+    duration,
     '🎯'
   );
 
 // Heart Defend foresight buff
-export const createForesightBuff = (): BuffDebuff =>
+export const createForesightBuff = (visionType: string = 'enemy attacks', duration: number = 3): BuffDebuff =>
   createBuffDebuff(
     'heart_foresight',
     'Emotional Foresight',
-    'Can see enemy Attack actions',
+    `Can see ${visionType}`,
     'buff',
-    {},
-    3,
+    { specialEffects: { foresight: true } },
+    duration,
     '👁️'
   );
 
@@ -189,12 +194,18 @@ export function applyBuffDebuff(
  */
 export function processBuffsDebuffs(
   combatantBuffs: CombatantBuffs,
-  isStartOfTurn: boolean = true
+  isStartOfTurn: boolean = true,
+  actionContext?: {
+    isAttacking?: boolean;
+    defender?: { derivedStats: { ailmentDefense: number } };
+  }
 ): {
   updatedBuffs: CombatantBuffs;
   turnEffects: string[];
+  damageDealt?: number;
 } {
   const turnEffects: string[] = [];
+  let damageDealt = 0;
 
   // Process buffs
   const activeBuffs = combatantBuffs.buffs
@@ -202,7 +213,9 @@ export function processBuffsDebuffs(
       if (isStartOfTurn) {
         // Apply turn-based effects
         if (buff.effect.specialEffects?.fixedDamageNextTurn) {
-          turnEffects.push(`${buff.name} deals ${buff.effect.specialEffects.fixedDamageNextTurn} fixed damage!`);
+          const damage = buff.effect.specialEffects.fixedDamageNextTurn;
+          damageDealt += damage;
+          turnEffects.push(`${buff.name} deals ${damage} fixed damage!`);
         }
 
         // Decrease duration
@@ -217,7 +230,23 @@ export function processBuffsDebuffs(
   const activeDebuffs = combatantBuffs.debuffs
     .map(debuff => {
       if (isStartOfTurn) {
-        // Apply turn-based effects would go here
+        // Check for chance to fade effects (like Heart Attack guilt with advantage)
+        if (debuff.effect.specialEffects?.chanceToFadePerTurn) {
+          const fadeChance = debuff.effect.specialEffects.chanceToFadePerTurn;
+          if (Math.random() * 100 < fadeChance) {
+            turnEffects.push(`${debuff.name} fades away due to emotional resilience.`);
+            return null; // Remove the debuff
+          }
+        }
+
+        // Process damage on attack effects (Heart Attack guilt)
+        if (actionContext?.isAttacking && debuff.effect.specialEffects?.damageOnAttack) {
+          const damage = debuff.effect.specialEffects.damageOnAttack;
+          const defense = actionContext.defender?.derivedStats.ailmentDefense || 0;
+          const finalDamage = Math.max(1, damage - defense);
+          damageDealt += finalDamage;
+          turnEffects.push(`${debuff.name} causes ${finalDamage} guilt damage for attacking!`);
+        }
 
         // Decrease duration
         const updated = { ...debuff, remainingTurns: debuff.remainingTurns - 1 };
@@ -233,6 +262,7 @@ export function processBuffsDebuffs(
       debuffs: activeDebuffs,
     },
     turnEffects,
+    damageDealt: damageDealt > 0 ? damageDealt : undefined,
   };
 }
 

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, CharacterPortrait } from '../types/game';
 import { initialQuests } from '../utils/questSystem';
 import { createEnemyByType } from '../utils/combatMechanics';
-import { loadCharacter } from '../utils/characterSave';
+import { loadCharacter, saveCharacter } from '../utils/characterSave';
 import { createInitialBaseStats, calculateDerivedStats, calculateMaxHP, calculateMaxMP } from '../utils/statCalculations';
 import { clearAllBuffsDebuffs } from '../utils/buffDebuffEngine';
 
@@ -997,6 +997,22 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export function GameProvider({ children }: { children: ReactNode }) {
   const [gameState, dispatch] = useReducer(gameReducer, initialGameState);
   const [currentScreen, setCurrentScreen] = React.useState<GameScreen>('exploration');
+
+  // Auto-save when character is created or updated (but not on initial load)
+  React.useEffect(() => {
+    if (gameState.character && gameState.character.name && gameState.character.id !== 'placeholder') {
+      const saveTimer = setTimeout(async () => {
+        try {
+          await saveCharacter(gameState);
+          console.log('📝 Character auto-saved after game state change');
+        } catch (error) {
+          console.error('Failed to auto-save character:', error);
+        }
+      }, 500); // Wait a bit for state to stabilize
+
+      return () => clearTimeout(saveTimer);
+    }
+  }, [gameState.character, gameState.currentLocation]);
 
   const startNewGame = (characterName: string) => {
     dispatch({ type: 'START_NEW_GAME', payload: { characterName } });
