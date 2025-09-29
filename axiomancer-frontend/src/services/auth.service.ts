@@ -22,7 +22,7 @@ export const authService = {
   },
 
   async getProfile(): Promise<{ user: any }> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('axiomancer_token');
     const response = await authApi.get('/profile', {
       headers: {
         Authorization: `Bearer ${token}`,
