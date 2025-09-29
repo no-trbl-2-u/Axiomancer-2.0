@@ -57,16 +57,16 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
   const [state, dispatch] = useReducer(authReducer, initialState);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userStr = localStorage.getItem('user');
-    
+    const token = localStorage.getItem('axiomancer_token');
+    const userStr = localStorage.getItem('axiomancer_user');
+
     if (token && userStr) {
       try {
         const user = JSON.parse(userStr) as User;
         dispatch({ type: 'SET_USER', payload: { user, token } });
       } catch (error) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.removeItem('axiomancer_token');
+        localStorage.removeItem('axiomancer_user');
         dispatch({ type: 'SET_LOADING', payload: false });
       }
     } else {
@@ -78,10 +78,10 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const response = await authService.login(credentials);
-      
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      
+
+      localStorage.setItem('axiomancer_token', response.token);
+      localStorage.setItem('axiomancer_user', JSON.stringify(response.user));
+
       dispatch({ type: 'SET_USER', payload: response });
     } catch (error) {
       dispatch({ type: 'SET_ERROR' });
@@ -93,10 +93,10 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const response = await authService.register(data);
-      
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      
+
+      localStorage.setItem('axiomancer_token', response.token);
+      localStorage.setItem('axiomancer_user', JSON.stringify(response.user));
+
       dispatch({ type: 'SET_USER', payload: response });
     } catch (error) {
       dispatch({ type: 'SET_ERROR' });
@@ -105,8 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
   };
 
   const logout = (): void => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('axiomancer_token');
+    localStorage.removeItem('axiomancer_user');
     dispatch({ type: 'LOGOUT' });
   };
 
