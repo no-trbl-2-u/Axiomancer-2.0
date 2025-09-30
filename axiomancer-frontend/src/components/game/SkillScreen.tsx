@@ -271,30 +271,46 @@ const RequirementsList = styled.div`
 export const SkillScreen = React.memo(() => {
   const { gameState } = useGame();
   const { character } = gameState;
-  const [selectedTab, setSelectedTab] = useState<string>('all');
+  const [selectedTab, setSelectedTab] = useState<string>('body');
 
   const knownSkills = character.skills;
 
   // Get all skills from fallacySpellbook and merge with known skills
   const allFallacySkills = Object.values(fallacySpellbook);
-  const skillTypes = ['all', 'fallacy'];
+  const skillTypes = ['body', 'mind', 'heart'];
 
   const getFilteredSkills = () => {
     const allSkills = allFallacySkills.map(fallacy => ({
       ...fallacy,
-      type: 'fallacy', // Ensure all fallacies have type 'fallacy'
-      level: 1, // Default level for fallacies
+      type: fallacy.type || 'fallacy',
+      philosophicalAspect: fallacy.philosophicalAspect || 'mind', // Default to mind if not specified
+      level: 1,
       isLearned: knownSkills.some(known => known.id === fallacy.id)
     }));
 
-    if (selectedTab === 'all') return allSkills;
-    return allSkills.filter(skill => skill.type === selectedTab);
+    // Filter by philosophical aspect (body, mind, or heart)
+    const filtered = allSkills.filter(skill => {
+      const aspect = skill.philosophicalAspect?.toLowerCase() || 'mind';
+      return aspect === selectedTab;
+    });
+
+    // Sort: learned skills first, then unlearned
+    return filtered.sort((a, b) => {
+      if (a.isLearned && !b.isLearned) return -1;
+      if (!a.isLearned && b.isLearned) return 1;
+      return 0;
+    });
   };
 
   const hasSkillsInCategory = (category: string) => {
-    const skills = getFilteredSkills();
-    if (category === 'all') return skills.length > 0;
-    return skills.some(skill => skill.type === category);
+    const allSkills = allFallacySkills.map(fallacy => ({
+      ...fallacy,
+      philosophicalAspect: fallacy.philosophicalAspect || 'mind'
+    }));
+    return allSkills.some(skill => {
+      const aspect = skill.philosophicalAspect?.toLowerCase() || 'mind';
+      return aspect === category;
+    });
   };
 
   const totalSkills = getFilteredSkills().length;
@@ -302,25 +318,41 @@ export const SkillScreen = React.memo(() => {
 
   return (
     <SkillContainer>
-      <SkillTitle>All Available Skills & Abilities</SkillTitle>
+      <SkillTitle>Skills & Abilities</SkillTitle>
 
       <InfoPanel>
         <p>
-          This compendium shows all philosophical skills and logical fallacies available in Axiomancer.
-          <span className="highlight"> Green skills are mastered</span>, while
-          <span className="highlight"> gray skills are yet to be discovered</span> through your journey.
+          Organize your skills by philosophical aspect.
+          <span className="highlight"> Unlocked skills appear first</span>, while
+          <span className="highlight"> locked skills are shown as "???"</span>.
         </p>
         <p style={{ marginTop: theme.spacing.md }}>
-          Skills mastered: <span className="highlight">{learnedCount} / {totalSkills}</span>
+          Skills unlocked in {selectedTab.toUpperCase()}: <span className="highlight">{learnedCount} / {totalSkills}</span>
           {totalSkills > 0 && ` (${Math.round((learnedCount / totalSkills) * 100)}%)`}
         </p>
       </InfoPanel>
       
       <SkillTabs>
         {skillTypes.map(type => {
-          const skills = getFilteredSkills();
-          const categorySkills = type === 'all' ? skills : skills.filter(s => s.type === type);
+          const allSkills = allFallacySkills.map(fallacy => ({
+            ...fallacy,
+            philosophicalAspect: fallacy.philosophicalAspect || 'mind',
+            isLearned: knownSkills.some(known => known.id === fallacy.id)
+          }));
+          const categorySkills = allSkills.filter(s => {
+            const aspect = s.philosophicalAspect?.toLowerCase() || 'mind';
+            return aspect === type;
+          });
           const learnedInCategory = categorySkills.filter(s => s.isLearned).length;
+
+          const getTabIcon = (t: string) => {
+            switch(t) {
+              case 'body': return '💪';
+              case 'mind': return '🧠';
+              case 'heart': return '❤️';
+              default: return '';
+            }
+          };
 
           return (
             <SkillTab
@@ -330,7 +362,7 @@ export const SkillScreen = React.memo(() => {
               disabled={!hasSkillsInCategory(type)}
               style={{ opacity: hasSkillsInCategory(type) ? 1 : 0.5 }}
             >
-              {type} ({learnedInCategory}/{categorySkills.length})
+              {getTabIcon(type)} {type.toUpperCase()} ({learnedInCategory}/{categorySkills.length})
             </SkillTab>
           );
         })}
@@ -340,8 +372,30 @@ export const SkillScreen = React.memo(() => {
         {getFilteredSkills().length > 0 ? (
           getFilteredSkills().map(skill => (
             <SkillCard key={skill.id} level={skill.level} isLearned={skill.isLearned}>
+              {!skill.isLearned && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  borderRadius: theme.rpg.panelBorderRadius,
+                  zIndex: 5
+                }}>
+                  <div style={{
+                    fontSize: '4rem',
+                    color: theme.colors.text.muted,
+                    fontWeight: 'bold'
+                  }}>???</div>
+                </div>
+              )}
+              
               <SkillBadge isLearned={skill.isLearned}>
-                {skill.isLearned ? 'Mastered' : 'Unknown'}
+                {skill.isLearned ? 'Unlocked' : 'Locked'}
               </SkillBadge>
               
               <SkillHeader>
@@ -396,10 +450,9 @@ export const SkillScreen = React.memo(() => {
             borderRadius: theme.rpg.panelBorderRadius,
             color: theme.colors.text.secondary
           }}>
-            <h3 style={{ color: theme.colors.text.accent, marginBottom: theme.spacing.md }}>No Skills Learned Yet</h3>
+            <h3 style={{ color: theme.colors.text.accent, marginBottom: theme.spacing.md }}>No Skills in this Category</h3>
             <p style={{ margin: 0, fontSize: '1.1rem', lineHeight: 1.5 }}>
-              Explore the world, engage with philosophical challenges, and defeat logical fallacies 
-              to learn new skills and abilities. Your journey of discovery awaits!
+              Select a different philosophical aspect to view available skills.
             </p>
           </div>
         )}

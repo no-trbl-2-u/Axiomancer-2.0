@@ -19,145 +19,57 @@ const GameContainer = styled.div`
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
 `;
 
-const TopBar = styled.div`
-  background: ${theme.colors.background.panel};
-  border-bottom: 2px solid ${theme.colors.border.primary};
-  padding: ${theme.spacing.md} ${theme.spacing.lg};
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 100;
-`;
-
-const CharacterInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing.md};
-
-  .portrait {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 2px solid ${theme.colors.border.primary};
-    object-fit: cover;
-  }
-
-  .details {
-    .name {
-      color: ${theme.colors.text.accent};
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-    .level {
-      color: ${theme.colors.text.secondary};
-      font-size: 0.9rem;
-    }
-  }
-`;
-
-const StatsBar = styled.div`
-  display: flex;
-  gap: ${theme.spacing.lg};
-  align-items: center;
-
-  .stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    .label {
-      color: ${theme.colors.text.secondary};
-      font-size: 0.8rem;
-      margin-bottom: 2px;
-    }
-
-    .value {
-      color: ${theme.colors.text.primary};
-      font-weight: 600;
-    }
-
-    .bar {
-      width: 80px;
-      height: 6px;
-      background: ${theme.colors.background.secondary};
-      border-radius: 3px;
-      overflow: hidden;
-      margin-top: 2px;
-
-      .fill {
-        height: 100%;
-        transition: width 0.3s ease;
-      }
-
-      &.health .fill { background: ${theme.colors.danger}; }
-      &.mana .fill { background: ${theme.colors.info}; }
-      &.experience .fill { background: ${theme.colors.success}; }
-    }
-  }
-`;
-
-const Navigation = styled.div`
-  background: ${theme.colors.background.secondary};
-  border-bottom: 2px solid ${theme.colors.border.primary};
-  display: flex;
-  overflow-x: auto;
-`;
-
-const NavTab = styled.button<{ active: boolean }>`
-  background: ${props => props.active ? theme.colors.primary : 'transparent'};
-  color: ${props => props.active ? theme.colors.dark : theme.colors.text.primary};
-  border: none;
-  padding: ${theme.spacing.md} ${theme.spacing.lg};
-  cursor: pointer;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: all 0.3s ease;
-  border-bottom: 3px solid ${props => props.active ? theme.colors.primary : 'transparent'};
-
-  &:hover {
-    background: ${props => props.active ? theme.colors.accent : theme.colors.background.panel};
-    color: ${props => props.active ? theme.colors.dark : theme.colors.text.accent};
-  }
-
-  .icon {
-    margin-right: ${theme.spacing.sm};
-  }
-`;
-
 const ContentArea = styled.div`
   flex: 1;
   overflow: hidden;
   position: relative;
 `;
 
-const QuickActions = styled.div`
+const BottomNavigation = styled.div`
+  background: ${theme.colors.background.panel};
+  border-top: 2px solid ${theme.colors.border.primary};
   display: flex;
-  gap: ${theme.spacing.sm};
+  justify-content: space-around;
+  align-items: center;
+  padding: ${theme.spacing.md};
+  z-index: 100;
+`;
 
-  button {
-    background: ${theme.colors.background.secondary};
-    color: ${theme.colors.text.primary};
-    border: 1px solid ${theme.colors.border.secondary};
-    border-radius: ${theme.borderRadius.md};
-    padding: ${theme.spacing.sm} ${theme.spacing.md};
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
+const NavIcon = styled.button<{ active: boolean }>`
+  background: ${props => props.active ? theme.colors.primary : theme.colors.background.secondary};
+  border: 2px solid ${props => props.active ? theme.colors.primary : theme.colors.border.primary};
+  color: ${props => props.active ? theme.colors.dark : theme.colors.text.primary};
+  border-radius: ${theme.borderRadius.lg};
+  padding: ${theme.spacing.md} ${theme.spacing.lg};
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${theme.spacing.xs};
+  min-width: 100px;
 
-    &:hover {
-      background: ${theme.colors.primary};
-      color: ${theme.colors.dark};
-    }
+  &:hover {
+    background: ${theme.colors.primary};
+    color: ${theme.colors.dark};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .icon {
+    font-size: 1.5rem;
+  }
+
+  .label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
   }
 `;
 
 export const MainGameInterface: React.FC = () => {
   const { gameState, currentScreen, changeScreen } = useGame();
   const [activeTab, setActiveTab] = useState<ActiveTab>('map');
-
-  // Get character portrait from localStorage
-  const characterData = JSON.parse(localStorage.getItem('axiomancer_character') || '{}');
-  const portraitUrl = characterData.portrait?.imageUrl || '/portraits/c-begger.png';
 
   const handleTabChange = (tab: ActiveTab) => {
     setActiveTab(tab);
@@ -188,94 +100,47 @@ export const MainGameInterface: React.FC = () => {
     }
   };
 
-  const healthPercent = (gameState.character.health / gameState.character.maxHealth) * 100;
-  const manaPercent = (gameState.character.mana / gameState.character.maxMana) * 100;
-  const expPercent = 65; // Placeholder - calculate based on current level progress
-
   return (
     <GameContainer>
-      {/* Top Status Bar */}
-      <TopBar>
-        <CharacterInfo>
-          <img
-            src={portraitUrl}
-            alt={gameState.character.name}
-            className="portrait"
-          />
-          <div className="details">
-            <div className="name">{gameState.character.name}</div>
-            <div className="level">Level {gameState.character.level} Philosopher</div>
-          </div>
-        </CharacterInfo>
-
-        <StatsBar>
-          <div className="stat">
-            <div className="label">Health</div>
-            <div className="value">{gameState.character.health}/{gameState.character.maxHealth}</div>
-            <div className="bar health">
-              <div className="fill" style={{ width: `${healthPercent}%` }} />
-            </div>
-          </div>
-
-          <div className="stat">
-            <div className="label">Mana</div>
-            <div className="value">{gameState.character.mana}/{gameState.character.maxMana}</div>
-            <div className="bar mana">
-              <div className="fill" style={{ width: `${manaPercent}%` }} />
-            </div>
-          </div>
-
-          <div className="stat">
-            <div className="label">Experience</div>
-            <div className="value">2,150 XP</div>
-            <div className="bar experience">
-              <div className="fill" style={{ width: `${expPercent}%` }} />
-            </div>
-          </div>
-        </StatsBar>
-      </TopBar>
-
-      {/* Navigation Tabs */}
-      <Navigation>
-
-
-        <NavTab
-          active={activeTab === 'map'}
-          onClick={() => handleTabChange('map')}
-        >
-          <span className="icon">🌍</span>
-          World Map
-        </NavTab>
-
-        <NavTab
-          active={activeTab === 'character'}
-          onClick={() => handleTabChange('character')}
-        >
-          <span className="icon">👤</span>
-          Character
-        </NavTab>
-
-        <NavTab
-          active={activeTab === 'skills'}
-          onClick={() => handleTabChange('skills')}
-        >
-          <span className="icon">📚</span>
-          Philosophy & Skills
-        </NavTab>
-
-        <NavTab
-          active={activeTab === 'inventory'}
-          onClick={() => handleTabChange('inventory')}
-        >
-          <span className="icon">🎒</span>
-          Inventory
-        </NavTab>
-      </Navigation>
-
       {/* Main Content Area */}
       <ContentArea>
         {renderContent()}
       </ContentArea>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation>
+        <NavIcon
+          active={activeTab === 'map'}
+          onClick={() => handleTabChange('map')}
+        >
+          <span className="icon">🗺️</span>
+          <span className="label">Map</span>
+        </NavIcon>
+
+        <NavIcon
+          active={activeTab === 'character'}
+          onClick={() => handleTabChange('character')}
+        >
+          <span className="icon">👤</span>
+          <span className="label">Character</span>
+        </NavIcon>
+
+        <NavIcon
+          active={activeTab === 'skills'}
+          onClick={() => handleTabChange('skills')}
+        >
+          <span className="icon">📚</span>
+          <span className="label">Skills</span>
+        </NavIcon>
+
+        <NavIcon
+          active={activeTab === 'inventory'}
+          onClick={() => handleTabChange('inventory')}
+        >
+          <span className="icon">🎒</span>
+          <span className="label">Inventory</span>
+        </NavIcon>
+      </BottomNavigation>
     </GameContainer>
   );
 };

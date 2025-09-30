@@ -7,20 +7,43 @@ const CharacterContainer = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
-  padding: 120px ${theme.spacing.xl} 100px;
+  padding: ${theme.spacing.lg};
   background: ${theme.colors.background.primary};
-  gap: ${theme.spacing.xl};
+  gap: ${theme.spacing.lg};
   position: relative;
+`;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at center, rgba(34, 139, 34, 0.2) 0%, rgba(0, 0, 0, 0.8) 70%);
-    pointer-events: none;
+const PortraitPanel = styled.div`
+  width: 300px;
+  background: ${theme.colors.background.panel};
+  border: ${theme.rpg.borderWidth} solid ${theme.colors.border.primary};
+  border-radius: ${theme.rpg.panelBorderRadius};
+  padding: ${theme.spacing.lg};
+  box-shadow: ${theme.shadows.panel};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${theme.spacing.md};
+
+  .portrait-img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: ${theme.borderRadius.lg};
+    border: 3px solid ${theme.colors.border.primary};
+  }
+
+  .character-name {
+    color: ${theme.colors.text.accent};
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .character-level {
+    color: ${theme.colors.text.secondary};
+    font-size: 1.1rem;
+    text-align: center;
   }
 `;
 
@@ -29,34 +52,29 @@ const StatsPanel = styled.div`
   background: ${theme.colors.background.panel};
   border: ${theme.rpg.borderWidth} solid ${theme.colors.border.primary};
   border-radius: ${theme.rpg.panelBorderRadius};
-  padding: ${theme.spacing.xl};
+  padding: ${theme.spacing.lg};
   color: ${theme.colors.text.primary};
   box-shadow: ${theme.shadows.panel};
-  position: relative;
-  z-index: 1;
-`;
-
-const PhilosophyPanel = styled.div`
-  flex: 1;
-  background: ${theme.colors.background.panel};
-  border: ${theme.rpg.borderWidth} solid ${theme.colors.border.secondary};
-  border-radius: ${theme.rpg.panelBorderRadius};
-  padding: ${theme.spacing.xl};
-  color: ${theme.colors.text.primary};
-  box-shadow: ${theme.shadows.panel};
-  position: relative;
-  z-index: 1;
+  overflow-y: auto;
 `;
 
 const PanelTitle = styled.h2`
   color: ${theme.colors.text.accent};
-  margin: 0 0 ${theme.spacing.lg} 0;
-  font-size: 1.8rem;
+  margin: 0 0 ${theme.spacing.md} 0;
+  font-size: 1.3rem;
   font-weight: bold;
   text-transform: uppercase;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   border-bottom: 2px solid ${theme.colors.border.primary};
-  padding-bottom: ${theme.spacing.md};
+  padding-bottom: ${theme.spacing.sm};
+`;
+
+const StatCategory = styled.div`
+  margin-bottom: ${theme.spacing.lg};
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 const StatRow = styled.div`
@@ -93,152 +111,153 @@ const StatValue = styled.span`
   font-size: 1.1rem;
 `;
 
-const PhilosophySection = styled.div`
-  margin-bottom: ${theme.spacing.lg};
-  background: ${theme.colors.background.secondary};
-  border: 2px solid ${theme.colors.border.dark};
-  border-radius: ${theme.rpg.buttonBorderRadius};
-  padding: ${theme.spacing.md};
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  &:hover {
-    border-color: ${theme.colors.border.primary};
-  }
-`;
-
-const PhilosophyTitle = styled.h3`
+const CategoryTitle = styled.h3`
   color: ${theme.colors.text.accent};
   margin: 0 0 ${theme.spacing.sm} 0;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: bold;
   text-transform: uppercase;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-`;
-
-const PhilosophyValue = styled.p`
-  margin: 0;
-  color: ${theme.colors.text.primary};
-  text-transform: capitalize;
-  font-weight: bold;
-  font-size: 1.1rem;
 `;
 
 export const CharacterScreen = React.memo(() => {
   const { gameState } = useGame();
   const { character } = gameState;
 
+  // Get character portrait from localStorage
+  const characterData = JSON.parse(localStorage.getItem('axiomancer_character') || '{}');
+  const portraitUrl = characterData.portrait?.imageUrl || '/portraits/c-begger.png';
+
   return (
     <CharacterContainer>
+      <PortraitPanel>
+        <img
+          src={portraitUrl}
+          alt={character.name}
+          className="portrait-img"
+        />
+        <div className="character-name">{character.name}</div>
+        <div className="character-level">Level {character.level} Philosopher</div>
+      </PortraitPanel>
+
       <StatsPanel>
-        <PanelTitle>Character Stats</PanelTitle>
+        <PanelTitle>Character Statistics</PanelTitle>
 
-        <StatRow>
-          <StatName>Name</StatName>
-          <StatValue>{character.name}</StatValue>
-        </StatRow>
+        <StatCategory>
+          <CategoryTitle>🏥 Core Stats</CategoryTitle>
+          <StatRow>
+            <StatName>Health</StatName>
+            <StatValue>{character.health} / {character.maxHealth}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Mana</StatName>
+            <StatValue>{character.mana} / {character.maxMana}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Available Stat Points</StatName>
+            <StatValue>{character.availableStatPoints}</StatValue>
+          </StatRow>
+        </StatCategory>
 
-        <StatRow>
-          <StatName>Level</StatName>
-          <StatValue>{character.level}</StatValue>
-        </StatRow>
+        <StatCategory>
+          <CategoryTitle>⭐ Base Stats</CategoryTitle>
+          <StatRow>
+            <StatName>Heart</StatName>
+            <StatValue>{character.baseStats.heart}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Body</StatName>
+            <StatValue>{character.baseStats.body}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Mind</StatName>
+            <StatValue>{character.baseStats.mind}</StatValue>
+          </StatRow>
+        </StatCategory>
 
-        <StatRow>
-          <StatName>Health</StatName>
-          <StatValue>{character.health} / {character.maxHealth}</StatValue>
-        </StatRow>
+        <StatCategory>
+          <CategoryTitle>💪 Body-Derived Stats</CategoryTitle>
+          <StatRow>
+            <StatName>Physical Attack</StatName>
+            <StatValue>{character.derivedStats.physicalAttack}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Physical Defense</StatName>
+            <StatValue>{character.derivedStats.physicalDefense}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Constitution Save</StatName>
+            <StatValue>{character.derivedStats.constitutionSave}</StatValue>
+          </StatRow>
+        </StatCategory>
 
-        <StatRow>
-          <StatName>Mana</StatName>
-          <StatValue>{character.mana} / {character.maxMana}</StatValue>
-        </StatRow>
+        <StatCategory>
+          <CategoryTitle>🧠 Mind-Derived Stats</CategoryTitle>
+          <StatRow>
+            <StatName>Mind Attack</StatName>
+            <StatValue>{character.derivedStats.mindAttack}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Mind Defense</StatName>
+            <StatValue>{character.derivedStats.mindDefense}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Reflex Save</StatName>
+            <StatValue>{character.derivedStats.reflexSave}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Perception</StatName>
+            <StatValue>{character.derivedStats.perception}</StatValue>
+          </StatRow>
+        </StatCategory>
 
-        <StatRow>
-          <StatName>Available Stat Points</StatName>
-          <StatValue>{character.availableStatPoints}</StatValue>
-        </StatRow>
+        <StatCategory>
+          <CategoryTitle>❤️ Heart-Derived Stats</CategoryTitle>
+          <StatRow>
+            <StatName>Ailment Attack</StatName>
+            <StatValue>{character.derivedStats.ailmentAttack}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Ailment Defense</StatName>
+            <StatValue>{character.derivedStats.ailmentDefense}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Will Save</StatName>
+            <StatValue>{character.derivedStats.willSave}</StatValue>
+          </StatRow>
+        </StatCategory>
 
-        <StatRow>
-          <StatName>Heart</StatName>
-          <StatValue>{character.baseStats.heart}</StatValue>
-        </StatRow>
+        <StatCategory>
+          <CategoryTitle>🎯 Shared Stats</CategoryTitle>
+          <StatRow>
+            <StatName>Accuracy</StatName>
+            <StatValue>{character.derivedStats.accuracy}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Evasion</StatName>
+            <StatValue>{character.derivedStats.evasion}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Luck</StatName>
+            <StatValue>{character.derivedStats.luck}</StatValue>
+          </StatRow>
+        </StatCategory>
 
-        <StatRow>
-          <StatName>Body</StatName>
-          <StatValue>{character.baseStats.body}</StatValue>
-        </StatRow>
-
-        <StatRow>
-          <StatName>Mind</StatName>
-          <StatValue>{character.baseStats.mind}</StatValue>
-        </StatRow>
-
-        <StatRow>
-          <StatName>Physical Attack</StatName>
-          <StatValue>{character.derivedStats.physicalAttack}</StatValue>
-        </StatRow>
-
-        <StatRow>
-          <StatName>Physical Defense</StatName>
-          <StatValue>{character.derivedStats.physicalDefense}</StatValue>
-        </StatRow>
-
-        <StatRow>
-          <StatName>Mind Attack</StatName>
-          <StatValue>{character.derivedStats.mindAttack}</StatValue>
-        </StatRow>
-
-        <StatRow>
-          <StatName>Mind Defense</StatName>
-          <StatValue>{character.derivedStats.mindDefense}</StatValue>
-        </StatRow>
-
-        <StatRow>
-          <StatName>Ailment Attack</StatName>
-          <StatValue>{character.derivedStats.ailmentAttack}</StatValue>
-        </StatRow>
-
-        <StatRow>
-          <StatName>Ailment Defense</StatName>
-          <StatValue>{character.derivedStats.ailmentDefense}</StatValue>
-        </StatRow>
-
-        <StatRow>
-          <StatName>Accuracy</StatName>
-          <StatValue>{character.derivedStats.accuracy}</StatValue>
-        </StatRow>
-
-        <StatRow>
-          <StatName>Evasion</StatName>
-          <StatValue>{character.derivedStats.evasion}</StatValue>
-        </StatRow>
-
-        <StatRow>
-          <StatName>Luck</StatName>
-          <StatValue>{character.derivedStats.luck}</StatValue>
-        </StatRow>
+        <StatCategory>
+          <CategoryTitle>🧘 Philosophical Stance</CategoryTitle>
+          <StatRow>
+            <StatName>Ethics</StatName>
+            <StatValue style={{ textTransform: 'capitalize' }}>{character.philosophicalStance.ethics}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Metaphysics</StatName>
+            <StatValue style={{ textTransform: 'capitalize' }}>{character.philosophicalStance.metaphysics}</StatValue>
+          </StatRow>
+          <StatRow>
+            <StatName>Epistemology</StatName>
+            <StatValue style={{ textTransform: 'capitalize' }}>{character.philosophicalStance.epistemology}</StatValue>
+          </StatRow>
+        </StatCategory>
       </StatsPanel>
-
-      <PhilosophyPanel>
-        <PanelTitle>Philosophical Stance</PanelTitle>
-
-        <PhilosophySection>
-          <PhilosophyTitle>Ethics</PhilosophyTitle>
-          <PhilosophyValue>{character.philosophicalStance.ethics}</PhilosophyValue>
-        </PhilosophySection>
-
-        <PhilosophySection>
-          <PhilosophyTitle>Metaphysics</PhilosophyTitle>
-          <PhilosophyValue>{character.philosophicalStance.metaphysics}</PhilosophyValue>
-        </PhilosophySection>
-
-        <PhilosophySection>
-          <PhilosophyTitle>Epistemology</PhilosophyTitle>
-          <PhilosophyValue>{character.philosophicalStance.epistemology}</PhilosophyValue>
-        </PhilosophySection>
-      </PhilosophyPanel>
     </CharacterContainer>
   );
 });
