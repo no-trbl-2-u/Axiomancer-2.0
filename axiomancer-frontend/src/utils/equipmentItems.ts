@@ -436,3 +436,55 @@ export function calculateEquipmentBonuses(equipment: Equipment[], philosophicalA
 
   return { statBonuses, specialEffects };
 }
+
+/**
+ * Calculate derived stat bonuses for combat mechanics
+ */
+export function calculateCombatBonuses(equipment: Equipment[], philosophicalAspect?: string): {
+  statBonuses: {
+    physicalAttack?: number;
+    mindAttack?: number;
+    ailmentAttack?: number;
+    physicalDefense?: number;
+    mindDefense?: number;
+    ailmentDefense?: number;
+    accuracy?: number;
+    evasion?: number;
+  };
+  specialEffects: string[];
+} {
+  const { statBonuses, specialEffects } = calculateEquipmentBonuses(equipment, philosophicalAspect);
+
+  // Convert base stats to derived combat stats (following statCalculations.ts pattern)
+  const combatBonuses = {
+    physicalAttack: (statBonuses.body || 0) * 2,
+    mindAttack: (statBonuses.mind || 0) * 2,
+    ailmentAttack: (statBonuses.heart || 0) * 2,
+    physicalDefense: (statBonuses.body || 0) * 1.5,
+    mindDefense: (statBonuses.mind || 0) * 1.5,
+    ailmentDefense: (statBonuses.heart || 0) * 1.5,
+    accuracy: ((statBonuses.mind || 0) + (statBonuses.body || 0)) * 1,
+    evasion: ((statBonuses.body || 0) + (statBonuses.heart || 0)) * 1
+  };
+
+  return { statBonuses: combatBonuses, specialEffects };
+}
+
+/**
+ * Apply equipment bonuses to a character's derived stats
+ */
+export function applyEquipmentBonuses(derivedStats: any, equipment: Equipment[], philosophicalAspect?: string): any {
+  const { statBonuses } = calculateCombatBonuses(equipment, philosophicalAspect);
+
+  return {
+    ...derivedStats,
+    physicalAttack: derivedStats.physicalAttack + (statBonuses.physicalAttack || 0),
+    mindAttack: derivedStats.mindAttack + (statBonuses.mindAttack || 0),
+    ailmentAttack: derivedStats.ailmentAttack + (statBonuses.ailmentAttack || 0),
+    physicalDefense: derivedStats.physicalDefense + (statBonuses.physicalDefense || 0),
+    mindDefense: derivedStats.mindDefense + (statBonuses.mindDefense || 0),
+    ailmentDefense: derivedStats.ailmentDefense + (statBonuses.ailmentDefense || 0),
+    accuracy: derivedStats.accuracy + (statBonuses.accuracy || 0),
+    evasion: derivedStats.evasion + (statBonuses.evasion || 0)
+  };
+}

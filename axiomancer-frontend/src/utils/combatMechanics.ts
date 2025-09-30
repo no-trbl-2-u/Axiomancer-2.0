@@ -1,7 +1,9 @@
 import { PhilosophicalAspect, CombatChoice, CombatRoundResult, Character, Enemy, BaseStats, DerivedStats, Skill } from '../types/game';
 import { calculateDerivedStats, calculateMaxHP, calculateMaxMP } from './statCalculations';
-import { getFallacyById } from './fallacies';
+import { fallacySpellbook } from './fallacySpellbook';
 import { createMindAttackBuff, createHeartAttackDebuff, createReflectionBuff, createCounterArgumentBuff, createForesightBuff, createBodyDefenseBuff, createMindDefenseBuff, createHeartDefenseBuff, applyBuffDebuff } from './buffDebuffEngine';
+import { processFallacyCombatEffects, applyStatusEffectsToCombatant, filterStatusEffectsByChance } from './combatEffectBridge';
+import { applyEquipmentBonuses } from './equipmentItems';
 
 /**
  * Combat result structure for UI-agnostic combat resolution
@@ -92,6 +94,14 @@ export function executeCombatAction(
   action: string,
   hasAdvantage: boolean
 ): CombatActionResult {
+  // Apply equipment bonuses to attacker and defender if they have equipment
+  const attackerStats = (attacker as any).equipment && (attacker as any).equipment.length > 0
+    ? applyEquipmentBonuses(attacker.derivedStats, (attacker as any).equipment, argumentType)
+    : attacker.derivedStats;
+
+  const defenderStats = (defender as any).equipment && (defender as any).equipment.length > 0
+    ? applyEquipmentBonuses(defender.derivedStats, (defender as any).equipment, argumentType)
+    : defender.derivedStats;
   const result: CombatActionResult = {
     hit: false,
     damage: 0,
@@ -127,7 +137,7 @@ export function executeCombatAction(
   }
 
   // Check hit/miss for attacks using D20 system
-  const hit = calculateHitChance(attacker.derivedStats, defender.derivedStats);
+  const hit = calculateHitChance(attackerStats, defenderStats);
   result.hit = hit;
 
   if (!hit) {
@@ -136,7 +146,7 @@ export function executeCombatAction(
   }
 
   // Check for critical hit
-  result.critical = checkCriticalHit(attacker.derivedStats, defender.derivedStats);
+  result.critical = checkCriticalHit(attackerStats, defenderStats);
 
   // Calculate base damage
   let baseDamage = 0;
@@ -205,6 +215,13 @@ export function executeCombatAction(
 }
 
 /**
+ * Get fallacy by ID from fallacySpellbook
+ */
+function getFallacyById(id: string): Skill | undefined {
+  return fallacySpellbook[id];
+}
+
+/**
  * Execute a fallacy skill with its specific effects
  */
 export function executeFallacy(
@@ -212,7 +229,9 @@ export function executeFallacy(
   defender: Character | Enemy,
   fallacyId: string,
   targetBuffs: import('../types/game').CombatantBuffs,
-  attackerBuffs: import('../types/game').CombatantBuffs
+  attackerBuffs: import('../types/game').CombatantBuffs,
+  hasAdvantage: boolean = false,
+  defenderChoice?: { aspect: PhilosophicalAspect; action: string }
 ): CombatActionResult {
   const fallacy = getFallacyById(fallacyId);
   if (!fallacy) {
@@ -225,6 +244,15 @@ export function executeFallacy(
       critical: false,
     };
   }
+
+  // Apply equipment bonuses to attacker and defender if they have equipment
+  const attackerStats = (attacker as any).equipment && (attacker as any).equipment.length > 0
+    ? applyEquipmentBonuses(attacker.derivedStats, (attacker as any).equipment)
+    : attacker.derivedStats;
+
+  const defenderStats = (defender as any).equipment && (defender as any).equipment.length > 0
+    ? applyEquipmentBonuses(defender.derivedStats, (defender as any).equipment)
+    : defender.derivedStats;
 
   const result: CombatActionResult = {
     hit: false,
@@ -255,7 +283,7 @@ export function executeFallacy(
   }
 
   // Check for critical hit
-  result.critical = checkCriticalHit(attacker.derivedStats, defender.derivedStats);
+  result.critical = checkCriticalHit(attackerStats, defenderStats);
 
   // Calculate base damage from fallacy
   let baseDamage = fallacy.damage || 0;
@@ -288,48 +316,51 @@ export function executeFallacy(
   // Final damage calculation
   result.damage = Math.max(1, baseDamage - defense);
 
-  // Apply fallacy-specific effects
+  // Apply fallacy-specific effects using combatEffects and status effect bridge
   result.effects.push(`${fallacy.name} hits for ${result.damage} damage!`);
-  if (fallacy.effect) {
+
+  // Process comprehensive combatEffects if available
+  if (fallacy.combatEffects) {
+    const statusEffectResult = processFallacyCombatEffects(
+      fallacy.combatEffects,
+      hasAdvantage,
+      false, // not defended in this context
+      false  // not a counter attack
+    );
+
+    // Check if defender has Heart defense bonus (Heart aspect + Defense action)
+    const isHeartDefense = defenderChoice?.aspect === 'heart' && defenderChoice?.action === 'defend';
+
+    // Apply chance-based filtering for status effects based on ailment stats
+    const filteredEffects = filterStatusEffectsByChance(
+      statusEffectResult,
+      attackerStats.ailmentAttack,
+      defenderStats.ailmentDefense,
+      isHeartDefense
+    );
+
+    // Add status effects to result
+    result.buffsApplied.push(...filteredEffects.buffs);
+    result.debuffsApplied.push(...filteredEffects.debuffs);
+    result.effects.push(...filteredEffects.effects);
+
+    // Update target and attacker buffs
+    if (filteredEffects.debuffs.length > 0) {
+      result.targetBuffsUpdated = applyStatusEffectsToCombatant(
+        result.targetBuffsUpdated || { buffs: [], debuffs: [] },
+        { buffs: [], debuffs: filteredEffects.debuffs, effects: [] }
+      );
+    }
+
+    if (filteredEffects.buffs.length > 0) {
+      result.attackerBuffsUpdated = applyStatusEffectsToCombatant(
+        result.attackerBuffsUpdated || { buffs: [], debuffs: [] },
+        { buffs: filteredEffects.buffs, debuffs: [], effects: [] }
+      );
+    }
+  } else if (fallacy.effect) {
+    // Fallback to basic effect description
     result.effects.push(fallacy.effect);
-  }
-
-  // Handle special fallacy effects
-  switch (fallacy.id) {
-    case 'guilt_trip':
-      // Heart attack - applies guilt debuff
-      const heartDebuff = createHeartAttackDebuff(8);
-      result.targetBuffsUpdated = applyBuffDebuff(result.targetBuffsUpdated!, heartDebuff);
-      result.debuffsApplied.push(heartDebuff);
-      break;
-
-    case 'straw_man':
-      // Reduces opponent's next attack damage
-      result.effects.push(`${defender.name} will deal reduced damage on their next attack!`);
-      break;
-
-    case 'circular_reasoning':
-      // Causes confusion - chance to hit themselves
-      result.effects.push(`${defender.name} is confused by the circular logic!`);
-      break;
-
-    case 'appeal_to_force':
-      // Chance to cause fear
-      if (Math.random() < 0.3) {
-        result.effects.push(`${defender.name} is intimidated and will skip their next turn!`);
-      }
-      break;
-
-    case 'gaslighting':
-      // Reverses buffs to debuffs (complex effect)
-      result.effects.push(`${defender.name}'s perception of reality is distorted!`);
-      break;
-
-    case 'paradox_weapon':
-      // Ignores all defenses (already calculated above)
-      result.damage = fallacy.damage || 40;
-      result.effects[result.effects.length - 1] = `${fallacy.name} deals ${result.damage} fixed damage that ignores all defenses!`;
-      break;
   }
 
   return result;
@@ -819,8 +850,26 @@ export class CombatStateManager {
   private playerChoiceHistory: CombatChoice[] = [];
 
   constructor(player: Character, enemy: Enemy) {
-    this.player = { ...player };
-    this.enemy = { ...enemy };
+    // Apply equipment bonuses to player's derived stats
+    const playerWithEquipment = { ...player };
+    if (player.equipment && player.equipment.length > 0) {
+      playerWithEquipment.derivedStats = applyEquipmentBonuses(
+        player.derivedStats,
+        player.equipment
+      );
+    }
+
+    // Apply equipment bonuses to enemy's derived stats (if enemy has equipment)
+    const enemyWithEquipment = { ...enemy };
+    if (enemy.equipment && enemy.equipment.length > 0) {
+      enemyWithEquipment.derivedStats = applyEquipmentBonuses(
+        enemy.derivedStats,
+        enemy.equipment
+      );
+    }
+
+    this.player = playerWithEquipment;
+    this.enemy = enemyWithEquipment;
     this.playerBuffs = { buffs: [], debuffs: [] };
     this.enemyBuffs = { buffs: [], debuffs: [] };
   }
@@ -920,12 +969,15 @@ export class CombatStateManager {
     let enemyResult: CombatActionResult;
 
     if (playerChoice.action === 'special' && playerChoice.selectedSkill) {
+      const aspectWinner = determineAspectWinner(playerChoice.aspect, enemyChoice.aspect);
       playerResult = executeFallacy(
         this.player,
         this.enemy,
         playerChoice.selectedSkill,
         this.enemyBuffs,
-        this.playerBuffs
+        this.playerBuffs,
+        aspectWinner === 'player',
+        enemyChoice
       );
       // Deduct mana
       this.player.mana = Math.max(0, this.player.mana - (getFallacyById(playerChoice.selectedSkill)?.manaCost || 0));
@@ -941,12 +993,15 @@ export class CombatStateManager {
     }
 
     if (enemyChoice.action === 'special' && enemyChoice.selectedSkill) {
+      const aspectWinner = determineAspectWinner(playerChoice.aspect, enemyChoice.aspect);
       enemyResult = executeFallacy(
         this.enemy,
         this.player,
         enemyChoice.selectedSkill,
         this.playerBuffs,
-        this.enemyBuffs
+        this.enemyBuffs,
+        aspectWinner === 'enemy',
+        playerChoice
       );
       // Deduct mana
       this.enemy.mana = Math.max(0, this.enemy.mana - (getFallacyById(enemyChoice.selectedSkill)?.manaCost || 0));
@@ -1097,17 +1152,16 @@ export class CombatStateManager {
     const roundResult: CombatRoundResult = {
       playerChoice: { action: 'defend', aspect: 'mind' },
       enemyChoice: { action: 'defend', aspect: 'mind' },
-      aspectWinner: 'tie',
+      winner: 'agree_to_disagree' as any,
+      advantage: 'none',
+      damage: {
+        toPlayer: 0,
+        toEnemy: 0
+      },
       effects: [
         `After ${this.agreeToDisagreeCounter} rounds of mutual defense, you both agree to disagree.`,
         rewards.lore || ''
-      ],
-      playerDamage: 0,
-      enemyDamage: 0,
-      playerBuffsApplied: [],
-      enemyBuffsApplied: [],
-      playerDebuffsApplied: [],
-      enemyDebuffsApplied: []
+      ]
     };
 
     return {

@@ -261,6 +261,7 @@ export interface Enemy {
   baseStats: BaseStats;
   derivedStats: DerivedStats;
   skills: Skill[];
+  equipment?: Equipment[];
   loot: Item[];
   philosophicalAlignment?: PhilosophicalStance;
   type: 'fallacy' | 'sophist' | 'skeptic' | 'nihilist' | 'beast' | 'guardian';

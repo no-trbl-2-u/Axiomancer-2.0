@@ -2,7 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { Skill, PhilosophicalAspect } from '../../types/game';
-import { fallacySkills } from '../../utils/fallacySkills';
+import { fallacySpellbook } from '../../utils/fallacySpellbook';
 
 interface SkillSelectionModalProps {
   isOpen: boolean;
@@ -185,7 +185,7 @@ export const SkillSelectionModal: React.FC<SkillSelectionModalProps> = ({
   if (!isOpen || !selectedAspect) return null;
 
   // Filter skills by selected aspect
-  const availableSkills = Object.values(fallacySkills).filter(
+  const availableSkills = Object.values(fallacySpellbook).filter(
     skill => skill.philosophicalAspect === selectedAspect
   );
 
@@ -237,7 +237,7 @@ export const SkillSelectionModal: React.FC<SkillSelectionModalProps> = ({
                   </div>
 
                   <div className="skill-effect">
-                    {skill.combatEffects?.baseEffect || skill.effect}
+                    {skill.combatEffects?.baseEffect || "No effect description available"}
                   </div>
                 </SkillCard>
               );

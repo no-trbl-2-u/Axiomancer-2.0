@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGame } from '../../contexts/GameContext';
 import { Skill } from '../../types/game';
+import { fallacySpellbook } from '../../utils/fallacySpellbook';
 
 const SkillContainer = styled.div`
   width: 100%;
@@ -88,18 +89,23 @@ const SkillGrid = styled.div`
   overflow-y: auto;
 `;
 
-const SkillCard = styled.div<{ level: number }>`
-  background: linear-gradient(45deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
-  border: 3px solid #10b981;
+const SkillCard = styled.div<{ level: number; isLearned: boolean }>`
+  background: ${props => props.isLearned
+    ? 'linear-gradient(45deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2))'
+    : 'linear-gradient(45deg, rgba(55, 65, 81, 0.4), rgba(31, 41, 55, 0.4))'
+  };
+  border: 3px solid ${props => props.isLearned ? '#10b981' : '#6b7280'};
   border-radius: ${theme.rpg.panelBorderRadius};
   padding: ${theme.spacing.lg};
   position: relative;
   box-shadow: ${theme.shadows.panel};
   transition: all 0.3s ease;
+  opacity: ${props => props.isLearned ? 1 : 0.7};
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: ${theme.shadows.glow};
+    opacity: 1;
   }
 `;
 
@@ -227,11 +233,11 @@ const LearnButton = styled.button`
   }
 `;
 
-const KnownSkillBadge = styled.div`
+const SkillBadge = styled.div<{ isLearned: boolean }>`
   position: absolute;
   top: ${theme.spacing.sm};
   right: ${theme.spacing.sm};
-  background: ${theme.colors.success};
+  background: ${props => props.isLearned ? theme.colors.success : '#6b7280'};
   color: white;
   padding: 4px 8px;
   border-radius: ${theme.borderRadius.sm};
@@ -268,52 +274,75 @@ export const SkillScreen = React.memo(() => {
   const [selectedTab, setSelectedTab] = useState<string>('all');
 
   const knownSkills = character.skills;
-  const skillTypes = ['all', 'fallacy', 'virtue', 'logic', 'rhetoric', 'meditation'];
-  
+
+  // Get all skills from fallacySpellbook and merge with known skills
+  const allFallacySkills = Object.values(fallacySpellbook);
+  const skillTypes = ['all', 'fallacy'];
+
   const getFilteredSkills = () => {
-    if (selectedTab === 'all') return knownSkills;
-    return knownSkills.filter(skill => skill.type === selectedTab);
+    const allSkills = allFallacySkills.map(fallacy => ({
+      ...fallacy,
+      type: 'fallacy', // Ensure all fallacies have type 'fallacy'
+      level: 1, // Default level for fallacies
+      isLearned: knownSkills.some(known => known.id === fallacy.id)
+    }));
+
+    if (selectedTab === 'all') return allSkills;
+    return allSkills.filter(skill => skill.type === selectedTab);
   };
 
   const hasSkillsInCategory = (category: string) => {
-    if (category === 'all') return knownSkills.length > 0;
-    return knownSkills.some(skill => skill.type === category);
+    const skills = getFilteredSkills();
+    if (category === 'all') return skills.length > 0;
+    return skills.some(skill => skill.type === category);
   };
+
+  const totalSkills = getFilteredSkills().length;
+  const learnedCount = getFilteredSkills().filter(skill => skill.isLearned).length;
 
   return (
     <SkillContainer>
-      <SkillTitle>Learned Skills & Abilities</SkillTitle>
-      
+      <SkillTitle>All Available Skills & Abilities</SkillTitle>
+
       <InfoPanel>
         <p>
-          Skills cannot be learned from this screen. Instead, you must 
-          <span className="highlight"> encounter philosophical challenges, engage in combat with logical fallacies, 
-          and make meaningful choices throughout your journey</span> to gain new abilities.
+          This compendium shows all philosophical skills and logical fallacies available in Axiomancer.
+          <span className="highlight"> Green skills are mastered</span>, while
+          <span className="highlight"> gray skills are yet to be discovered</span> through your journey.
         </p>
         <p style={{ marginTop: theme.spacing.md }}>
-          Current skills learned: <span className="highlight">{knownSkills.length}</span>
+          Skills mastered: <span className="highlight">{learnedCount} / {totalSkills}</span>
+          {totalSkills > 0 && ` (${Math.round((learnedCount / totalSkills) * 100)}%)`}
         </p>
       </InfoPanel>
       
       <SkillTabs>
-        {skillTypes.map(type => (
-          <SkillTab
-            key={type}
-            active={selectedTab === type}
-            onClick={() => setSelectedTab(type)}
-            disabled={!hasSkillsInCategory(type)}
-            style={{ opacity: hasSkillsInCategory(type) ? 1 : 0.5 }}
-          >
-            {type} {type !== 'all' && `(${knownSkills.filter(s => s.type === type).length})`}
-          </SkillTab>
-        ))}
+        {skillTypes.map(type => {
+          const skills = getFilteredSkills();
+          const categorySkills = type === 'all' ? skills : skills.filter(s => s.type === type);
+          const learnedInCategory = categorySkills.filter(s => s.isLearned).length;
+
+          return (
+            <SkillTab
+              key={type}
+              active={selectedTab === type}
+              onClick={() => setSelectedTab(type)}
+              disabled={!hasSkillsInCategory(type)}
+              style={{ opacity: hasSkillsInCategory(type) ? 1 : 0.5 }}
+            >
+              {type} ({learnedInCategory}/{categorySkills.length})
+            </SkillTab>
+          );
+        })}
       </SkillTabs>
 
       <SkillGrid>
         {getFilteredSkills().length > 0 ? (
           getFilteredSkills().map(skill => (
-            <SkillCard key={skill.id} level={skill.level}>
-              <KnownSkillBadge>Mastered</KnownSkillBadge>
+            <SkillCard key={skill.id} level={skill.level} isLearned={skill.isLearned}>
+              <SkillBadge isLearned={skill.isLearned}>
+                {skill.isLearned ? 'Mastered' : 'Unknown'}
+              </SkillBadge>
               
               <SkillHeader>
                 <SkillIcon>{skill.icon}</SkillIcon>
@@ -342,7 +371,7 @@ export const SkillScreen = React.memo(() => {
                 </SkillStat>
               </SkillStats>
 
-              {skill.effect && (
+              {(skill.effect || skill.combatEffects) && (
                 <div style={{
                   background: 'rgba(139, 92, 246, 0.1)',
                   border: '1px solid rgba(139, 92, 246, 0.3)',
@@ -352,7 +381,7 @@ export const SkillScreen = React.memo(() => {
                   color: '#c4b5fd',
                   fontStyle: 'italic'
                 }}>
-                  Effect: {skill.effect}
+                  Effect: {skill.effect || (skill.combatEffects?.baseEffect || 'Applies status effects based on combat conditions')}
                 </div>
               )}
             </SkillCard>

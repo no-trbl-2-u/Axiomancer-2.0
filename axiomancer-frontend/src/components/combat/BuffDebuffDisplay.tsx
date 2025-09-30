@@ -127,7 +127,12 @@ const NoEffectsMessage = styled.div`
 `;
 
 const getEffectIcon = (effect: BuffDebuff): string => {
-  // Map specific effect IDs to icons
+  // Use the icon from the status effect if available
+  if (effect.icon) {
+    return effect.icon;
+  }
+
+  // Map specific effect IDs to icons for legacy effects
   switch (effect.id) {
     case 'mind_attack_followup':
       return '🧠';
@@ -146,13 +151,29 @@ const getEffectIcon = (effect: BuffDebuff): string => {
     case 'heart_defense_stance':
       return '❤️';
     default:
-      // Fallback based on buff/debuff type
-      return effect.type === 'buff' ? '✨' : '💀';
+      // Fallback based on buff/debuff type with philosophical themes
+      if (effect.type === 'buff') {
+        return effect.name.toLowerCase().includes('mind') ? '🧠' :
+               effect.name.toLowerCase().includes('heart') ? '❤️' :
+               effect.name.toLowerCase().includes('body') ? '💪' : '✨';
+      } else {
+        return effect.name.toLowerCase().includes('mind') ? '🤯' :
+               effect.name.toLowerCase().includes('heart') ? '💔' :
+               effect.name.toLowerCase().includes('body') ? '🤕' : '💀';
+      }
   }
 };
 
 const formatEffectDescription = (effect: BuffDebuff): string => {
   let description = effect.description;
+
+  // Add stackable information
+  if (effect.stackable && effect.currentStacks && effect.currentStacks > 1) {
+    description += ` | Stacks: ${effect.currentStacks}`;
+    if (effect.maxStacks) {
+      description += `/${effect.maxStacks}`;
+    }
+  }
 
   // Add remaining turns info
   if (effect.remainingTurns > 0) {
