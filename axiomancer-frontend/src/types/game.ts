@@ -32,6 +32,30 @@ export interface DerivedStats {
   luck: number;
 }
 
+export type EquipmentSlot = 'helmet' | 'bodyArmor' | 'gloves' | 'boots' | 'leftHand' | 'rightHand' | 'leftRing' | 'rightRing' | 'bracelet' | 'amulet' | 'cloak';
+
+export interface EquippedItems {
+  helmet?: Equipment;
+  bodyArmor?: Equipment;
+  gloves?: Equipment;
+  boots?: Equipment;
+  leftHand?: Equipment;
+  rightHand?: Equipment;
+  leftRing?: Equipment;
+  rightRing?: Equipment;
+  bracelet?: Equipment;
+  amulet?: Equipment;
+  cloak?: Equipment;
+}
+
+export interface InventoryCategories {
+  equipment: Item[];
+  consumables: Item[];
+  materials: Item[];
+  keyItems: Item[];
+  questItems: Item[];
+}
+
 export interface Character {
   id: string;
   name: string;
@@ -48,6 +72,8 @@ export interface Character {
   equipment: Equipment[];
   inventory: Item[];
   philosophicalStance: PhilosophicalStance;
+  equippedItems?: EquippedItems;
+  inventoryCategories?: InventoryCategories;
 }
 
 export interface Skill {

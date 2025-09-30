@@ -10,6 +10,7 @@ interface GlobalArea {
   name: string;
   description: string;
   imageUrl: string;
+  backgroundImage?: string; // Optional background image for the map
   unlocked: boolean;
   completed: boolean;
   requiredAreas?: string[];
@@ -35,6 +36,7 @@ const GLOBAL_AREAS: GlobalArea[] = [
     name: 'Small Fishing Village',
     description: 'Your peaceful hometown where the philosophical journey begins.',
     imageUrl: '/maps/map01.jpeg',
+    backgroundImage: '/maps/map01.jpeg',
     unlocked: true,
     completed: false
   },
@@ -43,6 +45,7 @@ const GLOBAL_AREAS: GlobalArea[] = [
     name: 'Whispering Forest',
     description: 'Ancient woods where tree spirits pose philosophical challenges.',
     imageUrl: '/maps/map02.jpg',
+    backgroundImage: '/maps/map02.jpg',
     unlocked: false,
     completed: false,
     requiredAreas: ['fishing_village']
@@ -52,6 +55,7 @@ const GLOBAL_AREAS: GlobalArea[] = [
     name: 'Crystal Caverns',
     description: 'Underground chambers that reflect the nature of reality.',
     imageUrl: '/maps/map03.jpg',
+    backgroundImage: '/maps/map03.jpg',
     unlocked: false,
     completed: false,
     requiredAreas: ['whispering_forest']
@@ -61,6 +65,7 @@ const GLOBAL_AREAS: GlobalArea[] = [
     name: 'Ancient Philosophical Ruins',
     description: 'Remnants of a great academy where wisdom was once taught.',
     imageUrl: '/maps/map04.jpg',
+    backgroundImage: '/maps/map04.jpg',
     unlocked: false,
     completed: false,
     requiredAreas: ['crystal_caverns']
@@ -70,6 +75,7 @@ const GLOBAL_AREAS: GlobalArea[] = [
     name: 'Temple of Contemplation',
     description: 'The highest peak where ultimate wisdom awaits the worthy.',
     imageUrl: '/maps/map05.png',
+    backgroundImage: '/maps/map05.png',
     unlocked: false,
     completed: false,
     requiredAreas: ['philosophical_ruins']
@@ -88,120 +94,86 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: column;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-`;
-
-const GlobalMapSection = styled.div`
-  flex: 1;
-  padding: ${theme.spacing.lg};
-  border-right: 2px solid ${theme.colors.border.primary};
-
-  h2 {
-    color: ${theme.colors.text.accent};
-    margin: 0 0 ${theme.spacing.lg} 0;
-    text-align: center;
-  }
-
-  .areas-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: ${theme.spacing.md};
-  }
-`;
-
-const AreaCard = styled.div<{ unlocked: boolean; completed: boolean; selected: boolean }>`
-  background: ${theme.colors.background.panel};
-  border: 2px solid ${props =>
-    props.selected ? theme.colors.primary :
-    props.completed ? theme.colors.success :
-    props.unlocked ? theme.colors.border.primary :
-    theme.colors.gray[600]
-  };
-  border-radius: ${theme.borderRadius.lg};
-  padding: ${theme.spacing.md};
-  cursor: ${props => props.unlocked ? 'pointer' : 'not-allowed'};
-  opacity: ${props => props.unlocked ? 1 : 0.6};
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: ${props => props.unlocked ? 'translateY(-2px)' : 'none'};
-    border-color: ${props => props.unlocked ? theme.colors.primary : theme.colors.gray[600]};
-  }
-
-  .area-image {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    border-radius: ${theme.borderRadius.md};
-    margin-bottom: ${theme.spacing.sm};
-  }
-
-  .area-name {
-    color: ${theme.colors.text.accent};
-    font-weight: 600;
-    margin-bottom: ${theme.spacing.sm};
-  }
-
-  .area-description {
-    color: ${theme.colors.text.secondary};
-    font-size: 0.9rem;
-    line-height: 1.4;
-  }
-
-  .status {
-    margin-top: ${theme.spacing.sm};
-    padding: ${theme.spacing.xs} ${theme.spacing.sm};
-    border-radius: ${theme.borderRadius.sm};
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-align: center;
-
-    &.completed {
-      background: ${theme.colors.success};
-      color: white;
-    }
-
-    &.available {
-      background: ${theme.colors.warning};
-      color: ${theme.colors.dark};
-    }
-
-    &.locked {
-      background: ${theme.colors.gray[600]};
-      color: ${theme.colors.text.muted};
-    }
-  }
 `;
 
 const LocalMapSection = styled.div`
   flex: 1;
-  padding: ${theme.spacing.lg};
   position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+`;
 
-  h2 {
+const MapSelectorSection = styled.div`
+  background: ${theme.colors.background.panel};
+  border-top: 2px solid ${theme.colors.border.primary};
+  padding: ${theme.spacing.md};
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  .selector-title {
     color: ${theme.colors.text.accent};
-    margin: 0 0 ${theme.spacing.lg} 0;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: ${theme.spacing.sm};
     text-align: center;
-  }
-
-  .no-area-selected {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 60%;
-    color: ${theme.colors.text.secondary};
-    text-align: center;
-    font-style: italic;
   }
 `;
 
-const LocalMapContainer = styled.div`
+const MapSelectorGrid = styled.div`
+  display: flex;
+  gap: ${theme.spacing.md};
+  justify-content: center;
+  flex-wrap: nowrap;
+  min-height: 80px;
+`;
+
+const MapSelector = styled.div<{ unlocked: boolean; selected: boolean }>`
+  background: ${props => props.unlocked 
+    ? theme.colors.background.secondary 
+    : 'rgba(55, 65, 81, 0.4)'
+  };
+  border: 3px solid ${props =>
+    props.selected ? theme.colors.primary :
+    props.unlocked ? theme.colors.border.primary :
+    theme.colors.gray[600]
+  };
+  border-radius: ${theme.borderRadius.lg};
+  padding: ${theme.spacing.md} ${theme.spacing.lg};
+  cursor: ${props => props.unlocked ? 'pointer' : 'not-allowed'};
+  opacity: ${props => props.unlocked ? 1 : 0.5};
+  transition: all 0.3s ease;
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    transform: ${props => props.unlocked ? 'translateY(-2px)' : 'none'};
+    border-color: ${props => props.unlocked ? theme.colors.primary : theme.colors.gray[600]};
+    box-shadow: ${props => props.unlocked ? '0 4px 8px rgba(0, 0, 0, 0.3)' : 'none'};
+  }
+
+  .map-name {
+    color: ${props => props.unlocked ? theme.colors.text.accent : theme.colors.text.muted};
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+  }
+`;
+
+const LocalMapContainer = styled.div<{ backgroundImage?: string }>`
   position: relative;
   width: 100%;
-  height: 400px;
-  background: ${theme.colors.background.panel};
-  border: 2px solid ${theme.colors.border.primary};
-  border-radius: ${theme.borderRadius.lg};
+  flex: 1;
+  background: ${props => props.backgroundImage 
+    ? `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${props.backgroundImage})`
+    : theme.colors.background.panel
+  };
+  background-size: cover;
+  background-position: center;
   overflow: hidden;
 `;
 
@@ -297,36 +269,22 @@ const NodeTooltip = styled.div<{ show: boolean }>`
   z-index: 20;
 `;
 
-const ProgressBar = styled.div`
-  background: ${theme.colors.background.secondary};
-  border-radius: ${theme.borderRadius.md};
-  padding: ${theme.spacing.md};
-  margin-top: ${theme.spacing.lg};
+const MapTitle = styled.div`
+  position: absolute;
+  top: ${theme.spacing.lg};
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid ${theme.colors.border.primary};
+  border-radius: ${theme.borderRadius.lg};
+  padding: ${theme.spacing.sm} ${theme.spacing.lg};
+  z-index: 10;
 
-  .label {
-    color: ${theme.colors.text.primary};
-    font-weight: 600;
-    margin-bottom: ${theme.spacing.sm};
-  }
-
-  .bar {
-    width: 100%;
-    height: 10px;
-    background: ${theme.colors.background.primary};
-    border-radius: 5px;
-    overflow: hidden;
-
-    .fill {
-      height: 100%;
-      background: ${theme.colors.success};
-      transition: width 0.3s ease;
-    }
-  }
-
-  .text {
-    color: ${theme.colors.text.secondary};
-    font-size: 0.9rem;
-    margin-top: ${theme.spacing.sm};
+  h2 {
+    color: ${theme.colors.text.accent};
+    margin: 0;
+    font-size: 1.3rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   }
 `;
 
@@ -459,131 +417,118 @@ export const GlobalLocalMapScreen: React.FC = () => {
   };
 
   const selectedAreaData = GLOBAL_AREAS.find(a => a.id === selectedArea);
-  const completedNodes = localNodes.filter(n => n.completed).length;
-  const progressPercent = localNodes.length > 0 ? (completedNodes / localNodes.length) * 100 : 0;
 
   return (
     <Container>
-      <GlobalMapSection>
-        <h2>🌍 World Map</h2>
-        <div className="areas-grid">
-          {GLOBAL_AREAS.map((area) => (
-            <AreaCard
-              key={area.id}
-              unlocked={area.unlocked}
-              completed={area.completed}
-              selected={selectedArea === area.id}
-              onClick={() => handleAreaSelect(area.id)}
-            >
-              <img src={area.imageUrl} alt={area.name} className="area-image" />
-              <div className="area-name">{area.name}</div>
-              <div className="area-description">{area.description}</div>
-              <div className={`status ${
-                area.completed ? 'completed' :
-                area.unlocked ? 'available' : 'locked'
-              }`}>
-                {area.completed ? 'Completed' :
-                 area.unlocked ? 'Available' : 'Locked'}
-              </div>
-            </AreaCard>
-          ))}
-        </div>
-      </GlobalMapSection>
-
       <LocalMapSection>
-        <h2>🗺️ Local Area: {selectedAreaData?.name || 'Unknown'}</h2>
-
         {selectedArea ? (
-          <>
-            <LocalMapContainer>
-              {/* Connection Lines */}
-              <ConnectionLines>
-                {localNodes.map((node) => 
-                  node.connections?.map((connectionId) => {
-                    const targetNode = localNodes.find(n => n.id === connectionId);
-                    if (!targetNode) return null;
-                    
-                    const isActive = node.unlocked && targetNode.unlocked;
-                    
-                    return (
-                      <ConnectionLine
-                        key={`${node.id}-${connectionId}`}
-                        x1={`${node.position.x}%`}
-                        y1={`${node.position.y}%`}
-                        x2={`${targetNode.position.x}%`}
-                        y2={`${targetNode.position.y}%`}
-                        isActive={isActive}
-                      />
-                    );
-                  })
-                ).flat()}
-              </ConnectionLines>
-              
-              {/* Nodes */}
-              {localNodes.map((node) => (
-                <LocalNodeElement
-                  key={node.id}
-                  nodeType={node.type}
-                  completed={node.completed}
-                  visited={node.visited}
-                  unlocked={node.unlocked}
-                  style={{
-                    left: `${node.position.x}%`,
-                    top: `${node.position.y}%`,
-                    zIndex: 2
-                  }}
-                  onClick={() => handleNodeClick(node)}
-                  onMouseEnter={() => setHoveredNode(node.id)}
-                  onMouseLeave={() => setHoveredNode(null)}
-                >
-                  <div className="icon">
-                    {getNodeIcon(node)}
-                  </div>
-                  <NodeTooltip show={hoveredNode === node.id}>
-                    {node.visited || node.type === 'person' || node.type === 'start' ? node.name : 'Unknown Location'}
-                  </NodeTooltip>
-                </LocalNodeElement>
-              ))}
-            </LocalMapContainer>
+          <LocalMapContainer backgroundImage={selectedAreaData?.backgroundImage}>
+            <MapTitle>
+              <h2>{selectedAreaData?.unlocked ? selectedAreaData.name : '???'}</h2>
+            </MapTitle>
 
-            <ProgressBar>
-              <div className="label">Area Progress</div>
-              <div className="bar">
-                <div className="fill" style={{ width: `${progressPercent}%` }} />
-              </div>
-              <div className="text">
-                {completedNodes} of {localNodes.length} locations explored
-              </div>
-            </ProgressBar>
-          </>
+            {/* Connection Lines */}
+            <ConnectionLines>
+              {localNodes.map((node) => 
+                node.connections?.map((connectionId) => {
+                  const targetNode = localNodes.find(n => n.id === connectionId);
+                  if (!targetNode) return null;
+                  
+                  const isActive = node.unlocked && targetNode.unlocked;
+                  
+                  return (
+                    <ConnectionLine
+                      key={`${node.id}-${connectionId}`}
+                      x1={`${node.position.x}%`}
+                      y1={`${node.position.y}%`}
+                      x2={`${targetNode.position.x}%`}
+                      y2={`${targetNode.position.y}%`}
+                      isActive={isActive}
+                    />
+                  );
+                })
+              ).flat()}
+            </ConnectionLines>
+            
+            {/* Nodes */}
+            {localNodes.map((node) => (
+              <LocalNodeElement
+                key={node.id}
+                nodeType={node.type}
+                completed={node.completed}
+                visited={node.visited}
+                unlocked={node.unlocked}
+                style={{
+                  left: `${node.position.x}%`,
+                  top: `${node.position.y}%`,
+                  zIndex: 2
+                }}
+                onClick={() => handleNodeClick(node)}
+                onMouseEnter={() => setHoveredNode(node.id)}
+                onMouseLeave={() => setHoveredNode(null)}
+              >
+                <div className="icon">
+                  {getNodeIcon(node)}
+                </div>
+                <NodeTooltip show={hoveredNode === node.id}>
+                  {node.visited || node.type === 'person' || node.type === 'start' ? node.name : 'Unknown Location'}
+                </NodeTooltip>
+              </LocalNodeElement>
+            ))}
+          </LocalMapContainer>
         ) : (
-          <div className="no-area-selected">
-            Select a global area to explore its local map
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: theme.colors.text.secondary,
+            fontSize: '1.2rem'
+          }}>
+            Select a map below to begin your journey
           </div>
         )}
       </LocalMapSection>
+
+      <MapSelectorSection>
+        <div className="selector-title">Select Map</div>
+        <MapSelectorGrid>
+          {GLOBAL_AREAS.map((area) => (
+            <MapSelector
+              key={area.id}
+              unlocked={area.unlocked}
+              selected={selectedArea === area.id}
+              onClick={() => handleAreaSelect(area.id)}
+            >
+              <div className="map-name">
+                {area.unlocked ? area.name : '???'}
+              </div>
+            </MapSelector>
+          ))}
+        </MapSelectorGrid>
+      </MapSelectorSection>
         
-          {/* Event Modal */}
-        <EventModal
-          isOpen={showEventModal}
-          eventType={currentEventType}
-          nodeId={currentNodeId}
-          onClose={() => {
-            setShowEventModal(false);
-            // Mark node as visited and unlock connected nodes after event
-            const node = localNodes.find(n => n.id === currentNodeId);
-            if (node && !node.visited) {
-              moveToNode(node.id);
-              // Unlock connected nodes
-              node.connections?.forEach(connectionId => {
-                const targetNode = localNodes.find(n => n.id === connectionId);
-                if (targetNode) {
-                  unlockNode(selectedArea, connectionId);
-                }
-              });
-            }
-          }}
-        />
-      </Container>
-    );
+      {/* Event Modal */}
+      <EventModal
+        isOpen={showEventModal}
+        eventType={currentEventType}
+        nodeId={currentNodeId}
+        onClose={() => {
+          setShowEventModal(false);
+          // Mark node as visited and unlock connected nodes after event
+          const node = localNodes.find(n => n.id === currentNodeId);
+          if (node && !node.visited) {
+            moveToNode(node.id);
+            // Unlock connected nodes
+            node.connections?.forEach(connectionId => {
+              const targetNode = localNodes.find(n => n.id === connectionId);
+              if (targetNode) {
+                unlockNode(selectedArea, connectionId);
+              }
+            });
+          }
+        }}
+      />
+    </Container>
+  );
 };
