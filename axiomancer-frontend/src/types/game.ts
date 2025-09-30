@@ -322,9 +322,49 @@ export interface CombatLogEntry {
   effect?: string;
 }
 
+// Comprehensive list of all possible status effects
+export type StatusEffectName =
+  | 'Acknowledgment' | 'Active Agency' | 'Analysis Paralysis' | 'Appeasement' | 'Articulate Expression'
+  | 'Attribution Bias' | 'Authentic Discourse' | 'Authentic Expression' | 'Bad Faith' | 'Balanced Perspective'
+  | 'Balanced Valuation' | 'Blind Devotion' | 'Blood Obligation' | 'Boundary Violation' | 'Broader Understanding'
+  | 'Card Playing' | 'Change Resistance' | 'Circular Thinking' | 'Civility' | 'Clarity' | 'Closure-Seeking'
+  | 'Collective Guilt' | 'Complete Awareness' | 'Completion Obsession' | 'Complexity Mastery' | 'Conclusion Manipulation'
+  | 'Confirmation Blindness' | 'Connection Confusion' | 'Consequence Fear' | 'Consequence Paralysis' | 'Contextual Understanding'
+  | 'Corruption Temptation' | 'Cost Obsession' | 'Counter-Argument' | 'Courage' | 'Creative Thinking'
+  | 'Criteria Shifting' | 'Decisive Action' | 'Definition Confusion' | 'Democratic Discourse' | 'Deniability Shield'
+  | 'Deserved Suffering' | 'Disciplinary Blindness' | 'Discussion Suppression' | 'Divine Judgment' | 'Dogmatic Certainty'
+  | 'Ego Damage' | 'Emotional Foresight' | 'Emotional Guilt' | 'Emotional Intelligence' | 'Emotional Override'
+  | 'End-Times Despair' | 'Enforced Muteness' | 'Enhanced Counter-Argument' | 'Enhanced Emotional Foresight' | 'Enhanced Physical Defense'
+  | 'Enlightenment' | 'Esotericism' | 'Exception Justification' | 'False Choice' | 'False Equivalence'
+  | 'False Expertise' | 'False Heroism' | 'False Relatability' | 'Fear' | 'Fixed Identity' | 'Foresight'
+  | 'Free Speech Absolutism' | 'Genuine Achievement' | 'Genuine Expertise' | 'Group Determinism' | 'Growth Mindset'
+  | 'Guilt Amplification' | 'Healthy Spirituality' | 'Helplessness' | 'Hero Destruction' | 'Holistic Understanding'
+  | 'Humility' | 'Identity Destruction' | 'Identity Erosion' | 'Ignorance Empowerment' | 'Ignorance Shield'
+  | 'Imagination' | 'Implication' | 'Incomplete Understanding' | 'Incredulity' | 'Independence' | 'Inertia'
+  | 'Inescapable Fate' | 'Innovation' | 'Insight into Weaknesses' | 'Integrity' | 'Intellectual Exclusion'
+  | 'Intellectual Humiliation' | 'Intellectual Sovereignty' | 'Investigative Mastery' | 'Isolation' | 'Language Policing'
+  | 'Lie Acceptance' | 'Linear Thinking' | 'Linguistic Purism' | 'Logical Clarity' | 'Logic Immunity'
+  | 'Magical Belief' | 'Magical Realism' | 'Maturity Denial' | 'Measurement Obsession' | 'Memory Manipulation'
+  | 'Mental Advantage' | 'Mental Autonomy' | 'Mental Fortitude' | 'Mental Privacy' | 'Middle Exclusion'
+  | 'Mind Control' | 'Momentum' | 'Moral Consistency' | 'Moral Exception' | 'Moral High Ground'
+  | 'Moral Perfection' | 'Moral Suppression' | 'Mortification' | 'Motive Corruption' | 'Mystical Confusion'
+  | 'Natural Order' | 'Novelty Denial' | 'Numerical Confusion' | 'Olfactory Rejection' | 'Othering'
+  | 'Perfect Accountability' | 'Perfect Autonomy' | 'Perfect Balance' | 'Perfect Clarity' | 'Perfect Communication'
+  | 'Perfect Decision Making' | 'Perfect Discourse' | 'Perfect Distinction' | 'Perfect Emotional Mastery' | 'Perfect Empathy'
+  | 'Perfect Memory' | 'Perfect Nuance' | 'Perfect Objectivity' | 'Perfect Realism' | 'Perfect Self-Trust'
+  | 'Perfect Understanding' | 'Personal Doubt' | 'Personalization' | 'Physical Reflection' | 'Practical Wisdom'
+  | 'Probabilistic Mastery' | 'Probability Denial' | 'Profanity Passion' | 'Real Excellence' | 'Reality Doubt'
+  | 'Recognition Denial' | 'Resistance to Manipulation' | 'Responsibility Avoidance' | 'Selective Blindness' | 'Self-Condemnation'
+  | 'Selfish Preservation' | 'Self-Loathing' | 'Sentiment Manipulation' | 'Simplicity Demand' | 'Spiritual Wholeness'
+  | 'Stability' | 'Statistical Understanding' | 'Story Preference' | 'Strategic Advantage' | 'Strategic Retreat'
+  | 'Strength from Pain' | 'Superiority Damage' | 'Thought Assumption' | 'Thought Sovereignty' | 'Total Recall'
+  | 'Toxic Positivity' | 'Tradition Binding' | 'True Confidence' | 'True Enlightenment' | 'True Independence'
+  | 'True Moral Understanding' | 'Trust' | 'Truth Dilution' | 'Universal Condemnation' | 'Universal Recognition'
+  | 'Universal Understanding' | 'Unrecognized Achievement';
+
 export interface BuffDebuff {
   id: string;
-  name: string;
+  name: StatusEffectName;
   description: string;
   type: 'buff' | 'debuff';
   effect: BuffDebuffEffect;
@@ -346,6 +386,9 @@ export interface BuffDebuffEffect {
     ailmentDefense?: number;
     accuracy?: number;
     evasion?: number;
+    body?: number;
+    mind?: number;
+    heart?: number;
   };
   percentageModifiers?: {
     physicalAttack?: number;
@@ -356,6 +399,9 @@ export interface BuffDebuffEffect {
     ailmentDefense?: number;
     accuracy?: number;
     evasion?: number;
+    body?: number;
+    mind?: number;
+    heart?: number;
   };
   specialEffects?: {
     reflection?: number; // Reflects damage back to attacker

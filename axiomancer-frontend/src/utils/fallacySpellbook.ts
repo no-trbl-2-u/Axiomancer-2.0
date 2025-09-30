@@ -1,4 +1,15 @@
 import { Skill } from '../types/game';
+import {
+  createDogmaticCertaintyDebuff,
+  createSelfLoathingDebuff,
+  createLogicImmunityBuff,
+  createStrengthFromPainBuff,
+  createMindAttackBuff,
+  createailmentAttackDebuff,
+  createReflectionBuff,
+  createCounterArgumentBuff,
+  createForesightBuff
+} from './statusEffects';
 
 /**
  * Complete Fallacy Spellbook - All 100+ Logical Fallacies from all-fallacies.md
@@ -24,11 +35,11 @@ export const fallacySpellbook: Record<string, Skill> = {
       stats: { mind: 16 }
     },
     combatEffects: {
-      baseEffect: 'Forces opponent to accept your conclusion, dealing 0 damage but applying dogmatic certainty debuff',
-      advantageEffect: 'Opponent cannot use logic-based skills for 3 turns due to overwhelming certainty',
-      baseDefendedEffect: 'Opponent rejects your premise, gaining logic immunity buff',
-      defendedAgainstAdvantage: 'Your certainty backfires, you take confusion damage',
-      defendedWithAdvantage: 'Opponent completely deconstructs your argument, you lose next 2 turns'
+      baseEffect: "Inflicts Dogmatic Certainty debuff on opponent",
+      advantageEffect: "Inflicts stronger Dogmatic Certainty debuff (4 turns) on opponent",
+      baseDefendedEffect: "Grants Logic Immunity buff to defender",
+      defendedAgainstAdvantage: "Inflicts Dogmatic Certainty debuff on attacker",
+      defendedWithAdvantage: "Grants enhanced Logic Immunity buff (5 turns) to defender"
     }
   },
 
@@ -49,11 +60,11 @@ export const fallacySpellbook: Record<string, Skill> = {
       stats: { heart: 14 }
     },
     combatEffects: {
-      baseEffect: 'Deals 35 emotional damage + self-loathing debuff (opponent takes damage when using abilities)',
-      advantageEffect: '50 damage + permanent self-doubt (opponent\'s confidence never fully recovers)',
-      baseDefendedEffect: 'Backfires: your cruelty exposes your own emptiness, taking 20 damage',
-      defendedAgainstAdvantage: 'Opponent channels their pain into rage, gaining strength buff',
-      defendedWithAdvantage: 'Your attack reveals your own vulnerability, opponent gains insight into your weaknesses'
+      baseEffect: "Inflicts severe Self Loathing debuff on opponent (15 damage)",
+      advantageEffect: "Inflicts enhanced Self Loathing debuff on opponent (25 damage, 5 turns)",
+      baseDefendedEffect: "Attacker suffers Self Loathing debuff (10 damage)",
+      defendedAgainstAdvantage: "Grants Strength From Pain buff to defender (20 bonus)",
+      defendedWithAdvantage: "Grants Insight buff to defender"
     }
   },
 
@@ -74,11 +85,11 @@ export const fallacySpellbook: Record<string, Skill> = {
       stats: { body: 15 }
     },
     combatEffects: {
-      baseEffect: 'Deals 28 physical damage + inescapable fate debuff',
-      advantageEffect: '40 damage + opponent believes their defeat is "deserved"',
-      baseDefendedEffect: 'Opponent rejects your "justice," gaining resistance to future attacks',
-      defendedAgainstAdvantage: 'Your supposed justice reveals your own hypocrisy',
-      defendedWithAdvantage: 'Opponent turns your "consequences" against you, reflecting your own guilt'
+      baseEffect: "Inflicts Inescapable Fate debuff on opponent",
+      advantageEffect: "Inflicts enhanced Inescapable Fate debuff on opponent (5 turns)",
+      baseDefendedEffect: "Grants Resistance buff to defender",
+      defendedAgainstAdvantage: "Inflicts Dogmatic Certainty debuff on attacker",
+      defendedWithAdvantage: "Attacker suffers Self Loathing debuff (15 damage)"
     }
   },
 

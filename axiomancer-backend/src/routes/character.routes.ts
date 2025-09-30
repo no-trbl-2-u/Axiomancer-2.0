@@ -7,7 +7,7 @@ const router = Router();
 // Save character state
 router.post('/save', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = (req.user as any)?.id;
+    const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
@@ -36,7 +36,7 @@ router.post('/save', authenticateToken, async (req: AuthenticatedRequest, res: R
 // Load character state
 router.get('/load', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = (req.user as any)?.id;
+    const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
@@ -59,7 +59,7 @@ router.get('/load', authenticateToken, async (req: AuthenticatedRequest, res: Re
 // Check if character exists
 router.get('/exists', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = (req.user as any)?.id;
+    const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
@@ -80,7 +80,7 @@ router.get('/exists', authenticateToken, async (req: AuthenticatedRequest, res: 
 // Delete character state
 router.delete('/delete', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = (req.user as any)?.id;
+    const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
