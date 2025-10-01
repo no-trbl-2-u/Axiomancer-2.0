@@ -1,6 +1,11 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { AuthState, User, LoginCredentials, RegisterData, AuthResponse } from '../types';
-import { authService } from '../services/auth.service';
+import { useAuthStore } from '../stores/authStore';
+
+/**
+ * DEPRECATED: This context is now a wrapper around the Zustand store
+ * Use useAuthStore() directly in new code
+ */
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
@@ -8,118 +13,39 @@ interface AuthContextType extends AuthState {
   logout: () => void;
 }
 
-interface AuthAction {
-  type: 'SET_LOADING' | 'SET_USER' | 'SET_ERROR' | 'LOGOUT';
-  payload?: any;
-}
-
-const initialState: AuthState = {
-  user: null,
-  token: null,
-  isAuthenticated: false,
-  isLoading: true,
-};
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-function authReducer(state: AuthState, action: AuthAction): AuthState {
-  switch (action.type) {
-    case 'SET_LOADING':
-      return { ...state, isLoading: action.payload };
-    case 'SET_USER':
-      const { user, token } = action.payload as AuthResponse;
-      return {
-        ...state,
-        user,
-        token,
-        isAuthenticated: true,
-        isLoading: false,
-      };
-    case 'LOGOUT':
-      return {
-        ...state,
-        user: null,
-        token: null,
-        isAuthenticated: false,
-        isLoading: false,
-      };
-    case 'SET_ERROR':
-      return {
-        ...state,
-        isLoading: false,
-      };
-    default:
-      return state;
-  }
-}
-
+/**
+ * AuthProvider now uses Zustand store internally
+ * This maintains backward compatibility while migrating to Zustand
+ */
 export function AuthProvider({ children }: { children: ReactNode }): JSX.Element {
-  const [state, dispatch] = useReducer(authReducer, initialState);
+  // Get all state and actions from Zustand store
+  const store = useAuthStore();
 
+  // Initialize auth on mount
   useEffect(() => {
-    const token = localStorage.getItem('axiomancer_token');
-    const userStr = localStorage.getItem('axiomancer_user');
-
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(userStr) as User;
-        dispatch({ type: 'SET_USER', payload: { user, token } });
-      } catch (error) {
-        localStorage.removeItem('axiomancer_token');
-        localStorage.removeItem('axiomancer_user');
-        dispatch({ type: 'SET_LOADING', payload: false });
-      }
-    } else {
-      dispatch({ type: 'SET_LOADING', payload: false });
-    }
+    store.initAuth();
   }, []);
 
-  const login = async (credentials: LoginCredentials): Promise<void> => {
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      const response = await authService.login(credentials);
-
-      localStorage.setItem('axiomancer_token', response.token);
-      localStorage.setItem('axiomancer_user', JSON.stringify(response.user));
-
-      dispatch({ type: 'SET_USER', payload: response });
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR' });
-      throw error;
-    }
-  };
-
-  const register = async (data: RegisterData): Promise<void> => {
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      const response = await authService.register(data);
-
-      localStorage.setItem('axiomancer_token', response.token);
-      localStorage.setItem('axiomancer_user', JSON.stringify(response.user));
-
-      dispatch({ type: 'SET_USER', payload: response });
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR' });
-      throw error;
-    }
-  };
-
-  const logout = (): void => {
-    localStorage.removeItem('axiomancer_token');
-    localStorage.removeItem('axiomancer_user');
-    dispatch({ type: 'LOGOUT' });
-  };
-
+  // Context value that wraps the Zustand store
   const value: AuthContextType = {
-    ...state,
-    login,
-    register,
-    logout,
+    user: store.user,
+    token: store.token,
+    isAuthenticated: store.isAuthenticated,
+    isLoading: store.isLoading,
+    login: store.login,
+    register: store.register,
+    logout: store.logout,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+/**
+ * Hook to use the auth context
+ * @deprecated Use useAuthStore() directly for better performance
+ */
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
