@@ -97,3 +97,37 @@ export function createCharacterStats(baseStats: BaseStats) {
     maxMana: calculateMaxMP(baseStats),
   };
 }
+
+/**
+ * Calculate equipment bonuses from all equipped items
+ */
+export function calculateEquipmentBonuses(equippedItems?: Record<string, any>): BaseStats {
+  if (!equippedItems) {
+    return { heart: 0, body: 0, mind: 0 };
+  }
+
+  const bonuses: BaseStats = { heart: 0, body: 0, mind: 0 };
+
+  Object.values(equippedItems).forEach((item) => {
+    if (item && item.stats) {
+      bonuses.heart += item.stats.heart || 0;
+      bonuses.body += item.stats.body || 0;
+      bonuses.mind += item.stats.mind || 0;
+    }
+  });
+
+  return bonuses;
+}
+
+/**
+ * Calculate total base stats including equipment bonuses
+ */
+export function calculateTotalBaseStats(baseStats: BaseStats, equippedItems?: Record<string, any>): BaseStats {
+  const equipmentBonuses = calculateEquipmentBonuses(equippedItems);
+
+  return {
+    heart: baseStats.heart + equipmentBonuses.heart,
+    body: baseStats.body + equipmentBonuses.body,
+    mind: baseStats.mind + equipmentBonuses.mind,
+  };
+}

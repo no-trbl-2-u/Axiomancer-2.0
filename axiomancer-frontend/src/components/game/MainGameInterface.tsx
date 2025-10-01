@@ -8,8 +8,9 @@ import { CharacterScreen } from './CharacterScreen';
 import { InventoryScreen } from './InventoryScreen';
 import { SkillScreen } from './SkillScreen';
 import { GlobalLocalMapScreen } from './GlobalLocalMapScreen';
+import { CombatScreen } from './CombatScreen';
 
-type ActiveTab = 'character' | 'inventory' | 'skills' | 'map';
+type ActiveTab = 'character' | 'inventory' | 'skills' | 'map' | 'combat';
 
 const GameContainer = styled.div`
   width: 100vw;
@@ -19,10 +20,143 @@ const GameContainer = styled.div`
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
 `;
 
+const TopBar = styled.div`
+  background: ${theme.colors.background.panel};
+  border-bottom: 2px solid ${theme.colors.border.primary};
+  padding: ${theme.spacing.md} ${theme.spacing.lg};
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing.lg};
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+
+  @media (max-width: 768px) {
+    padding: ${theme.spacing.sm} ${theme.spacing.md};
+    gap: ${theme.spacing.md};
+  }
+`;
+
+const PlayerPortrait = styled.div`
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid ${theme.colors.primary};
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(29, 78, 216, 0.3));
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 768px) {
+    width: 50px;
+    height: 50px;
+    border-width: 2px;
+  }
+`;
+
+const PlayerInfo = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing.xs};
+  min-width: 0;
+`;
+
+const PlayerName = styled.div`
+  color: ${theme.colors.text.accent};
+  font-size: 1.1rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+`;
+
+const PlayerStats = styled.div`
+  display: flex;
+  gap: ${theme.spacing.lg};
+
+  @media (max-width: 768px) {
+    gap: ${theme.spacing.md};
+  }
+`;
+
+const StatBar = styled.div`
+  flex: 1;
+  min-width: 120px;
+
+  @media (max-width: 768px) {
+    min-width: 80px;
+  }
+`;
+
+const StatLabel = styled.div`
+  font-size: 0.75rem;
+  color: ${theme.colors.text.secondary};
+  margin-bottom: 2px;
+  font-weight: 600;
+`;
+
+const StatBarContainer = styled.div`
+  height: 12px;
+  background: ${theme.colors.background.primary};
+  border: 1px solid ${theme.colors.border.primary};
+  border-radius: ${theme.borderRadius.sm};
+  overflow: hidden;
+  position: relative;
+`;
+
+const StatBarFill = styled.div<{ percentage: number; type: 'hp' | 'mp' }>`
+  height: 100%;
+  background: ${props => props.type === 'hp'
+    ? (props.percentage > 60 ? '#10b981' : props.percentage > 30 ? '#f59e0b' : '#ef4444')
+    : '#3b82f6'};
+  width: ${props => props.percentage}%;
+  transition: width 0.3s ease;
+`;
+
+const StatText = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.65rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+`;
+
+const LevelBadge = styled.div`
+  background: ${theme.colors.primary};
+  color: ${theme.colors.dark};
+  padding: ${theme.spacing.sm} ${theme.spacing.md};
+  border-radius: ${theme.borderRadius.lg};
+  font-weight: 700;
+  font-size: 1rem;
+  white-space: nowrap;
+
+  @media (max-width: 768px) {
+    padding: ${theme.spacing.xs} ${theme.spacing.sm};
+    font-size: 0.9rem;
+  }
+`;
+
 const ContentArea = styled.div`
   flex: 1;
   overflow: hidden;
   position: relative;
+
+  @media (max-width: 768px) {
+    padding: ${theme.spacing.sm};
+  }
 `;
 
 const BottomNavigation = styled.div`
@@ -31,8 +165,13 @@ const BottomNavigation = styled.div`
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: ${theme.spacing.md};
+  padding: ${theme.spacing.sm};
   z-index: 100;
+
+  @media (max-width: 768px) {
+    padding: ${theme.spacing.xs};
+    gap: ${theme.spacing.xs};
+  }
 `;
 
 const NavIcon = styled.button<{ active: boolean }>`
@@ -48,6 +187,7 @@ const NavIcon = styled.button<{ active: boolean }>`
   align-items: center;
   gap: ${theme.spacing.xs};
   min-width: 100px;
+  flex: 1;
 
   &:hover {
     background: ${theme.colors.primary};
@@ -58,18 +198,44 @@ const NavIcon = styled.button<{ active: boolean }>`
 
   .icon {
     font-size: 1.5rem;
+
+    @media (max-width: 768px) {
+      font-size: 1.2rem;
+    }
   }
 
   .label {
     font-size: 0.85rem;
     font-weight: 600;
     text-transform: uppercase;
+
+    @media (max-width: 768px) {
+      font-size: 0.7rem;
+      line-height: 1.2;
+    }
+  }
+
+  @media (max-width: 768px) {
+    min-width: 60px;
+    padding: ${theme.spacing.sm} ${theme.spacing.xs};
+  }
+
+  @media (max-width: 480px) {
+    min-width: 50px;
+    padding: ${theme.spacing.xs};
   }
 `;
 
 export const MainGameInterface: React.FC = () => {
   const { gameState, currentScreen, changeScreen } = useGame();
   const [activeTab, setActiveTab] = useState<ActiveTab>('map');
+
+  // Update active tab based on current screen
+  React.useEffect(() => {
+    if (currentScreen === 'combat' && gameState.combat) {
+      setActiveTab('combat');
+    }
+  }, [currentScreen, gameState.combat]);
 
   const handleTabChange = (tab: ActiveTab) => {
     setActiveTab(tab);
@@ -79,7 +245,8 @@ export const MainGameInterface: React.FC = () => {
       character: 'character',
       inventory: 'inventory',
       skills: 'skills',
-      map: 'map'
+      map: 'map',
+      combat: 'combat'
     };
 
     changeScreen(screenMap[tab]);
@@ -95,13 +262,55 @@ export const MainGameInterface: React.FC = () => {
         return <SkillScreen />;
       case 'map':
         return <GlobalLocalMapScreen />;
+      case 'combat':
+        return <CombatScreen />;
       default:
         return <GlobalLocalMapScreen />;
     }
   };
 
+  const getPortraitUrl = () => {
+    if (gameState.character.portrait?.imageUrl) {
+      return gameState.character.portrait.imageUrl;
+    }
+    return '/portraits/c-begger.png'; // Default portrait
+  };
+
   return (
     <GameContainer>
+      {/* Top Bar with Player Info */}
+      <TopBar>
+        <PlayerPortrait>
+          <img src={getPortraitUrl()} alt={gameState.character.name} />
+        </PlayerPortrait>
+        <PlayerInfo>
+          <PlayerName>{gameState.character.name}</PlayerName>
+          <PlayerStats>
+            <StatBar>
+              <StatLabel>HP</StatLabel>
+              <StatBarContainer>
+                <StatBarFill
+                  percentage={(gameState.character.health / gameState.character.maxHealth) * 100}
+                  type="hp"
+                />
+                <StatText>{gameState.character.health}/{gameState.character.maxHealth}</StatText>
+              </StatBarContainer>
+            </StatBar>
+            <StatBar>
+              <StatLabel>MP</StatLabel>
+              <StatBarContainer>
+                <StatBarFill
+                  percentage={(gameState.character.mana / gameState.character.maxMana) * 100}
+                  type="mp"
+                />
+                <StatText>{gameState.character.mana}/{gameState.character.maxMana}</StatText>
+              </StatBarContainer>
+            </StatBar>
+          </PlayerStats>
+        </PlayerInfo>
+        <LevelBadge>Lv. {gameState.character.level}</LevelBadge>
+      </TopBar>
+
       {/* Main Content Area */}
       <ContentArea>
         {renderContent()}
@@ -140,6 +349,16 @@ export const MainGameInterface: React.FC = () => {
           <span className="icon">🎒</span>
           <span className="label">Inventory</span>
         </NavIcon>
+
+        {gameState.combat && (
+          <NavIcon
+            active={activeTab === 'combat'}
+            onClick={() => handleTabChange('combat')}
+          >
+            <span className="icon">⚔️</span>
+            <span className="label">Combat</span>
+          </NavIcon>
+        )}
       </BottomNavigation>
     </GameContainer>
   );

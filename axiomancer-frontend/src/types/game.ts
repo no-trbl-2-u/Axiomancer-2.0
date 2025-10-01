@@ -109,6 +109,7 @@ export interface Equipment {
   id: string;
   name: string;
   type: EquipmentType;
+  subtype?: 'ring' | 'amulet' | 'bracelet';
   stats: Partial<Character['baseStats']>;
   special?: string;
   icon: string;

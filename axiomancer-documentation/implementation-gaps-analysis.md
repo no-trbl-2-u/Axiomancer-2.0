@@ -540,3 +540,7 @@ These four items would transform the game from "partially functional" to "fully 
 **Analyst:** AI Development Assistant  
 **Files Reviewed:** 15+ documentation files, 20+ implementation files  
 **Total Gaps Identified:** 40+ disconnections across 9 major systems
+
+## Further pain points
+- Full image of player should be displayed in combat.
+- Portrait of player in the top is disconnect

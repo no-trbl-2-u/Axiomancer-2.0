@@ -14,6 +14,8 @@ const Container = styled.div`
   flex-direction: column;
   gap: ${theme.spacing.xs};
   min-height: 60px;
+  max-height: 120px;
+  overflow-y: auto;
 `;
 
 const EffectsList = styled.div`

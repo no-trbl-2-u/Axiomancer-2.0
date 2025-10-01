@@ -50,3 +50,5 @@ nginx/ssl/
 # Temporary files
 *.tmp
 *.temp
+
+.claude

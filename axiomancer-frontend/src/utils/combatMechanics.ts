@@ -95,12 +95,12 @@ export function executeCombatAction(
   hasAdvantage: boolean
 ): CombatActionResult {
   // Apply equipment bonuses to attacker and defender if they have equipment
-  const attackerStats = (attacker as any).equipment && (attacker as any).equipment.length > 0
-    ? applyEquipmentBonuses(attacker.derivedStats, (attacker as any).equipment, argumentType)
+  const attackerStats = (attacker as any).equippedItems && Object.keys((attacker as any).equippedItems).length > 0
+    ? applyEquipmentBonuses(attacker.derivedStats, Object.values((attacker as any).equippedItems), argumentType)
     : attacker.derivedStats;
 
-  const defenderStats = (defender as any).equipment && (defender as any).equipment.length > 0
-    ? applyEquipmentBonuses(defender.derivedStats, (defender as any).equipment, argumentType)
+  const defenderStats = (defender as any).equippedItems && Object.keys((defender as any).equippedItems).length > 0
+    ? applyEquipmentBonuses(defender.derivedStats, Object.values((defender as any).equippedItems), argumentType)
     : defender.derivedStats;
   const result: CombatActionResult = {
     hit: false,
@@ -246,12 +246,12 @@ export function executeFallacy(
   }
 
   // Apply equipment bonuses to attacker and defender if they have equipment
-  const attackerStats = (attacker as any).equipment && (attacker as any).equipment.length > 0
-    ? applyEquipmentBonuses(attacker.derivedStats, (attacker as any).equipment)
+  const attackerStats = (attacker as any).equippedItems && Object.keys((attacker as any).equippedItems).length > 0
+    ? applyEquipmentBonuses(attacker.derivedStats, Object.values((attacker as any).equippedItems))
     : attacker.derivedStats;
 
-  const defenderStats = (defender as any).equipment && (defender as any).equipment.length > 0
-    ? applyEquipmentBonuses(defender.derivedStats, (defender as any).equipment)
+  const defenderStats = (defender as any).equippedItems && Object.keys((defender as any).equippedItems).length > 0
+    ? applyEquipmentBonuses(defender.derivedStats, Object.values((defender as any).equippedItems))
     : defender.derivedStats;
 
   const result: CombatActionResult = {
@@ -852,10 +852,10 @@ export class CombatStateManager {
   constructor(player: Character, enemy: Enemy) {
     // Apply equipment bonuses to player's derived stats
     const playerWithEquipment = { ...player };
-    if (player.equipment && player.equipment.length > 0) {
+    if (player.equippedItems && Object.keys(player.equippedItems).length > 0) {
       playerWithEquipment.derivedStats = applyEquipmentBonuses(
         player.derivedStats,
-        player.equipment
+        Object.values(player.equippedItems)
       );
     }
 

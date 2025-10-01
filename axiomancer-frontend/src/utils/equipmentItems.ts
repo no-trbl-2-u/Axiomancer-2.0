@@ -111,46 +111,43 @@ export const equipmentItems: Record<string, Equipment> = {
     icon: '🔮'
   },
 
-  // ACCESSORIES - Stat bonuses and special effects
+  // RINGS - Worn on fingers, provide mind bonuses
 
   // The Ring of Circular Logic
   ring_of_circular_logic: {
     id: 'ring_of_circular_logic',
     name: 'Ring of Circular Logic',
     type: 'accessory',
+    subtype: 'ring',
     stats: { mind: 2 },
     special: 'Mind Attack bonus: Arguments become self-sustaining, dealing extra damage over time',
     icon: '💍'
   },
 
-  // The Earring of Emotional Manipulation
-  earring_of_emotional_manipulation: {
-    id: 'earring_of_emotional_manipulation',
-    name: 'Earring of Emotional Manipulation',
-    type: 'accessory',
-    stats: { heart: 3 },
-    special: 'Heart Attack bonus: Emotions become weapons, bypassing rational defenses',
-    icon: '👂'
-  },
-
-  // The Bracelet of Selective Memory
-  bracelet_of_selective_memory: {
-    id: 'bracelet_of_selective_memory',
-    name: 'Bracelet of Selective Memory',
-    type: 'accessory',
-    stats: { mind: 2, heart: 1 },
-    special: 'Memory manipulation: Remember only what supports your position',
-    icon: '🧿'
-  },
+  // AMULETS - Worn around the neck, provide heart bonuses
 
   // The Necklace of Inherited Trauma
   necklace_of_inherited_trauma: {
     id: 'necklace_of_inherited_trauma',
     name: 'Necklace of Inherited Trauma',
     type: 'accessory',
+    subtype: 'amulet',
     stats: { heart: 4 },
     special: 'Heart Attack debuff: Trauma passes to opponent, causing inherited suffering',
     icon: '📿'
+  },
+
+  // BRACELETS - Worn on wrists, provide body bonuses
+
+  // The Bracelet of Selective Memory
+  bracelet_of_selective_memory: {
+    id: 'bracelet_of_selective_memory',
+    name: 'Bracelet of Selective Memory',
+    type: 'accessory',
+    subtype: 'bracelet',
+    stats: { mind: 2, heart: 1 },
+    special: 'Memory manipulation: Remember only what supports your position',
+    icon: '🧿'
   },
 
   // The Gloves of Unseen Hands
@@ -158,6 +155,7 @@ export const equipmentItems: Record<string, Equipment> = {
     id: 'gloves_of_unseen_hands',
     name: 'Gloves of Unseen Hands',
     type: 'accessory',
+    subtype: 'bracelet',
     stats: { body: 2, mind: 1 },
     special: 'Stealth bonus: Actions seem to happen without your involvement',
     icon: '🧤'

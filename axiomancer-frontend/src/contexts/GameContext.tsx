@@ -3,7 +3,7 @@ import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, Cha
 import { initialQuests } from '../utils/questSystem';
 import { createEnemyByType } from '../utils/combatMechanics';
 import { loadCharacter, saveCharacter } from '../utils/characterSave';
-import { createInitialBaseStats, calculateDerivedStats, calculateMaxHP, calculateMaxMP } from '../utils/statCalculations';
+import { createInitialBaseStats, calculateDerivedStats, calculateMaxHP, calculateMaxMP, calculateTotalBaseStats } from '../utils/statCalculations';
 import { clearAllBuffsDebuffs } from '../utils/buffDebuffEngine';
 
 interface CreateCharacterData {
@@ -32,6 +32,10 @@ interface GameContextType {
   makePhilosophicalChoice: (choiceId: string, outcome: any) => void;
   unlockNode: (locationId: string, nodeId: string) => void;
   unlockGuardianProgression: () => void;
+  equipItem: (slot: import('../types/game').EquipmentSlot, item: import('../types/game').Equipment) => void;
+  unequipItem: (slot: import('../types/game').EquipmentSlot) => void;
+  learnSkill: (skill: import('../types/game').Skill) => void;
+  canLearnSkill: (skill: import('../types/game').Skill) => boolean;
 }
 
 type GameAction =
@@ -49,7 +53,10 @@ type GameAction =
   | { type: 'COMPLETE_QUEST'; payload: { questId: string } }
   | { type: 'ADD_QUEST'; payload: { quest: Quest } }
   | { type: 'MAKE_PHILOSOPHICAL_CHOICE'; payload: { choiceId: string; outcome: any } }
-  | { type: 'UNLOCK_NODE'; payload: { locationId: string; nodeId: string } };
+  | { type: 'UNLOCK_NODE'; payload: { locationId: string; nodeId: string } }
+  | { type: 'EQUIP_ITEM'; payload: { slot: import('../types/game').EquipmentSlot; item: import('../types/game').Equipment } }
+  | { type: 'UNEQUIP_ITEM'; payload: { slot: import('../types/game').EquipmentSlot } }
+  | { type: 'LEARN_SKILL'; payload: { skill: import('../types/game').Skill } };
 
 const initialBaseStats = createInitialBaseStats();
 const initialDerivedStats = calculateDerivedStats(initialBaseStats);
@@ -80,7 +87,6 @@ const initialGameState: GameState = {
   currentLocation: 'fishing_town',
   currentNode: 'home',
   currentGlobalNode: 'fishing_village',
-  currentExplorationNode: undefined,
   mapEnergy: 10,
   maxMapEnergy: 10,
   locations: getInitialLocations(),
@@ -232,7 +238,7 @@ function getInitialLocations(): Record<string, GameLocation> {
             id: 'prepare_fishing',
             type: 'fishing',
             description: 'Prepare your fishing gear and learn the basics.',
-            requirements: [{ type: 'stat', key: 'talkedToGuardian', value: true }]
+            requirements: [{ type: 'stat', key: 'talkedToGuardian', value: 1 }]
           },
           icon: '⚓'
         },
@@ -269,7 +275,7 @@ function getInitialLocations(): Record<string, GameLocation> {
           id: 'boat_builder',
           name: 'Boat Workshop',
           description: 'Where you can build a boat to explore beyond the town.',
-          type: 'building',
+          type: 'event',
           position: { x: 60, y: 20 },
           connections: ['fishing_spot', 'shipyard', 'workshop'],
           unlocked: false,
@@ -831,6 +837,85 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       const finalMaxHP = calculateMaxHP(finalBaseStats);
       const finalMaxMP = calculateMaxMP(finalBaseStats);
 
+      // Add default equipment for new characters
+      const defaultEquipment = {
+        helmet: {
+          id: 'starter_helmet',
+          name: 'Leather Cap',
+          type: 'armor' as const,
+          stats: { body: 1 },
+          special: 'Basic protection for beginners',
+          icon: '🧢'
+        },
+        bodyArmor: {
+          id: 'starter_tunic',
+          name: 'Simple Tunic',
+          type: 'armor' as const,
+          stats: { heart: 1 },
+          special: 'Comfortable clothing for philosophical discourse',
+          icon: '👕'
+        },
+        gloves: {
+          id: 'starter_gloves',
+          name: 'Work Gloves',
+          type: 'armor' as const,
+          stats: { body: 1 },
+          special: 'Basic hand protection',
+          icon: '🧤'
+        },
+        boots: {
+          id: 'starter_boots',
+          name: 'Simple Boots',
+          type: 'armor' as const,
+          stats: { body: 1 },
+          special: 'Footwear for long journeys',
+          icon: '👢'
+        },
+        leftHand: {
+          id: 'starter_weapon',
+          name: 'Walking Stick',
+          type: 'weapon' as const,
+          stats: { body: 2 },
+          special: 'A sturdy stick for support and defense',
+          icon: '🪄'
+        },
+        rightHand: {
+          id: 'starter_book',
+          name: 'Philosophy Primer',
+          type: 'weapon' as const,
+          stats: { mind: 2 },
+          special: 'Basic text on logical reasoning',
+          icon: '📚'
+        },
+        leftRing: {
+          id: 'starter_ring',
+          name: 'Simple Ring',
+          type: 'accessory' as const,
+          subtype: 'ring' as const,
+          stats: { mind: 1 },
+          special: 'A basic ring for focus',
+          icon: '💍'
+        },
+        bracelet: {
+          id: 'starter_bracelet',
+          name: 'Leather Bracelet',
+          type: 'accessory' as const,
+          subtype: 'bracelet' as const,
+          stats: { body: 1 },
+          special: 'Basic wrist protection',
+          icon: '🧿'
+        },
+        amulet: {
+          id: 'starter_amulet',
+          name: 'Heart Pendant',
+          type: 'accessory' as const,
+          subtype: 'amulet' as const,
+          stats: { heart: 1 },
+          special: 'A simple pendant for emotional balance',
+          icon: '📿'
+        }
+      };
+
       return {
         ...initialGameState,
         character: {
@@ -845,6 +930,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           mana: finalMaxMP,
           maxMana: finalMaxMP,
           availableStatPoints: 0,
+          equippedItems: defaultEquipment,
         },
       };
 
@@ -857,6 +943,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         story: savedData.story,
         inventory: savedData.inventory,
         locations: savedData.locations,
+        globalMap: savedData.globalMap || {},
         questLog: savedData.questLog,
         mapEnergy: savedData.mapEnergy,
         maxMapEnergy: savedData.maxMapEnergy,
@@ -865,26 +952,32 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
 
     case 'MOVE_TO_LOCATION':
+      const targetLocation = state.locations[action.payload.locationId];
+      const startNodeId = targetLocation?.isNodeMap ? 
+        targetLocation.nodes?.find(n => n.type === 'start')?.id : undefined;
+      const nextCurrentNode = startNodeId || state.currentNode;
       return {
         ...state,
         currentLocation: action.payload.locationId,
-        currentNode: state.locations[action.payload.locationId]?.isNodeMap ? 
-          state.locations[action.payload.locationId].nodes?.find(n => n.type === 'start')?.id : undefined,
+        ...(nextCurrentNode ? { currentNode: nextCurrentNode } : {}),
       };
 
     case 'MOVE_TO_NODE':
+      const currentLoc = state.locations[state.currentLocation];
+      if (!currentLoc) return state;
+      
       return {
         ...state,
         currentNode: action.payload.nodeId,
         locations: {
           ...state.locations,
           [state.currentLocation]: {
-            ...state.locations[state.currentLocation],
-            nodes: state.locations[state.currentLocation].nodes?.map(node => 
+            ...currentLoc,
+            nodes: currentLoc.nodes?.map(node => 
               node.id === action.payload.nodeId 
                 ? { ...node, visited: true }
                 : node
-            )
+            ) || []
           }
         }
       };
@@ -918,21 +1011,27 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'UNLOCK_NODE':
       console.log(`🔓 UNLOCK_NODE reducer: unlocking ${action.payload.nodeId} in ${action.payload.locationId}`);
+      const unlockLocation = state.locations[action.payload.locationId];
+      if (!unlockLocation) {
+        console.warn(`Location ${action.payload.locationId} not found`);
+        return state;
+      }
+      
       const updatedState = {
         ...state,
         locations: {
           ...state.locations,
           [action.payload.locationId]: {
-            ...state.locations[action.payload.locationId],
-            nodes: state.locations[action.payload.locationId].nodes?.map(node =>
+            ...unlockLocation,
+            nodes: unlockLocation.nodes?.map(node =>
               node.id === action.payload.nodeId
                 ? { ...node, unlocked: true }
                 : node
-            )
+            ) || []
           }
         }
       };
-      console.log('🔓 Node unlocked, updated state:', updatedState.locations[action.payload.locationId].nodes?.find(n => n.id === action.payload.nodeId));
+      console.log('🔓 Node unlocked, updated state:', updatedState.locations[action.payload.locationId]?.nodes?.find(n => n.id === action.payload.nodeId));
       return updatedState;
 
     case 'START_COMBAT':
@@ -987,6 +1086,94 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       // TODO: Implement philosophical choice handling
       return state;
 
+    case 'EQUIP_ITEM': {
+      const { slot, item } = action.payload;
+
+      // Update equipped items
+      const newEquippedItems = {
+        ...state.character.equippedItems,
+        [slot]: item,
+      };
+
+      // Recalculate stats with new equipment
+      const totalBaseStats = calculateTotalBaseStats(state.character.baseStats, newEquippedItems);
+      const newDerivedStats = calculateDerivedStats(totalBaseStats);
+      const newMaxHP = calculateMaxHP(totalBaseStats);
+      const newMaxMP = calculateMaxMP(totalBaseStats);
+
+      console.log(`⚔️ Equipped ${item.name} to ${slot}`);
+      console.log(`📊 New total base stats:`, totalBaseStats);
+
+      return {
+        ...state,
+        character: {
+          ...state.character,
+          equippedItems: newEquippedItems,
+          derivedStats: newDerivedStats,
+          maxHealth: newMaxHP,
+          maxMana: newMaxMP,
+          // Heal player proportionally when max HP/MP increases
+          health: Math.min(state.character.health, newMaxHP),
+          mana: Math.min(state.character.mana, newMaxMP),
+        },
+      };
+    }
+
+    case 'UNEQUIP_ITEM': {
+      const { slot } = action.payload;
+
+      if (!state.character.equippedItems?.[slot]) {
+        return state; // Nothing equipped in that slot
+      }
+
+      // Update equipped items
+      const newEquippedItems = { ...state.character.equippedItems };
+      delete newEquippedItems[slot];
+
+      // Recalculate stats without the unequipped item
+      const totalBaseStats = calculateTotalBaseStats(state.character.baseStats, newEquippedItems);
+      const newDerivedStats = calculateDerivedStats(totalBaseStats);
+      const newMaxHP = calculateMaxHP(totalBaseStats);
+      const newMaxMP = calculateMaxMP(totalBaseStats);
+
+      console.log(`🗑️ Unequipped item from ${slot}`);
+      console.log(`📊 New total base stats:`, totalBaseStats);
+
+      return {
+        ...state,
+        character: {
+          ...state.character,
+          equippedItems: newEquippedItems,
+          derivedStats: newDerivedStats,
+          maxHealth: newMaxHP,
+          maxMana: newMaxMP,
+          // Ensure current HP/MP don't exceed new maximums
+          health: Math.min(state.character.health, newMaxHP),
+          mana: Math.min(state.character.mana, newMaxMP),
+        },
+      };
+    }
+
+    case 'LEARN_SKILL': {
+      const { skill } = action.payload;
+
+      // Check if skill is already learned
+      if (state.character.skills.some(s => s.id === skill.id)) {
+        console.log(`⚠️ Skill ${skill.name} is already learned`);
+        return state;
+      }
+
+      console.log(`✨ Learned new skill: ${skill.name}`);
+
+      return {
+        ...state,
+        character: {
+          ...state.character,
+          skills: [...state.character.skills, skill],
+        },
+      };
+    }
+
     default:
       return state;
   }
@@ -1012,6 +1199,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
       return () => clearTimeout(saveTimer);
     }
+    return undefined;
   }, [gameState.character, gameState.currentLocation]);
 
   const startNewGame = (characterName: string) => {
@@ -1079,8 +1267,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       manaCost: 5,
       damage: 10,
       icon: '🤔',
-      type: 'logic',
-      philosophicalAspect: 'mind',
+      type: 'logic' as const,
+      philosophicalAspect: 'mind' as const,
     };
 
     console.log('✅ Adding Basic Reasoning skill:', basicReasoningSkill);
@@ -1136,6 +1324,55 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'MAKE_PHILOSOPHICAL_CHOICE', payload: { choiceId, outcome } });
   };
 
+  const equipItem = (slot: import('../types/game').EquipmentSlot, item: import('../types/game').Equipment) => {
+    dispatch({ type: 'EQUIP_ITEM', payload: { slot, item } });
+  };
+
+  const unequipItem = (slot: import('../types/game').EquipmentSlot) => {
+    dispatch({ type: 'UNEQUIP_ITEM', payload: { slot } });
+  };
+
+  const canLearnSkill = (skill: import('../types/game').Skill): boolean => {
+    // Check if already learned
+    if (gameState.character.skills.some(s => s.id === skill.id)) {
+      return false;
+    }
+
+    // Check learning requirements
+    if (skill.learningRequirement) {
+      const req = skill.learningRequirement;
+
+      // Check level requirement
+      if (req.level && gameState.character.level < req.level) {
+        return false;
+      }
+
+      // Check stat requirements
+      if (req.stats) {
+        if (req.stats.heart && gameState.character.baseStats.heart < req.stats.heart) {
+          return false;
+        }
+        if (req.stats.body && gameState.character.baseStats.body < req.stats.body) {
+          return false;
+        }
+        if (req.stats.mind && gameState.character.baseStats.mind < req.stats.mind) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  };
+
+  const learnSkill = (skill: import('../types/game').Skill) => {
+    if (!canLearnSkill(skill)) {
+      console.warn(`Cannot learn skill ${skill.name}: requirements not met`);
+      return;
+    }
+
+    dispatch({ type: 'LEARN_SKILL', payload: { skill } });
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -1157,6 +1394,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
         makePhilosophicalChoice,
         unlockNode,
         unlockGuardianProgression,
+        equipItem,
+        unequipItem,
+        learnSkill,
+        canLearnSkill,
       }}
     >
       {children}

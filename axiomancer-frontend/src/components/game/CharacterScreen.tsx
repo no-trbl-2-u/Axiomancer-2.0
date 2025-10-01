@@ -11,6 +11,16 @@ const CharacterContainer = styled.div`
   background: ${theme.colors.background.primary};
   gap: ${theme.spacing.lg};
   position: relative;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    padding: ${theme.spacing.md};
+    gap: ${theme.spacing.md};
+  }
+
+  @media (max-width: 480px) {
+    padding: ${theme.spacing.sm};
+  }
 `;
 
 const PortraitPanel = styled.div`
@@ -31,6 +41,14 @@ const PortraitPanel = styled.div`
     object-fit: cover;
     border-radius: ${theme.borderRadius.lg};
     border: 3px solid ${theme.colors.border.primary};
+
+    @media (max-width: 768px) {
+      height: 250px;
+    }
+
+    @media (max-width: 480px) {
+      height: 200px;
+    }
   }
 
   .character-name {
@@ -38,12 +56,25 @@ const PortraitPanel = styled.div`
     font-size: 1.5rem;
     font-weight: bold;
     text-align: center;
+
+    @media (max-width: 480px) {
+      font-size: 1.2rem;
+    }
   }
 
   .character-level {
     color: ${theme.colors.text.secondary};
     font-size: 1.1rem;
     text-align: center;
+
+    @media (max-width: 480px) {
+      font-size: 1rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 100%;
   }
 `;
 
@@ -56,6 +87,15 @@ const StatsPanel = styled.div`
   color: ${theme.colors.text.primary};
   box-shadow: ${theme.shadows.panel};
   overflow-y: auto;
+
+  @media (max-width: 768px) {
+    padding: ${theme.spacing.md};
+    max-height: 60vh;
+  }
+
+  @media (max-width: 480px) {
+    padding: ${theme.spacing.sm};
+  }
 `;
 
 const PanelTitle = styled.h2`

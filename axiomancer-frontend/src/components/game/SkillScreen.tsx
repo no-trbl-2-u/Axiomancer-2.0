@@ -24,6 +24,14 @@ const SkillContainer = styled.div`
     background: radial-gradient(circle at center, rgba(75, 0, 130, 0.2) 0%, rgba(0, 0, 0, 0.8) 70%);
     pointer-events: none;
   }
+
+  @media (max-width: 768px) {
+    padding: 100px ${theme.spacing.md} 80px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 80px ${theme.spacing.sm} 70px;
+  }
 `;
 
 const SkillTitle = styled.h2`
@@ -32,6 +40,14 @@ const SkillTitle = styled.h2`
   font-size: 2rem;
   text-align: center;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.3rem;
+  }
 `;
 
 const InfoPanel = styled.div`
@@ -54,6 +70,15 @@ const InfoPanel = styled.div`
     color: ${theme.colors.text.accent};
     font-weight: bold;
   }
+
+  @media (max-width: 768px) {
+    padding: ${theme.spacing.md};
+    margin-bottom: ${theme.spacing.lg};
+  }
+
+  @media (max-width: 480px) {
+    padding: ${theme.spacing.sm};
+  }
 `;
 
 const SkillTabs = styled.div`
@@ -61,6 +86,11 @@ const SkillTabs = styled.div`
   gap: ${theme.spacing.sm};
   margin-bottom: ${theme.spacing.xl};
   justify-content: center;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    margin-bottom: ${theme.spacing.lg};
+  }
 `;
 
 const SkillTab = styled.button<{ active: boolean }>`
@@ -79,6 +109,18 @@ const SkillTab = styled.button<{ active: boolean }>`
     border-color: ${theme.colors.primary};
     color: ${theme.colors.text.accent};
   }
+
+  @media (max-width: 768px) {
+    padding: ${theme.spacing.sm} ${theme.spacing.md};
+    min-width: 100px;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: ${theme.spacing.xs} ${theme.spacing.sm};
+    min-width: 80px;
+    font-size: 0.8rem;
+  }
 `;
 
 const SkillGrid = styled.div`
@@ -87,6 +129,11 @@ const SkillGrid = styled.div`
   gap: ${theme.spacing.lg};
   flex: 1;
   overflow-y: auto;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: ${theme.spacing.md};
+  }
 `;
 
 const SkillCard = styled.div<{ level: number; isLearned: boolean }>`
@@ -107,6 +154,14 @@ const SkillCard = styled.div<{ level: number; isLearned: boolean }>`
     box-shadow: ${theme.shadows.glow};
     opacity: 1;
   }
+
+  @media (max-width: 768px) {
+    padding: ${theme.spacing.md};
+  }
+
+  @media (max-width: 480px) {
+    padding: ${theme.spacing.sm};
+  }
 `;
 
 const SkillHeader = styled.div`
@@ -114,6 +169,11 @@ const SkillHeader = styled.div`
   align-items: center;
   gap: ${theme.spacing.md};
   margin-bottom: ${theme.spacing.md};
+
+  @media (max-width: 768px) {
+    gap: ${theme.spacing.sm};
+    margin-bottom: ${theme.spacing.sm};
+  }
 `;
 
 const SkillIcon = styled.div`
@@ -126,6 +186,18 @@ const SkillIcon = styled.div`
   background: rgba(0, 0, 0, 0.3);
   border-radius: ${theme.borderRadius.lg};
   border: 2px solid ${theme.colors.border.primary};
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+  }
 `;
 
 const SkillInfo = styled.div`
@@ -137,12 +209,20 @@ const SkillName = styled.h3`
   color: ${theme.colors.text.accent};
   font-size: 1.3rem;
   font-weight: bold;
+
+  @media (max-width: 480px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const SkillLevel = styled.div`
   color: ${theme.colors.text.secondary};
   font-size: 0.9rem;
   font-family: monospace;
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+  }
 `;
 
 const SkillDescription = styled.p`
@@ -150,6 +230,15 @@ const SkillDescription = styled.p`
   color: ${theme.colors.text.primary};
   line-height: 1.4;
   font-size: 0.95rem;
+
+  @media (max-width: 768px) {
+    margin-bottom: ${theme.spacing.sm};
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+  }
 `;
 
 const SkillStats = styled.div`
@@ -157,6 +246,16 @@ const SkillStats = styled.div`
   grid-template-columns: repeat(3, 1fr);
   gap: ${theme.spacing.sm};
   margin-bottom: ${theme.spacing.md};
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: ${theme.spacing.xs};
+    margin-bottom: ${theme.spacing.sm};
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const SkillStat = styled.div`
@@ -171,12 +270,24 @@ const SkillStat = styled.div`
     color: ${theme.colors.text.muted};
     text-transform: uppercase;
     margin-bottom: 2px;
+
+    @media (max-width: 480px) {
+      font-size: 0.6rem;
+    }
   }
 
   .stat-value {
     font-size: 1rem;
     font-weight: bold;
     color: ${theme.colors.text.accent};
+
+    @media (max-width: 480px) {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: ${theme.spacing.xs};
   }
 `;
 
