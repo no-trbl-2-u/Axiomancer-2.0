@@ -557,6 +557,14 @@ export const CombatScreen: React.FC = () => {
 
   const combat = gameState.combat;
 
+  // Local state for tracking buff/debuff states across turns
+  const [playerBuffs, setPlayerBuffs] = useState<import('../../types/game').CombatantBuffs>(() =>
+    combat?.playerBuffs || { buffs: [], debuffs: [] }
+  );
+  const [enemyBuffs, setEnemyBuffs] = useState<import('../../types/game').CombatantBuffs>(() =>
+    combat?.enemyBuffs || { buffs: [], debuffs: [] }
+  );
+
   useEffect(() => {
     if (combat) {
       setCombatLog(combat.log.map(entry => `${entry.actor}: ${entry.action}`));
@@ -615,6 +623,10 @@ export const CombatScreen: React.FC = () => {
       const manager = new CombatStateManager(combat.player, combat.enemy);
 
       const result = await manager.executeTurn(playerChoice);
+
+      // Update local buff states with returned values
+      setPlayerBuffs(result.playerBuffs);
+      setEnemyBuffs(result.enemyBuffs);
 
       setCombatLog(prev => [...prev.slice(-7), ...result.turnEffects]);
 
@@ -741,7 +753,7 @@ export const CombatScreen: React.FC = () => {
             </MPBar>
 
             <BuffDebuffDisplay
-              buffs={[...combat.playerBuffs.buffs, ...combat.playerBuffs.debuffs]}
+              buffs={[...playerBuffs.buffs, ...playerBuffs.debuffs]}
               target="player"
             />
           </CombatantPanel>
@@ -763,7 +775,7 @@ export const CombatScreen: React.FC = () => {
             </MPBar>
 
             <BuffDebuffDisplay
-              buffs={[...combat.enemyBuffs.buffs, ...combat.enemyBuffs.debuffs]}
+              buffs={[...enemyBuffs.buffs, ...enemyBuffs.debuffs]}
               target="enemy"
             />
           </CombatantPanel>

@@ -389,47 +389,13 @@ function calculateReflectionDamage(
  * Generate AI choice for enemy based on their philosophical alignment and strategy
  */
 export function generateEnemyChoice(enemy: Enemy, playerPreviousChoices: CombatChoice[]): CombatChoice {
-  // Simple AI that tries to counter the player's most used aspect
-  const aspectFrequency: Record<PhilosophicalAspect, number> = {
-    body: 0,
-    mind: 0,
-    heart: 0,
-  };
+  // Random aspect selection: 33% chance for each (Body, Mind, Heart)
+  const aspects: PhilosophicalAspect[] = ['body', 'mind', 'heart'];
+  const randomAspectIndex = Math.floor(Math.random() * aspects.length);
+  const chosenAspect = aspects[randomAspectIndex] || 'body';
 
-  // Count player's aspect usage
-  playerPreviousChoices.forEach(choice => {
-    aspectFrequency[choice.aspect]++;
-  });
-
-  let chosenAspect: PhilosophicalAspect;
-
-  if (playerPreviousChoices.length > 0) {
-    // Find player's most used aspect
-    const mostUsedAspect = Object.entries(aspectFrequency).reduce((a, b) =>
-      aspectFrequency[a[0] as PhilosophicalAspect] > aspectFrequency[b[0] as PhilosophicalAspect] ? a : b
-    )[0] as PhilosophicalAspect;
-
-    // Counter the most used aspect
-    const counterAspect: Record<PhilosophicalAspect, PhilosophicalAspect> = {
-      body: 'heart',   // Heart beats Body
-      mind: 'body',    // Body beats Mind
-      heart: 'mind',   // Mind beats Heart
-    };
-
-    chosenAspect = counterAspect[mostUsedAspect];
-  } else {
-    const aspects: PhilosophicalAspect[] = ['body', 'mind', 'heart'];
-    const randomIndex = Math.floor(Math.random() * aspects.length);
-    chosenAspect = aspects[randomIndex] || 'body';
-  }
-
-  // Choose action based on enemy stats
-  let chosenAction: 'attack' | 'defend' | 'special';
-  if (enemy.derivedStats.physicalAttack > enemy.derivedStats.mindAttack) {
-    chosenAction = Math.random() > 0.3 ? 'attack' : 'defend';
-  } else {
-    chosenAction = Math.random() > 0.4 ? 'special' : 'attack';
-  }
+  // Random action selection: 50% attack, 50% defend
+  const chosenAction: 'attack' | 'defend' = Math.random() < 0.5 ? 'attack' : 'defend';
 
   return {
     aspect: chosenAspect,
@@ -480,8 +446,15 @@ export function resolveCombatRound(
 
   // Generate combat effects text
   const effects: string[] = [];
-  effects.push(`${player.name} chose ${playerChoice.aspect.toUpperCase()} and used ${playerChoice.action.toUpperCase()}`);
-  effects.push(`${enemy.name} chose ${enemyChoice.aspect.toUpperCase()} and used ${enemyChoice.action.toUpperCase()}`);
+  // Show full player selection
+  const playerActionText = playerChoice.action.charAt(0).toUpperCase() + playerChoice.action.slice(1);
+  const playerAspectText = playerChoice.aspect.charAt(0).toUpperCase() + playerChoice.aspect.slice(1);
+  effects.push(`${player.name} chose ${playerAspectText} ${playerActionText}`);
+  
+  // Show full enemy selection
+  const enemyActionText = enemyChoice.action.charAt(0).toUpperCase() + enemyChoice.action.slice(1);
+  const enemyAspectText = enemyChoice.aspect.charAt(0).toUpperCase() + enemyChoice.aspect.slice(1);
+  effects.push(`${enemy.name} chose ${enemyAspectText} ${enemyActionText}`);
 
   if (aspectWinner === 'player') {
     effects.push(`${playerChoice.aspect.toUpperCase()} overcomes ${enemyChoice.aspect.toUpperCase()}! ${player.name} gains advantage!`);
@@ -939,6 +912,10 @@ export class CombatStateManager {
     winner?: 'player' | 'enemy' | 'agree_to_disagree' | undefined;
     turnEffects: string[];
     agreeToDisagreeRewards?: any;
+    playerBuffs: import('../types/game').CombatantBuffs;
+    enemyBuffs: import('../types/game').CombatantBuffs;
+    updatedPlayer: Character;
+    updatedEnemy: Enemy;
   }> {
     this.turnEffects = [];
     await this.processStartOfTurn();
@@ -948,6 +925,11 @@ export class CombatStateManager {
 
     // Generate enemy choice
     const enemyChoice = generateEnemyChoice(this.enemy, this.playerChoiceHistory);
+
+    // Log enemy choice in turn effects
+    const enemyActionText = enemyChoice.action.charAt(0).toUpperCase() + enemyChoice.action.slice(1);
+    const enemyAspectText = enemyChoice.aspect.charAt(0).toUpperCase() + enemyChoice.aspect.slice(1);
+    this.turnEffects.push(`${this.enemy.name} chose ${enemyAspectText} ${enemyActionText}`);
 
     // Check for Agree to Disagree (Defend vs Defend)
     if (playerChoice.action === 'defend' && enemyChoice.action === 'defend') {
@@ -1097,6 +1079,10 @@ export class CombatStateManager {
       combatEnded,
       winner,
       turnEffects: this.turnEffects,
+      playerBuffs: this.playerBuffs,
+      enemyBuffs: this.enemyBuffs,
+      updatedPlayer: this.player,
+      updatedEnemy: this.enemy,
     };
   }
 
@@ -1129,6 +1115,10 @@ export class CombatStateManager {
       items?: any[];
       questItems?: any[];
     };
+    playerBuffs: import('../types/game').CombatantBuffs;
+    enemyBuffs: import('../types/game').CombatantBuffs;
+    updatedPlayer: Character;
+    updatedEnemy: Enemy;
   } {
     const enemyTier = this.enemy.enemyTier || 'normal';
     const rewards: any = {};
@@ -1170,6 +1160,10 @@ export class CombatStateManager {
       winner: 'agree_to_disagree',
       turnEffects: this.turnEffects,
       agreeToDisagreeRewards: rewards,
+      playerBuffs: this.playerBuffs,
+      enemyBuffs: this.enemyBuffs,
+      updatedPlayer: this.player,
+      updatedEnemy: this.enemy,
     };
   }
 

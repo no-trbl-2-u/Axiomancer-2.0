@@ -21,14 +21,17 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
-  padding: ${theme.spacing.lg};
+  padding: 0.5rem;
+  overflow: hidden;
 `;
 
 const CreationContainer = styled.div`
   display: flex;
-  gap: ${theme.spacing.xl};
-  max-width: 1000px;
+  gap: 0.75rem;
+  max-width: 1100px;
   width: 100%;
+  height: 100%;
+  max-height: 98vh;
 `;
 
 const LeftSquare = styled.div`
@@ -36,16 +39,24 @@ const LeftSquare = styled.div`
   background: ${theme.colors.background.panel};
   border: 2px solid ${theme.colors.border.primary};
   border-radius: ${theme.borderRadius.lg};
-  padding: ${theme.spacing.xl};
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: ${theme.spacing.lg};
+  gap: 0.75rem;
 
   h2 {
     color: ${theme.colors.text.accent};
-    margin: 0 0 ${theme.spacing.lg} 0;
+    margin: 0;
     text-align: center;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .age-hp-mp {
+    text-align: center;
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 600;
   }
 `;
 
@@ -54,17 +65,20 @@ const RightSquare = styled.div`
   background: ${theme.colors.background.panel};
   border: 2px solid ${theme.colors.border.primary};
   border-radius: ${theme.borderRadius.lg};
-  padding: ${theme.spacing.xl};
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: ${theme.spacing.lg};
+  gap: 0.5rem;
+  overflow-y: auto;
+  max-height: 100%;
 
   h2 {
     color: ${theme.colors.text.accent};
     margin: 0;
     text-align: center;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+    padding-bottom: 0.25rem;
   }
 `;
 
@@ -75,16 +89,17 @@ const FormGroup = styled.div`
   label {
     color: ${theme.colors.text.primary};
     font-weight: 600;
-    margin-bottom: ${theme.spacing.sm};
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
   }
 
   input, select {
-    padding: ${theme.spacing.md};
+    padding: 0.5rem;
     border: 2px solid ${theme.colors.border.secondary};
     border-radius: ${theme.borderRadius.md};
     background: ${theme.colors.background.secondary};
     color: ${theme.colors.text.primary};
-    font-size: 1rem;
+    font-size: 0.95rem;
 
     &:focus {
       outline: none;
@@ -95,23 +110,24 @@ const FormGroup = styled.div`
 
 const PortraitDisplay = styled.div`
   img {
-    width: 120px;
-    height: 120px;
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
-    border: 3px solid ${theme.colors.border.primary};
+    border: 2px solid ${theme.colors.border.primary};
     object-fit: cover;
   }
 
   .placeholder {
-    width: 120px;
-    height: 120px;
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
-    border: 3px dashed ${theme.colors.border.secondary};
+    border: 2px dashed ${theme.colors.border.secondary};
     display: flex;
     align-items: center;
     justify-content: center;
     color: ${theme.colors.text.secondary};
     font-style: italic;
+    font-size: 0.8rem;
   }
 `;
 
@@ -119,29 +135,23 @@ const StatsContainer = styled.div`
   width: 100%;
   color: ${theme.colors.text.primary};
 
-  .age-hp-mp {
-    text-align: center;
-    margin-bottom: ${theme.spacing.lg};
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-
   .stat-group {
-    margin-bottom: ${theme.spacing.md};
+    margin-bottom: 0.5rem;
 
     .group-title {
       color: ${theme.colors.text.accent};
       font-weight: 600;
-      margin-bottom: ${theme.spacing.sm};
+      margin-bottom: 0.25rem;
       border-bottom: 1px solid ${theme.colors.border.secondary};
-      padding-bottom: ${theme.spacing.xs};
+      padding-bottom: 0.15rem;
+      font-size: 0.9rem;
     }
 
     .stat-line {
       display: flex;
       justify-content: space-between;
-      margin-bottom: ${theme.spacing.xs};
-      font-size: 0.9rem;
+      margin-bottom: 0.15rem;
+      font-size: 0.8rem;
 
       .stat-name {
         color: ${theme.colors.text.secondary};
@@ -155,15 +165,16 @@ const StatsContainer = styled.div`
   }
 
   .derived-stats {
-    margin-top: ${theme.spacing.lg};
-    padding-top: ${theme.spacing.md};
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
     border-top: 2px solid ${theme.colors.border.secondary};
 
     .derived-title {
       color: ${theme.colors.text.accent};
       font-weight: 600;
-      margin-bottom: ${theme.spacing.sm};
+      margin-bottom: 0.25rem;
       text-align: center;
+      font-size: 0.9rem;
     }
   }
 `;
@@ -172,9 +183,9 @@ const CreateButton = styled.button`
   background: ${theme.colors.primary};
   color: white;
   border: none;
-  padding: ${theme.spacing.md} ${theme.spacing.xl};
+  padding: 0.6rem 1rem;
   border-radius: ${theme.borderRadius.md};
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   width: 100%;
@@ -197,10 +208,11 @@ const StatAllocationRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: ${theme.spacing.sm};
+  padding: 0.4rem;
   background: ${theme.colors.background.secondary};
   border-radius: ${theme.borderRadius.md};
-  margin-bottom: ${theme.spacing.sm};
+  margin-bottom: 0.3rem;
+  font-size: 0.85rem;
 `;
 
 const StatButton = styled.button`
@@ -208,9 +220,9 @@ const StatButton = styled.button`
   color: ${theme.colors.dark};
   border: none;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  font-size: 1.2rem;
+  width: 26px;
+  height: 26px;
+  font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -228,20 +240,20 @@ const StatButton = styled.button`
 `;
 
 const PointsDisplay = styled.div`
-  background: ${theme.colors.background.tertiary};
-  padding: ${theme.spacing.md};
+  background: ${theme.colors.background.secondary};
+  padding: 0.5rem;
   border-radius: ${theme.borderRadius.md};
   text-align: center;
-  margin-bottom: ${theme.spacing.md};
+  margin-bottom: 0.25rem;
 
   .points-label {
     color: ${theme.colors.text.secondary};
-    font-size: 0.9rem;
+    font-size: 0.75rem;
   }
 
   .points-count {
     color: ${theme.colors.text.accent};
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: bold;
   }
 `;
@@ -253,7 +265,7 @@ export const CharacterCreationScreen: React.FC = () => {
   const [name, setName] = useState('');
   const [gender, setGender] = useState<'male' | 'female'>('male');
   const [selectedPortrait, setSelectedPortrait] = useState('');
-  const [portraits, setPortraits] = useState<{male: Portrait[], female: Portrait[]}>({ male: [], female: [] });
+  const [portraits, setPortraits] = useState<{ male: Portrait[], female: Portrait[] }>({ male: [], female: [] });
   const [portraitsLoading, setPortraitsLoading] = useState(true);
   const [baseStats, setBaseStats] = useState<BaseStats>(createInitialBaseStats());
 
@@ -376,6 +388,10 @@ export const CharacterCreationScreen: React.FC = () => {
             </select>
           </FormGroup>
 
+          <div className="age-hp-mp">
+            Age: 10 • {maxHP} HP • {maxMP} MP
+          </div>
+
           <CreateButton type="submit" disabled={!canSubmit || portraitsLoading} onClick={handleSubmit}>
             {portraitsLoading ? 'Loading...' : 'Begin Your Philosophical Journey'}
           </CreateButton>
@@ -395,10 +411,6 @@ export const CharacterCreationScreen: React.FC = () => {
           </PortraitDisplay>
 
           <StatsContainer>
-            <div className="age-hp-mp">
-              Age: 16 • {maxHP} HP • {maxMP} MP
-            </div>
-
             <PointsDisplay>
               <div className="points-label">Available Stat Points</div>
               <div className="points-count">{availablePoints}</div>
@@ -532,10 +544,10 @@ export const CharacterCreationScreen: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
               <StatButton
                 onClick={resetStats}
-                style={{ width: 'auto', padding: '8px 16px', borderRadius: '8px' }}
+                style={{ width: 'auto', padding: '6px 12px', borderRadius: '8px', fontSize: '0.85rem' }}
               >
                 Reset
               </StatButton>

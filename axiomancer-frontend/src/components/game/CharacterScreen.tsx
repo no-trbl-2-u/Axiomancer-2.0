@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGame } from '../../contexts/GameContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { characterService } from '../../services/characterService';
+import { Button } from '../Button';
 
 const CharacterContainer = styled.div`
   width: 100%;
@@ -162,10 +165,35 @@ const CategoryTitle = styled.h3`
 export const CharacterScreen = React.memo(() => {
   const { gameState } = useGame();
   const { character } = gameState;
+  const { logout } = useAuth();
+  const [portraitUrl, setPortraitUrl] = useState<string>(character.portrait?.imageUrl || '');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Get character portrait from localStorage
-  const characterData = JSON.parse(localStorage.getItem('axiomancer_character') || '{}');
-  const portraitUrl = characterData.portrait?.imageUrl || '/portraits/c-begger.png';
+  // Fetch character portrait from backend if not available in gameState
+  useEffect(() => {
+    // If portrait is already in gameState, use it
+    if (character.portrait?.imageUrl) {
+      setPortraitUrl(character.portrait.imageUrl);
+      return;
+    }
+
+    // Otherwise, fetch from backend
+    const fetchCharacterData = async () => {
+      try {
+        setIsLoading(true);
+        const characterData = await characterService.loadCharacter();
+        if (characterData?.character?.portrait?.imageUrl) {
+          setPortraitUrl(characterData.character.portrait.imageUrl);
+        }
+      } catch (error) {
+        console.error('Failed to load character portrait:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCharacterData();
+  }, [character.portrait]);
 
   return (
     <CharacterContainer>
@@ -177,6 +205,14 @@ export const CharacterScreen = React.memo(() => {
         />
         <div className="character-name">{character.name}</div>
         <div className="character-level">Level {character.level} Philosopher</div>
+        <Button 
+          variant="danger" 
+          size="md" 
+          onClick={logout}
+          style={{ marginTop: theme.spacing.md, width: '100%' }}
+        >
+          Logout
+        </Button>
       </PortraitPanel>
 
       <StatsPanel>

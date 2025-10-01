@@ -7,7 +7,7 @@ import { loadCharacter, deleteCharacter, SavedCharacterData } from '../utils/cha
 import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
-  min-height: 100vh;
+  min-height: 70vh;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
   display: flex;
   flex-direction: column;
