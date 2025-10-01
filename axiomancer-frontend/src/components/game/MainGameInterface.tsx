@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
-import { useGame } from '../../contexts/GameContext';
+import { useGameStore } from '../../stores/gameStore';
 
 // Import all our game screens
 import { CharacterScreen } from './CharacterScreen';
@@ -227,15 +227,20 @@ const NavIcon = styled.button<{ active: boolean }>`
 `;
 
 export const MainGameInterface: React.FC = () => {
-  const { gameState, currentScreen, changeScreen } = useGame();
+  // Zustand store - selective subscriptions
+  const character = useGameStore(state => state.gameState.character);
+  const combat = useGameStore(state => state.gameState.combat);
+  const currentScreen = useGameStore(state => state.currentScreen);
+  const changeScreen = useGameStore(state => state.changeScreen);
+  
   const [activeTab, setActiveTab] = useState<ActiveTab>('map');
 
   // Update active tab based on current screen
   React.useEffect(() => {
-    if (currentScreen === 'combat' && gameState.combat) {
+    if (currentScreen === 'combat' && combat) {
       setActiveTab('combat');
     }
-  }, [currentScreen, gameState.combat]);
+  }, [currentScreen, combat]);
 
   const handleTabChange = (tab: ActiveTab) => {
     setActiveTab(tab);
@@ -270,8 +275,8 @@ export const MainGameInterface: React.FC = () => {
   };
 
   const getPortraitUrl = () => {
-    if (gameState.character.portrait?.imageUrl) {
-      return gameState.character.portrait.imageUrl;
+    if (character.portrait?.imageUrl) {
+      return character.portrait.imageUrl;
     }
     return '/portraits/c-begger.png'; // Default portrait
   };
@@ -281,34 +286,34 @@ export const MainGameInterface: React.FC = () => {
       {/* Top Bar with Player Info */}
       <TopBar>
         <PlayerPortrait>
-          <img src={getPortraitUrl()} alt={gameState.character.name} />
+          <img src={getPortraitUrl()} alt={character.name} />
         </PlayerPortrait>
         <PlayerInfo>
-          <PlayerName>{gameState.character.name}</PlayerName>
+          <PlayerName>{character.name}</PlayerName>
           <PlayerStats>
             <StatBar>
               <StatLabel>HP</StatLabel>
               <StatBarContainer>
                 <StatBarFill
-                  percentage={(gameState.character.health / gameState.character.maxHealth) * 100}
+                  percentage={(character.health / character.maxHealth) * 100}
                   type="hp"
                 />
-                <StatText>{gameState.character.health}/{gameState.character.maxHealth}</StatText>
+                <StatText>{character.health}/{character.maxHealth}</StatText>
               </StatBarContainer>
             </StatBar>
             <StatBar>
               <StatLabel>MP</StatLabel>
               <StatBarContainer>
                 <StatBarFill
-                  percentage={(gameState.character.mana / gameState.character.maxMana) * 100}
+                  percentage={(character.mana / character.maxMana) * 100}
                   type="mp"
                 />
-                <StatText>{gameState.character.mana}/{gameState.character.maxMana}</StatText>
+                <StatText>{character.mana}/{character.maxMana}</StatText>
               </StatBarContainer>
             </StatBar>
           </PlayerStats>
         </PlayerInfo>
-        <LevelBadge>Lv. {gameState.character.level}</LevelBadge>
+        <LevelBadge>Lv. {character.level}</LevelBadge>
       </TopBar>
 
       {/* Main Content Area */}
@@ -350,7 +355,7 @@ export const MainGameInterface: React.FC = () => {
           <span className="label">Inventory</span>
         </NavIcon>
 
-        {gameState.combat && (
+        {combat && (
           <NavIcon
             active={activeTab === 'combat'}
             onClick={() => handleTabChange('combat')}

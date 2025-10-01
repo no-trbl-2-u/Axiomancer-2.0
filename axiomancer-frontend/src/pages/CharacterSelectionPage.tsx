@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../styles/theme';
-import { useAuth } from '../contexts/AuthContext';
-import { useGame } from '../contexts/GameContext';
+import { useAuthStore } from '../stores/authStore';
+import { useGameStore } from '../stores/gameStore';
 import { loadCharacter, deleteCharacter, SavedCharacterData } from '../utils/characterSave';
 import { useNavigate } from 'react-router-dom';
 
@@ -255,8 +255,9 @@ const ConfirmDialog = styled.div<{ show: boolean }>`
 `;
 
 export const CharacterSelectionPage: React.FC = () => {
-  const { logout } = useAuth();
-  const { loadSavedCharacter } = useGame();
+  // Zustand stores
+  const logout = useAuthStore(state => state.logout);
+  const loadSavedCharacter = useGameStore(state => state.loadSavedCharacter);
   const navigate = useNavigate();
   const [savedCharacter, setSavedCharacter] = useState<SavedCharacterData | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

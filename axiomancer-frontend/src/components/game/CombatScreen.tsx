@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
-import { useGame } from '../../contexts/GameContext';
+import { useGameStore } from '../../stores/gameStore';
 import { CombatState, PhilosophicalAspect, CombatChoice, CombatAction } from '../../types/game';
 import { CombatStateManager, generateEnemyChoice, executeFallacy } from '../../utils/combatMechanics';
 import { BuffDebuffDisplay } from '../combat/BuffDebuffDisplay';
@@ -548,14 +548,18 @@ const ModalCloseButton = styled.button`
 `;
 
 export const CombatScreen: React.FC = () => {
-  const { gameState, endCombat, changeScreen, updateCharacter } = useGame();
+  // Zustand store - selective subscriptions for better performance
+  const combat = useGameStore(state => state.gameState.combat);
+  const character = useGameStore(state => state.gameState.character);
+  const endCombat = useGameStore(state => state.endCombat);
+  const changeScreen = useGameStore(state => state.changeScreen);
+  const updateCharacter = useGameStore(state => state.updateCharacter);
+  
   const [selectedAspect, setSelectedAspect] = useState<PhilosophicalAspect | null>(null);
   const [combatLog, setCombatLog] = useState<string[]>([]);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [showSkillModal, setShowSkillModal] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
-
-  const combat = gameState.combat;
 
   // Local state for tracking buff/debuff states across turns
   const [playerBuffs, setPlayerBuffs] = useState<import('../../types/game').CombatantBuffs>(() =>
@@ -665,7 +669,7 @@ export const CombatScreen: React.FC = () => {
   const handleUseSkill = async (skillId: string) => {
     if (!selectedAspect || !isPlayerTurn || !combat) return;
 
-    const skill = gameState.character.skills.find(s => s.id === skillId);
+    const skill = character.skills.find(s => s.id === skillId);
     if (!skill) {
       setCombatLog(prev => [...prev.slice(-7), '❌ Skill not found!']);
       return;
@@ -836,8 +840,8 @@ export const CombatScreen: React.FC = () => {
           <SkillModalContent onClick={(e) => e.stopPropagation()}>
             <h3>✨ Select a Skill</h3>
             <SkillGrid>
-              {gameState.character.skills.length > 0 ? (
-                gameState.character.skills.map((skill) => {
+              {character.skills.length > 0 ? (
+                character.skills.map((skill) => {
                   const canAfford = combat && combat.player.mana >= skill.manaCost;
                   return (
                     <SkillCard

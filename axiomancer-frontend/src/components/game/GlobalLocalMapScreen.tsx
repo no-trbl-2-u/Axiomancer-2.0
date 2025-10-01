@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
-import { useGame } from '../../contexts/GameContext';
+import { useGameStore } from '../../stores/gameStore';
 import { EventModal } from './EventModal';
 import { saveCharacter } from '../../utils/characterSave';
 
@@ -289,7 +289,14 @@ const MapTitle = styled.div`
 `;
 
 export const GlobalLocalMapScreen: React.FC = () => {
-  const { gameState, changeScreen, moveToNode, updateStory, unlockNode, unlockGuardianProgression } = useGame();
+  // Zustand store - selective subscriptions
+  const gameState = useGameStore(state => state.gameState);
+  const changeScreen = useGameStore(state => state.changeScreen);
+  const moveToNode = useGameStore(state => state.moveToNode);
+  const updateStory = useGameStore(state => state.updateStory);
+  const unlockNode = useGameStore(state => state.unlockNode);
+  const unlockGuardianProgression = useGameStore(state => state.unlockGuardianProgression);
+  
   const [selectedArea, setSelectedArea] = useState<string>('fishing_town');
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   

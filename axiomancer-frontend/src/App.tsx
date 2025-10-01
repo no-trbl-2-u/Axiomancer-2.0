@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { GameProvider, useGame } from './contexts/GameContext';
+import { useAuthStore } from './stores/authStore';
 import { GlobalStyles } from './styles/GlobalStyles';
 import { Layout } from './components/Layout';
 import { LandingPage } from './pages/LandingPage';
@@ -14,7 +13,8 @@ import { hasExistingCharacter } from './utils/characterSave';
 
 // Protected route component that requires authentication
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const isLoading = useAuthStore(state => state.isLoading);
 
   if (isLoading) {
     return (
@@ -29,11 +29,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   }
 
   return (
-    <GameProvider>
-      <Layout>
-        {children}
-      </Layout>
-    </GameProvider>
+    <Layout>
+      {children}
+    </Layout>
   );
 };
 
@@ -49,8 +47,14 @@ const CharacterRoute: React.FC = () => {
 };
 
 const AppContent = React.memo(() => {
-  const { isAuthenticated } = useAuth();
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const initAuth = useAuthStore(state => state.initAuth);
   const [showLanding, setShowLanding] = useState<boolean>(true);
+  
+  // Initialize auth on mount
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
 
   if (showLanding) {
     return <LandingPage onClickToStart={() => setShowLanding(false)} />;
@@ -92,12 +96,10 @@ const AppContent = React.memo(() => {
 
 function App(): JSX.Element {
   return (
-    <AuthProvider>
-      <Router>
-        <GlobalStyles />
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <Router>
+      <GlobalStyles />
+      <AppContent />
+    </Router>
   );
 }
 

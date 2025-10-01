@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
-import { useGame } from '../../contexts/GameContext';
-import { useAuth } from '../../contexts/AuthContext';
+import { useGameStore } from '../../stores/gameStore';
+import { useAuthStore } from '../../stores/authStore';
 import { characterService } from '../../services/characterService';
 import { Button } from '../Button';
 
@@ -163,9 +163,9 @@ const CategoryTitle = styled.h3`
 `;
 
 export const CharacterScreen = React.memo(() => {
-  const { gameState } = useGame();
-  const { character } = gameState;
-  const { logout } = useAuth();
+  // Zustand stores - selective subscriptions
+  const character = useGameStore(state => state.gameState.character);
+  const logout = useAuthStore(state => state.logout);
   const [portraitUrl, setPortraitUrl] = useState<string>(character.portrait?.imageUrl || '');
   const [isLoading, setIsLoading] = useState(false);
 

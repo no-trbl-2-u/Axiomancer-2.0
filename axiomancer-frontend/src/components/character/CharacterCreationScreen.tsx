@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
 import { theme } from '../../styles/theme';
-import { useGame } from '../../contexts/GameContext';
+import { useGameStore } from '../../stores/gameStore';
 import { loadAvailablePortraits, getFallbackPortraits, Portrait } from '../../utils/portraitLoader';
 import { BaseStats, DerivedStats } from '../../types/game';
 import {
@@ -260,7 +260,8 @@ const PointsDisplay = styled.div`
 
 export const CharacterCreationScreen: React.FC = () => {
   console.log('NEW CHARACTER CREATION SCREEN LOADED - TWO SQUARE LAYOUT');
-  const { createCharacter } = useGame();
+  // Zustand store
+  const createCharacter = useGameStore(state => state.createCharacter);
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [gender, setGender] = useState<'male' | 'female'>('male');

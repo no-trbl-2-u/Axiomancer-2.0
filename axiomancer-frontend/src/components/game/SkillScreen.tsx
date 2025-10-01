@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
-import { useGame } from '../../contexts/GameContext';
+import { useGameStore } from '../../stores/gameStore';
 import { Skill } from '../../types/game';
 import { fallacySpellbook } from '../../utils/fallacySpellbook';
 
@@ -380,8 +380,9 @@ const RequirementsList = styled.div`
 `;
 
 export const SkillScreen = React.memo(() => {
-  const { gameState } = useGame();
-  const { character } = gameState;
+  // Zustand store - selective subscription
+  const character = useGameStore(state => state.gameState.character);
+  
   const [selectedTab, setSelectedTab] = useState<string>('body');
 
   const knownSkills = character.skills;

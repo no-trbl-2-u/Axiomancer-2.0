@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthStore } from '../stores/authStore';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { theme } from '../styles/theme';
@@ -55,7 +55,10 @@ const StyledLink = styled(Link)`
 `;
 
 export const RegisterPage = React.memo(() => {
-  const { register, isLoading } = useAuth();
+  // Zustand store
+  const register = useAuthStore(state => state.register);
+  const isLoading = useAuthStore(state => state.isLoading);
+  
   const navigate = useNavigate();
   const [formData, setFormData] = useState<RegisterData>({
     email: '',

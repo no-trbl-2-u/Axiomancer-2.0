@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../styles/theme';
-import { useGame } from '../contexts/GameContext';
+import { useGameStore } from '../stores/gameStore';
 import { CharacterCreationScreen } from '../components/character/CharacterCreationScreen';
 import { MainGameInterface } from '../components/game/MainGameInterface';
 
@@ -20,10 +20,12 @@ const ScreenContainer = styled.div`
 `;
 
 export const GamePage = React.memo(() => {
-  const { currentScreen, gameState } = useGame();
+  // Zustand store - selective subscriptions
+  const currentScreen = useGameStore(state => state.currentScreen);
+  const character = useGameStore(state => state.gameState.character);
 
   // If no character name, show character creation
-  if (!gameState.character.name) {
+  if (!character.name) {
     return <CharacterCreationScreen />;
   }
 

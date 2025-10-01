@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
-import { useGame } from '../../contexts/GameContext';
+import { useGameStore } from '../../stores/gameStore';
 import { EquipmentSlot, Item, Equipment, EquipmentType, ItemType } from '../../types/game';
 import { equipmentItems } from '../../utils/equipmentItems';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
@@ -398,8 +398,12 @@ const TooltipSpecial = styled.div`
 `;
 
 export const InventoryScreen = React.memo(() => {
-  const { gameState, updateCharacter, equipItem: equipItemToSlot, unequipItem: unequipItemFromSlot } = useGame();
-  const { character } = gameState;
+  // Zustand store - selective subscriptions
+  const character = useGameStore(state => state.gameState.character);
+  const updateCharacter = useGameStore(state => state.updateCharacter);
+  const equipItemToSlot = useGameStore(state => state.equipItem);
+  const unequipItemFromSlot = useGameStore(state => state.unequipItem);
+  
   const [selectedCategory, setSelectedCategory] = useState<string>('equipment');
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [hoveredItem, setHoveredItem] = useState<{item: Item | Equipment, x: number, y: number} | null>(null);

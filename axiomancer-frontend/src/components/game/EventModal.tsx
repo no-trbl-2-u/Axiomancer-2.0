@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
-import { useGame } from '../../contexts/GameContext';
+import { useGameStore } from '../../stores/gameStore';
 import { getAvailableSkills, applySkillEffect } from '../../utils/fallacySkills';
 import { Skill, PhilosophicalAspect, BuffDebuff } from '../../types/game';
 import { saveCharacter } from '../../utils/characterSave';
@@ -600,7 +600,11 @@ const ResourceCard = styled.div`
 `;
 
 export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClose, nodeId }) => {
-  const { gameState, updateCharacter, updateStory, unlockGuardianProgression } = useGame();
+  // Zustand store - selective subscriptions
+  const gameState = useGameStore(state => state.gameState);
+  const updateCharacter = useGameStore(state => state.updateCharacter);
+  const updateStory = useGameStore(state => state.updateStory);
+  const unlockGuardianProgression = useGameStore(state => state.unlockGuardianProgression);
   
   // Combat state
   const [enemy, setEnemy] = useState<Enemy | null>(null);
