@@ -4,7 +4,7 @@
  */
 
 import { CombatStateManager } from './combatMechanics';
-import { Character, Enemy, PhilosophicalAspect } from '../types/game';
+import { Character, Enemy } from '../types/game';
 import { calculateDerivedStats } from './statCalculations';
 
 // Create test character

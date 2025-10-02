@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
-import { CombatState, PhilosophicalAspect, CombatChoice, CombatAction, Skill } from '../../types/game';
-import { CombatStateManager, generateEnemyChoice, executeFallacy } from '../../utils/combatMechanics';
+import { PhilosophicalAspect, CombatChoice, CombatAction, Skill } from '../../types/game';
+import { generateEnemyChoice } from '../../utils/combatMechanics';
 import { BuffDebuffDisplay } from '../combat/BuffDebuffDisplay';
 import { SkillSelectionModal } from '../combat/SkillSelectionModal';
 
@@ -437,45 +437,6 @@ const CombatLog = styled.div<{ visible: boolean }>`
   }
 `;
 
-const SkillModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: ${theme.spacing.md};
-`;
-
-const SkillModalContent = styled.div`
-  background: ${theme.colors.background.panel};
-  border: ${theme.rpg.borderWidth} solid ${theme.colors.border.primary};
-  border-radius: ${theme.rpg.panelBorderRadius};
-  padding: ${theme.spacing.xl};
-  max-width: 600px;
-  width: 100%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-
-  h3 {
-    color: ${theme.colors.text.accent};
-    margin: 0 0 ${theme.spacing.lg} 0;
-    font-size: 1.5rem;
-    text-align: center;
-    border-bottom: 2px solid ${theme.colors.border.primary};
-    padding-bottom: ${theme.spacing.md};
-  }
-
-  @media (max-width: 768px) {
-    padding: ${theme.spacing.lg};
-    max-height: 90vh;
-  }
-`;
 
 const SkillGrid = styled.div`
   display: grid;
@@ -546,25 +507,6 @@ const SkillCard = styled.button<{ disabled?: boolean }>`
   }
 `;
 
-const ModalCloseButton = styled.button`
-  background: ${theme.colors.background.secondary};
-  border: 2px solid ${theme.colors.border.primary};
-  border-radius: ${theme.borderRadius.lg};
-  padding: ${theme.spacing.md} ${theme.spacing.xl};
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: ${theme.colors.text.primary};
-  font-weight: 600;
-  font-size: 1rem;
-  width: 100%;
-
-  &:hover {
-    background: ${theme.colors.danger};
-    border-color: ${theme.colors.danger};
-    color: white;
-    transform: translateY(-2px);
-  }
-`;
 
 export const CombatScreen: React.FC = () => {
   // Zustand store - selective subscriptions for better performance
@@ -578,7 +520,6 @@ export const CombatScreen: React.FC = () => {
   const [combatLog, setCombatLog] = useState<string[]>([]);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [showSkillModal, setShowSkillModal] = useState(false);
-  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [combatPhase, setCombatPhase] = useState<'aspect_selection' | 'action_selection' | 'skill_selection'>('aspect_selection');
   const [showBattleLog, setShowBattleLog] = useState(false);
 
@@ -695,12 +636,6 @@ export const CombatScreen: React.FC = () => {
     }
   };
 
-  const handleSkillSelect = () => {
-    if (!isPlayerTurn) return;
-
-    // Open skill selection modal
-    setShowSkillModal(true);
-  };
 
   const handleSkillSelectionBack = () => {
     setCombatPhase('action_selection');

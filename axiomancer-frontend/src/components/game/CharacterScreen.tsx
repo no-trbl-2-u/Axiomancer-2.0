@@ -162,7 +162,7 @@ const CategoryTitle = styled.h3`
   text-transform: uppercase;
 `;
 
-export const CharacterScreen = React.memo(() => {
+export const CharacterScreen = React.memo((): JSX.Element => {
   // Zustand stores - selective subscriptions
   const character = useGameStore(state => state.gameState.character);
   const logout = useAuthStore(state => state.logout);

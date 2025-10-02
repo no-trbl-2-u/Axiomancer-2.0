@@ -79,7 +79,7 @@ export function generateRandomExplorationNodes(globalNodeId: string, count: numb
     const nodeType = Math.random() < 0.4 ? 'dialogue' : Math.random() < 0.7 ? 'discovery' : 'combat';
 
     switch (nodeType) {
-      case 'dialogue':
+      case 'dialogue': {
         const dialogueData = childhoodDialogueTopics[Math.floor(Math.random() * childhoodDialogueTopics.length)];
         const question = dialogueData?.questions[Math.floor(Math.random() * dialogueData.questions.length)];
 
@@ -151,8 +151,9 @@ export function generateRandomExplorationNodes(globalNodeId: string, count: numb
           dialogueOptions: options
         });
         break;
+      }
 
-      case 'combat':
+      case 'combat': {
         const enemy = childhoodCombatEnemies[Math.floor(Math.random() * childhoodCombatEnemies.length)];
         if (!enemy) {
           console.warn('No enemy found for combat node');
@@ -168,8 +169,9 @@ export function generateRandomExplorationNodes(globalNodeId: string, count: numb
           enemyId: enemy.id
         });
         break;
+      }
 
-      case 'discovery':
+      case 'discovery': {
         const discovery = childhoodDiscoveries[Math.floor(Math.random() * childhoodDiscoveries.length)];
         if (!discovery) {
           console.warn('No discovery found for discovery node');
@@ -185,6 +187,7 @@ export function generateRandomExplorationNodes(globalNodeId: string, count: numb
           discoveryType: discovery.type
         });
         break;
+      }
     }
   }
 

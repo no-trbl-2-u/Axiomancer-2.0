@@ -113,7 +113,7 @@ export const LoginPage = React.memo(() => {
           {isLoading ? 'Signing In...' : 'Sign In'}
         </Button>
         <StyledLink to="/register">
-          Don't have an account? Sign up
+          Don&apos;t have an account? Sign up
         </StyledLink>
       </Form>
     </LoginContainer>

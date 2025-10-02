@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
 import { loadAvailablePortraits, getFallbackPortraits, Portrait } from '../../utils/portraitLoader';
-import { BaseStats, DerivedStats } from '../../types/game';
+import { BaseStats } from '../../types/game';
 import {
   createInitialBaseStats,
   calculateDerivedStats,
@@ -332,7 +332,7 @@ export const CharacterCreationScreen: React.FC = () => {
           imageUrl: selectedPortrait,
           description: `${gender} character portrait`
         },
-        baseStats: baseStats
+        baseStats
       });
       navigate('/game');
     }

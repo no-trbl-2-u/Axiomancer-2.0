@@ -1,4 +1,4 @@
-import { Quest, QuestObjective, Character, GameLocation } from '../types/game';
+import { Quest, QuestObjective, Character } from '../types/game';
 
 export const initialQuests: Quest[] = [
   {
@@ -124,27 +124,31 @@ export const initialQuests: Quest[] = [
  * Check if a quest objective is completed based on character progress
  */
 export function checkQuestObjectiveCompletion(
-  objective: QuestObjective, 
+  objective: QuestObjective,
   character: Character,
-  gameState: any
+  _gameState: any
 ): boolean {
   const req = objective.requirement;
   
   switch (req.type) {
-    case 'stat':
+    case 'stat': {
       // For now, we'll track these as custom properties on the character
       // In a full implementation, these would be tracked in the game state
       return (character as any)[req.key] >= req.value;
+    }
       
-    case 'item':
+    case 'item': {
       const item = character.inventory.find(item => item.id === req.key);
       return item ? item.quantity >= (req.value as number) : false;
-      
-    case 'level':
+    }
+
+    case 'level': {
       return character.level >= (req.value as number);
-      
-    default:
+    }
+
+    default: {
       return false;
+    }
   }
 }
 
@@ -152,16 +156,16 @@ export function checkQuestObjectiveCompletion(
  * Update quest progress based on character and game state changes
  */
 export function updateQuestProgress(
-  quests: Quest[], 
-  character: Character, 
-  gameState: any
+  quests: Quest[],
+  character: Character,
+  _gameState: any
 ): Quest[] {
   return quests.map(quest => {
     if (quest.completed) return quest;
     
     const updatedObjectives = quest.objectives.map(objective => ({
       ...objective,
-      completed: objective.completed || checkQuestObjectiveCompletion(objective, character, gameState)
+      completed: objective.completed || checkQuestObjectiveCompletion(objective, character, _gameState)
     }));
     
     const allObjectivesComplete = updatedObjectives.every(obj => obj.completed);

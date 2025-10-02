@@ -52,12 +52,12 @@ const ErrorText = styled.span`
   margin-top: ${theme.spacing.xs};
 `;
 
-export const Input = React.memo<InputProps>(({ 
-  label, 
-  error, 
-  fullWidth = false, 
-  ...props 
-}) => {
+export const Input = React.memo<InputProps>(({
+  label,
+  error,
+  fullWidth = false,
+  ...props
+}): JSX.Element => {
   return (
     <InputWrapper fullWidth={fullWidth}>
       {label && <Label htmlFor={props.id}>{label}</Label>}

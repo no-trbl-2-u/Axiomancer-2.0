@@ -4,6 +4,7 @@ import { fallacySpellbook } from './fallacySpellbook';
 import { createMindAttackBuff, createHeartAttackDebuff, createReflectionBuff, createCounterArgumentBuff, createForesightBuff, createBodyDefenseBuff, createMindDefenseBuff, createHeartDefenseBuff, applyBuffDebuff } from './buffDebuffEngine';
 import { processFallacyCombatEffects, applyStatusEffectsToCombatant, filterStatusEffectsByChance } from './combatEffectBridge';
 import { applyEquipmentBonuses } from './equipmentItems';
+import { getCombatVisualState } from './combatVisuals';
 
 /**
  * Combat result structure for UI-agnostic combat resolution
@@ -885,7 +886,7 @@ export class CombatStateManager {
     const attackerBuffs = isPlayer ? this.playerBuffs : this.enemyBuffs;
     const result = processBuffsDebuffs(attackerBuffs, false, {
       isAttacking: true,
-      defender: defender
+      defender
     });
 
     // Update the attacker's buffs
@@ -1186,7 +1187,6 @@ export class CombatStateManager {
    * Get visual state for UI display
    */
   public getVisualState(): any {
-    const { getCombatVisualState } = require('./combatVisuals');
     return getCombatVisualState(this.playerBuffs, this.enemyBuffs, this.player.name, this.enemy.name);
   }
 

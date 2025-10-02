@@ -1,15 +1,4 @@
 import { Skill } from '../types/game';
-import {
-  createDogmaticCertaintyDebuff,
-  createSelfLoathingDebuff,
-  createLogicImmunityBuff,
-  createStrengthFromPainBuff,
-  createMindAttackBuff,
-  createailmentAttackDebuff,
-  createReflectionBuff,
-  createCounterArgumentBuff,
-  createForesightBuff
-} from './statusEffects';
 
 /**
  * Complete Fallacy Spellbook - All 100+ Logical Fallacies from all-fallacies.md

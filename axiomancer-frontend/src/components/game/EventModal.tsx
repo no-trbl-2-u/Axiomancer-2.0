@@ -1015,7 +1015,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
           <div>
             <EventDescription>
               <div className="event-title">Resource Gathering</div>
-              <div className="event-text">You've discovered a location rich with natural resources. What would you like to gather?</div>
+              <div className="event-text">You&apos;ve discovered a location rich with natural resources. What would you like to gather?</div>
             </EventDescription>
             
             <ResourceGrid>
@@ -1043,7 +1043,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
           <div>
             <EventDescription>
               <div className="event-title">Peaceful Resting Spot</div>
-              <div className="event-text">You've found a safe place to rest and recover. The soft grass and gentle breeze make this an ideal spot to regain your strength.</div>
+              <div className="event-text">You&apos;ve found a safe place to rest and recover. The soft grass and gentle breeze make this an ideal spot to regain your strength.</div>
             </EventDescription>
             
             <ActionButton onClick={handleRest}>

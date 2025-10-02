@@ -36,7 +36,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 // Route that redirects to character selection or creation based on saved data
-const CharacterRoute: React.FC = () => {
+const CharacterRoute: React.FC = (): JSX.Element => {
   const [hasCharacter, setHasCharacter] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ const CharacterRoute: React.FC = () => {
   }
 };
 
-const AppContent = React.memo(() => {
+const AppContent = React.memo((): JSX.Element => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const initAuth = useAuthStore(state => state.initAuth);
   const [showLanding, setShowLanding] = useState<boolean>(true);

@@ -183,7 +183,7 @@ export const SkillSelectionModal: React.FC<SkillSelectionModalProps> = ({
   onClose,
   playerMana,
   character
-}) => {
+}): JSX.Element | null => {
   if (!isOpen || !selectedAspect) return null;
 
   // Filter skills by selected aspect
@@ -191,8 +191,8 @@ export const SkillSelectionModal: React.FC<SkillSelectionModalProps> = ({
     skill => skill.philosophicalAspect === selectedAspect
   );
 
-  // Get equipped skills for this aspect
-  const equippedSkills = character.equippedSkills[selectedAspect] || [];
+  // Get equipped skills for this aspect (currently unused but kept for future use)
+  // const equippedSkills = character.equippedSkills[selectedAspect] || [];
 
   const aspectColor = getAspectColor(selectedAspect);
   const aspectIcon = getAspectIcon(selectedAspect);
@@ -215,7 +215,7 @@ export const SkillSelectionModal: React.FC<SkillSelectionModalProps> = ({
             <div className="icon">😔</div>
             <div>No Skills of selected argument</div>
             <div style={{ fontSize: '0.9rem', marginTop: theme.spacing.sm }}>
-              You don't have any {selectedAspect} skills available yet.
+              You don&apos;t have any {selectedAspect} skills available yet.
             </div>
           </NoSkillsMessage>
         ) : (
