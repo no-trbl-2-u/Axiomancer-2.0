@@ -37,8 +37,20 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 // Route that redirects to character selection or creation based on saved data
 const CharacterRoute: React.FC = () => {
-  const hasCharacter = hasExistingCharacter();
-  
+  const [hasCharacter, setHasCharacter] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkCharacter = async () => {
+      const result = await hasExistingCharacter();
+      setHasCharacter(result);
+    };
+    checkCharacter();
+  }, []);
+
+  if (hasCharacter === null) {
+    return <div>Loading...</div>; // or a loading spinner
+  }
+
   if (hasCharacter) {
     return <Navigate to="/character-selection" replace />;
   } else {

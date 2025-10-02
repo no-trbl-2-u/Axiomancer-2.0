@@ -185,7 +185,7 @@ export function awardQuestRewards(quest: Quest, character: Character): Partial<C
   const newLevel = character.level + (experienceGained >= 100 ? 1 : 0);
   
   // Philosophical theme bonuses
-  const statBonuses: Partial<Character['stats']> = {};
+  const statBonuses: Partial<Character['baseStats']> = {};
   
   switch (quest.philosophicalTheme?.toLowerCase()) {
     case 'critical thinking':
@@ -206,12 +206,12 @@ export function awardQuestRewards(quest: Quest, character: Character): Partial<C
   
   return {
     level: newLevel,
-    stats: {
-      ...character.stats,
+    baseStats: {
+      ...character.baseStats,
       ...Object.fromEntries(
         Object.entries(statBonuses).map(([key, bonus]) => [
-          key, 
-          character.stats[key as keyof Character['stats']] + (bonus || 0)
+          key,
+          character.baseStats[key as keyof Character['baseStats']] + (bonus || 0)
         ])
       )
     }

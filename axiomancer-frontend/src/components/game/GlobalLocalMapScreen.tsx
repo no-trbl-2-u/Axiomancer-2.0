@@ -164,7 +164,7 @@ const MapSelector = styled.div<{ unlocked: boolean; selected: boolean }>`
   }
 `;
 
-const LocalMapContainer = styled.div<{ backgroundImage?: string }>`
+const LocalMapContainer = styled.div<{ backgroundImage?: string | undefined }>`
   position: relative;
   width: 100%;
   flex: 1;

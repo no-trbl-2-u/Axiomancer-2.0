@@ -75,7 +75,8 @@ export const RegisterPage = React.memo(() => {
     try {
       await register(formData);
       // After successful registration, redirect based on existing character
-      if (hasExistingCharacter()) {
+      const hasChar = await hasExistingCharacter();
+      if (hasChar) {
         navigate('/character-selection');
       } else {
         navigate('/character-creation');

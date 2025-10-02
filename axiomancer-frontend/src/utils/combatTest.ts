@@ -54,6 +54,7 @@ function createTestEnemy(): Enemy {
     maxMana: 40,
     baseStats,
     derivedStats: calculateDerivedStats(baseStats),
+    skills: [],
     loot: [],
     type: 'sophist',
     enemyTier: 'normal',
