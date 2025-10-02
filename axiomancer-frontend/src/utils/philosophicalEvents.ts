@@ -10,7 +10,7 @@ export interface PhilosophicalEvent {
   oneTime?: boolean;
   requirements?: {
     level?: number;
-    stats?: Partial<Character['stats']>;
+    stats?: Partial<Character['baseStats']>;
     philosophicalAlignment?: Partial<PhilosophicalStance>;
   };
 }
@@ -277,7 +277,7 @@ export function getAvailableEvents(character: Character, locationId: string): Ph
       
       if (req.stats) {
         for (const [stat, value] of Object.entries(req.stats)) {
-          if (character.stats[stat as keyof typeof character.stats] < value) return false;
+          if (character.baseStats[stat as keyof typeof character.baseStats] < value) return false;
         }
       }
       
@@ -309,7 +309,7 @@ export function applyPhilosophicalChoice(
     }
   };
 
-  const stats = { ...character.stats };
+  const stats = { ...character.baseStats };
   let message = choice.consequences;
 
   // Apply stat changes
@@ -318,17 +318,18 @@ export function applyPhilosophicalChoice(
       const statKey = outcome.key as keyof typeof stats;
       if (typeof outcome.value === 'number') {
         stats[statKey] += outcome.value;
+        const normalizedKey = outcome?.key || "";
         
         if (outcome.value > 0) {
-          message += ` (+${outcome.value} ${outcome.key.toUpperCase()})`;
+          message += ` (+${outcome.value} ${normalizedKey.toUpperCase()})`;
         } else {
-          message += ` (${outcome.value} ${outcome.key.toUpperCase()})`;
+          message += ` (${outcome.value} ${normalizedKey.toUpperCase()})`;
         }
       }
     }
   });
 
-  updates.stats = stats;
+  updates.baseStats = stats;
 
   return { updatedCharacter: updates, message };
 }

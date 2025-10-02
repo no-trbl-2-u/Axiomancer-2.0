@@ -67,13 +67,13 @@ const PanelTitle = styled.h2`
 const EquipmentGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(5, 1fr);
+  grid-template-rows: repeat(4, 1fr);
   gap: ${theme.spacing.sm};
   flex: 1;
 
   @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(7, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
   }
 
   @media (max-width: 480px) {
@@ -433,7 +433,7 @@ export const InventoryScreen = React.memo(() => {
 
   const equipmentSlots: { slot: EquipmentSlot; label: string; icon: string; gridArea?: string }[] = [
     { slot: 'helmet', label: 'Helmet', icon: '⛑️', gridArea: '1 / 2 / 2 / 3' },
-    { slot: 'amulet', label: 'Amulet', icon: '📿', gridArea: '2 / 2 / 3 / 3' },
+    { slot: 'amulet', label: 'Amulet', icon: '📿', gridArea: '1 / 3 / 2 / 4' },
     { slot: 'bodyArmor', label: 'Body Armor', icon: '🛡️', gridArea: '3 / 2 / 4 / 3' },
     { slot: 'cloak', label: 'Cloak', icon: '🧥', gridArea: '4 / 2 / 5 / 3' },
     { slot: 'boots', label: 'Boots', icon: '🥾', gridArea: '5 / 2 / 6 / 3' },
@@ -595,7 +595,7 @@ export const InventoryScreen = React.memo(() => {
           <TooltipPortrait>{item.icon}</TooltipPortrait>
           <TooltipName>{item.name}</TooltipName>
           <TooltipDescription>
-            {equipment.special || 'description' in item ? item.description : 'A mysterious item'}
+            {equipment.special || ('description' in item ? (item as Item).description : 'A mysterious item')}
           </TooltipDescription>
           <TooltipType>{equipment.type}</TooltipType>
         </TooltipLeft>
@@ -628,35 +628,35 @@ export const InventoryScreen = React.memo(() => {
             )}
           </TooltipSection>
 
-          {'learningRequirement' in item && item.learningRequirement && (
+          {'learningRequirement' in item && item.learningRequirement && typeof item.learningRequirement === 'object' ? (
             <TooltipSection>
               <TooltipSectionTitle>Requirements</TooltipSectionTitle>
-              {item.learningRequirement.level && (
+              {'level' in item.learningRequirement && item.learningRequirement.level ? (
                 <TooltipStat>
                   <span className="stat-name">Level</span>
-                  <span className="stat-value">{item.learningRequirement.level}</span>
+                  <span className="stat-value">{item.learningRequirement.level as number}</span>
                 </TooltipStat>
-              )}
-              {item.learningRequirement.stats?.heart && (
+              ) : null}
+              {'stats' in item.learningRequirement && item.learningRequirement.stats && typeof item.learningRequirement.stats === 'object' && 'heart' in item.learningRequirement.stats && item.learningRequirement.stats.heart ? (
                 <TooltipStat>
                   <span className="stat-name">Heart</span>
-                  <span className="stat-value">{item.learningRequirement.stats.heart}</span>
+                  <span className="stat-value">{item.learningRequirement.stats.heart as number}</span>
                 </TooltipStat>
-              )}
-              {item.learningRequirement.stats?.body && (
+              ) : null}
+              {'stats' in item.learningRequirement && item.learningRequirement.stats && typeof item.learningRequirement.stats === 'object' && 'body' in item.learningRequirement.stats && item.learningRequirement.stats.body ? (
                 <TooltipStat>
                   <span className="stat-name">Body</span>
-                  <span className="stat-value">{item.learningRequirement.stats.body}</span>
+                  <span className="stat-value">{item.learningRequirement.stats.body as number}</span>
                 </TooltipStat>
-              )}
-              {item.learningRequirement.stats?.mind && (
+              ) : null}
+              {'stats' in item.learningRequirement && item.learningRequirement.stats && typeof item.learningRequirement.stats === 'object' && 'mind' in item.learningRequirement.stats && item.learningRequirement.stats.mind ? (
                 <TooltipStat>
                   <span className="stat-name">Mind</span>
-                  <span className="stat-value">{item.learningRequirement.stats.mind}</span>
+                  <span className="stat-value">{item.learningRequirement.stats.mind as number}</span>
                 </TooltipStat>
-              )}
+              ) : null}
             </TooltipSection>
-          )}
+          ) : null}
 
           {equipment.special && (
             <TooltipSpecial>
@@ -750,7 +750,7 @@ export const InventoryScreen = React.memo(() => {
                   selected={selectedItem?.id === item.id}
                   onClick={() => canEquip ? setSelectedItem(item) : null}
                   onDoubleClick={() => {
-                    if (canEquip) {
+                    if (canEquip && compatibleSlots.length > 0) {
                       // Find first compatible empty slot
                       const firstAvailableSlot = compatibleSlots.find(slot => !equippedItems[slot]);
                       if (firstAvailableSlot) {
@@ -758,7 +758,7 @@ export const InventoryScreen = React.memo(() => {
                         setSelectedItem(null);
                       } else {
                         // If no empty slot, equip to first compatible slot (will swap)
-                        equipItem(item, compatibleSlots[0]);
+                        equipItem(item, compatibleSlots[0]!);
                         setSelectedItem(null);
                       }
                     }

@@ -1,4 +1,4 @@
-import { BuffDebuff, BuffDebuffEffect, CombatantBuffs, Character, Enemy, DerivedStats } from '../types/game';
+import { BuffDebuff, BuffDebuffEffect, CombatantBuffs, Character, Enemy, DerivedStats, StatusEffectName } from '../types/game';
 
 /**
  * Buff/Debuff Engine - Handles all combat status effects
@@ -10,7 +10,7 @@ import { BuffDebuff, BuffDebuffEffect, CombatantBuffs, Character, Enemy, Derived
  */
 export function createBuffDebuff(
   id: string,
-  name: string,
+  name: StatusEffectName,
   description: string,
   type: 'buff' | 'debuff',
   effect: BuffDebuffEffect,
@@ -19,7 +19,7 @@ export function createBuffDebuff(
   stackable: boolean = false,
   maxStacks?: number
 ): BuffDebuff {
-  return {
+  const buff: BuffDebuff = {
     id,
     name,
     description,
@@ -28,10 +28,15 @@ export function createBuffDebuff(
     duration,
     remainingTurns: duration,
     stackable,
-    maxStacks,
     currentStacks: 1,
     icon,
   };
+  
+  if (maxStacks !== undefined) {
+    buff.maxStacks = maxStacks;
+  }
+  
+  return buff;
 }
 
 /**
@@ -51,21 +56,27 @@ export const createMindAttackBuff = (damage: number): BuffDebuff =>
   );
 
 // Heart Attack debuff - damage when attacking
-export const createHeartAttackDebuff = (damage: number, duration: number = 3, chanceToFade?: number): BuffDebuff =>
-  createBuffDebuff(
+export const createHeartAttackDebuff = (damage: number, duration: number = 3, chanceToFade?: number): BuffDebuff => {
+  const effect: BuffDebuffEffect = {
+    specialEffects: {
+      damageOnAttack: damage,
+    }
+  };
+  
+  if (chanceToFade !== undefined) {
+    effect.specialEffects!.chanceToFadePerTurn = chanceToFade;
+  }
+  
+  return createBuffDebuff(
     'heart_attack_guilt',
     'Emotional Guilt',
     `Takes ${damage} damage when attacking`,
     'debuff',
-    {
-      specialEffects: {
-        damageOnAttack: damage,
-        chanceToFadePerTurn: chanceToFade
-      }
-    },
+    effect,
     duration,
     '💔'
   );
+};
 
 // Body Defend reflection buff
 export const createReflectionBuff = (damage: number): BuffDebuff =>
@@ -107,7 +118,7 @@ export const createForesightBuff = (visionType: string = 'enemy attacks', durati
 export const createBodyDefenseBuff = (): BuffDebuff =>
   createBuffDebuff(
     'body_defense_stance',
-    'Physical Stance',
+    'Enhanced Physical Defense',
     '2x Physical Defense, 0.5x Ailment Defense',
     'buff',
     {
@@ -123,7 +134,7 @@ export const createBodyDefenseBuff = (): BuffDebuff =>
 export const createMindDefenseBuff = (): BuffDebuff =>
   createBuffDebuff(
     'mind_defense_stance',
-    'Mental Stance',
+    'Mental Fortitude',
     '2x Mind Defense, 0.5x Physical Defense',
     'buff',
     {
@@ -139,7 +150,7 @@ export const createMindDefenseBuff = (): BuffDebuff =>
 export const createHeartDefenseBuff = (): BuffDebuff =>
   createBuffDebuff(
     'heart_defense_stance',
-    'Emotional Stance',
+    'Perfect Emotional Mastery',
     '2x Ailment Defense, 0.5x Mind Defense',
     'buff',
     {
@@ -166,9 +177,9 @@ export function applyBuffDebuff(
 
   if (existingIndex >= 0) {
     const existing = list[existingIndex];
-    if (existing.stackable && existing.maxStacks && existing.currentStacks < existing.maxStacks) {
+    if (existing && existing.stackable && existing.maxStacks && existing.currentStacks < existing.maxStacks) {
       // Stack the effect
-      const updated = {
+      const updated: BuffDebuff = {
         ...existing,
         currentStacks: existing.currentStacks + 1,
         remainingTurns: buffDebuff.duration, // Refresh duration
@@ -256,14 +267,23 @@ export function processBuffsDebuffs(
     })
     .filter(debuff => debuff !== null) as BuffDebuff[];
 
-  return {
+  const result: {
+    updatedBuffs: CombatantBuffs;
+    turnEffects: string[];
+    damageDealt?: number;
+  } = {
     updatedBuffs: {
       buffs: activeBuffs,
       debuffs: activeDebuffs,
     },
     turnEffects,
-    damageDealt: damageDealt > 0 ? damageDealt : undefined,
   };
+  
+  if (damageDealt > 0) {
+    result.damageDealt = damageDealt;
+  }
+  
+  return result;
 }
 
 /**

@@ -18,7 +18,10 @@ function createTestCharacter(): Character {
     maxHealth: 100,
     mana: 50,
     maxMana: 50,
-    portrait: 'gladiator_1',
+    portrait: {
+      imageUrl: '/portraits/gladiator_1.png',
+      description: 'Test character portrait'
+    },
     baseStats,
     derivedStats: calculateDerivedStats(baseStats),
     availableStatPoints: 0,
@@ -28,8 +31,7 @@ function createTestCharacter(): Character {
     philosophicalStance: {
       ethics: 'virtue',
       epistemology: 'rationalist',
-      metaphysics: 'materialist',
-      aesthetics: 'classical'
+      metaphysics: 'materialist'
     }
   };
 }

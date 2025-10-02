@@ -438,6 +438,8 @@ export interface BuffDebuffEffect {
     skipTurn?: boolean; // Fear, confusion effects
     healPrevention?: boolean;
     immuneToNextAttack?: boolean;
+    chanceToFadePerTurn?: number; // Percentage chance for effect to fade each turn
+    foresight?: boolean; // Can see enemy moves/attacks
   };
 }
 

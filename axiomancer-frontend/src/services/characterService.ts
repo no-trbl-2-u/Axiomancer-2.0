@@ -21,7 +21,7 @@ export const characterService = {
       const saveData: SavedCharacterData = {
         character: gameState.character,
         currentLocation: gameState.currentLocation,
-        currentNode: gameState.currentNode,
+        currentNode: gameState.currentNode || '',
         story: gameState.story,
         inventory: gameState.inventory,
         locations: gameState.locations,
@@ -49,7 +49,7 @@ export const characterService = {
       const saveData: SavedCharacterData = {
         character: gameState.character,
         currentLocation: gameState.currentLocation,
-        currentNode: gameState.currentNode,
+        currentNode: gameState.currentNode || '',
         story: gameState.story,
         inventory: gameState.inventory,
         locations: gameState.locations,
