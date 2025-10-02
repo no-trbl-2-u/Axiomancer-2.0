@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
-import { Skill } from '../../types/game';
+import { Skill, PhilosophicalAspect } from '../../types/game';
 import { fallacySpellbook } from '../../utils/fallacySpellbook';
 
 const SkillContainer = styled.div`
@@ -136,23 +136,23 @@ const SkillGrid = styled.div`
   }
 `;
 
-const SkillCard = styled.div<{ level: number; isLearned: boolean }>`
-  background: ${props => props.isLearned
-    ? 'linear-gradient(45deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2))'
+const SkillCard = styled.div<{ isEquipped: boolean }>`
+  background: ${props => props.isEquipped
+    ? 'linear-gradient(45deg, rgba(59, 130, 246, 0.3), rgba(29, 78, 216, 0.3))'
     : 'linear-gradient(45deg, rgba(55, 65, 81, 0.4), rgba(31, 41, 55, 0.4))'
   };
-  border: 3px solid ${props => props.isLearned ? '#10b981' : '#6b7280'};
+  border: 3px solid ${props => props.isEquipped ? '#3b82f6' : '#6b7280'};
   border-radius: ${theme.rpg.panelBorderRadius};
   padding: ${theme.spacing.lg};
   position: relative;
   box-shadow: ${theme.shadows.panel};
   transition: all 0.3s ease;
-  opacity: ${props => props.isLearned ? 1 : 0.7};
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: ${theme.shadows.glow};
-    opacity: 1;
+    border-color: ${props => props.isEquipped ? '#60a5fa' : '#9ca3af'};
   }
 
   @media (max-width: 768px) {
@@ -321,6 +321,69 @@ const SkillType = styled.div<{ skillType: string }>`
   margin-bottom: ${theme.spacing.md};
 `;
 
+const EquipmentSlots = styled.div`
+  display: flex;
+  gap: ${theme.spacing.md};
+  margin-bottom: ${theme.spacing.xl};
+  justify-content: center;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    gap: ${theme.spacing.sm};
+    margin-bottom: ${theme.spacing.lg};
+  }
+`;
+
+const EquipmentSlot = styled.div<{ isEmpty: boolean }>`
+  width: 120px;
+  height: 120px;
+  background: ${props => props.isEmpty
+    ? 'linear-gradient(45deg, rgba(55, 65, 81, 0.4), rgba(31, 41, 55, 0.4))'
+    : 'linear-gradient(45deg, rgba(59, 130, 246, 0.3), rgba(29, 78, 216, 0.3))'
+  };
+  border: 3px solid ${props => props.isEmpty ? '#6b7280' : '#3b82f6'};
+  border-radius: ${theme.borderRadius.lg};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: ${props => props.isEmpty ? 'default' : 'pointer'};
+  transition: all 0.3s ease;
+  position: relative;
+
+  &:hover {
+    transform: ${props => props.isEmpty ? 'none' : 'translateY(-2px)'};
+    box-shadow: ${props => props.isEmpty ? 'none' : theme.shadows.glow};
+  }
+
+  @media (max-width: 768px) {
+    width: 100px;
+    height: 100px;
+  }
+
+  @media (max-width: 480px) {
+    width: 80px;
+    height: 80px;
+  }
+`;
+
+const EmptySlotText = styled.div`
+  color: ${theme.colors.text.muted};
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-align: center;
+`;
+
+const SkillCost = styled.div`
+  color: ${theme.colors.info};
+  font-size: 0.7rem;
+  font-weight: bold;
+  background: rgba(59, 130, 246, 0.2);
+  padding: 2px 6px;
+  border-radius: ${theme.borderRadius.sm};
+  margin-top: ${theme.spacing.xs};
+`;
+
 const LearnButton = styled.button`
   background: ${theme.colors.success};
   border: 2px solid ${theme.colors.success};
@@ -382,51 +445,42 @@ const RequirementsList = styled.div`
 export const SkillScreen = React.memo(() => {
   // Zustand store - selective subscription
   const character = useGameStore(state => state.gameState.character);
-  
-  const [selectedTab, setSelectedTab] = useState<string>('body');
+  const equipSkill = useGameStore(state => state.equipSkill);
+  const unequipSkill = useGameStore(state => state.unequipSkill);
 
-  const knownSkills = character.skills;
+  const [selectedTab, setSelectedTab] = useState<PhilosophicalAspect>('body');
 
-  // Get all skills from fallacySpellbook and merge with known skills
+  // Get all skills from fallacySpellbook
   const allFallacySkills = Object.values(fallacySpellbook);
-  const skillTypes = ['body', 'mind', 'heart'];
 
   const getFilteredSkills = () => {
-    const allSkills = allFallacySkills.map(fallacy => ({
-      ...fallacy,
-      type: fallacy.type || 'fallacy',
-      philosophicalAspect: fallacy.philosophicalAspect || 'mind', // Default to mind if not specified
-      level: 1,
-      isLearned: knownSkills.some(known => known.id === fallacy.id)
-    }));
-
-    // Filter by philosophical aspect (body, mind, or heart)
-    const filtered = allSkills.filter(skill => {
-      const aspect = skill.philosophicalAspect?.toLowerCase() || 'mind';
-      return aspect === selectedTab;
-    });
-
-    // Sort: learned skills first, then unlearned
-    return filtered.sort((a, b) => {
-      if (a.isLearned && !b.isLearned) return -1;
-      if (!a.isLearned && b.isLearned) return 1;
-      return 0;
-    });
+    return allFallacySkills.filter(skill =>
+      skill.philosophicalAspect === selectedTab
+    );
   };
 
-  const hasSkillsInCategory = (category: string) => {
-    const allSkills = allFallacySkills.map(fallacy => ({
-      ...fallacy,
-      philosophicalAspect: fallacy.philosophicalAspect || 'mind'
-    }));
-    return allSkills.some(skill => {
-      const aspect = skill.philosophicalAspect?.toLowerCase() || 'mind';
-      return aspect === category;
-    });
+  const getEquippedSkills = () => {
+    return character.equippedSkills[selectedTab] || [];
   };
 
-  const totalSkills = getFilteredSkills().length;
-  const learnedCount = getFilteredSkills().filter(skill => skill.isLearned).length;
+  const handleSkillDoubleClick = (skill: Skill) => {
+    // Check if skill is already equipped
+    const equippedSkills = getEquippedSkills();
+    if (equippedSkills.some(s => s.id === skill.id)) {
+      unequipSkill(skill.id, selectedTab);
+    } else if (equippedSkills.length < 5) {
+      equipSkill(skill, selectedTab);
+    }
+  };
+
+  const getTabIcon = (aspect: PhilosophicalAspect) => {
+    switch(aspect) {
+      case 'body': return '💪';
+      case 'mind': return '🧠';
+      case 'heart': return '❤️';
+      default: return '';
+    }
+  };
 
   return (
     <SkillContainer>
@@ -434,82 +488,66 @@ export const SkillScreen = React.memo(() => {
 
       <InfoPanel>
         <p>
-          Organize your skills by philosophical aspect.
-          <span className="highlight"> Unlocked skills appear first</span>, while
-          <span className="highlight"> locked skills are shown as "???"</span>.
-        </p>
-        <p style={{ marginTop: theme.spacing.md }}>
-          Skills unlocked in {selectedTab.toUpperCase()}: <span className="highlight">{learnedCount} / {totalSkills}</span>
-          {totalSkills > 0 && ` (${Math.round((learnedCount / totalSkills) * 100)}%)`}
+          Double-click skills to equip them in your loadout.
+          Each philosophical aspect can hold up to 5 skills.
         </p>
       </InfoPanel>
-      
-      <SkillTabs>
-        {skillTypes.map(type => {
-          const allSkills = allFallacySkills.map(fallacy => ({
-            ...fallacy,
-            philosophicalAspect: fallacy.philosophicalAspect || 'mind',
-            isLearned: knownSkills.some(known => known.id === fallacy.id)
-          }));
-          const categorySkills = allSkills.filter(s => {
-            const aspect = s.philosophicalAspect?.toLowerCase() || 'mind';
-            return aspect === type;
-          });
-          const learnedInCategory = categorySkills.filter(s => s.isLearned).length;
 
-          const getTabIcon = (t: string) => {
-            switch(t) {
-              case 'body': return '💪';
-              case 'mind': return '🧠';
-              case 'heart': return '❤️';
-              default: return '';
-            }
-          };
+      {/* Equipment Slots */}
+      <EquipmentSlots>
+        {Array.from({ length: 5 }, (_, index) => {
+          const equippedSkills = getEquippedSkills();
+          const equippedSkill = equippedSkills[index];
+
+          return (
+            <EquipmentSlot
+              key={index}
+              isEmpty={!equippedSkill}
+              onClick={() => equippedSkill && unequipSkill(equippedSkill.id, selectedTab)}
+            >
+              {equippedSkill ? (
+                <>
+                  <SkillIcon>{equippedSkill.icon}</SkillIcon>
+                  <SkillName>{equippedSkill.name}</SkillName>
+                  <SkillCost>{equippedSkill.manaCost} MP</SkillCost>
+                </>
+              ) : (
+                <EmptySlotText>Empty</EmptySlotText>
+              )}
+            </EquipmentSlot>
+          );
+        })}
+      </EquipmentSlots>
+
+      {/* Tab Selection */}
+      <SkillTabs>
+        {(['body', 'mind', 'heart'] as PhilosophicalAspect[]).map((aspect) => {
+          const availableSkills = allFallacySkills.filter(skill => skill.philosophicalAspect === aspect);
+          const equippedCount = (character.equippedSkills[aspect] || []).length;
 
           return (
             <SkillTab
-              key={type}
-              active={selectedTab === type}
-              onClick={() => setSelectedTab(type)}
-              disabled={!hasSkillsInCategory(type)}
-              style={{ opacity: hasSkillsInCategory(type) ? 1 : 0.5 }}
+              key={aspect}
+              active={selectedTab === aspect}
+              onClick={() => setSelectedTab(aspect)}
             >
-              {getTabIcon(type)} {type.toUpperCase()} ({learnedInCategory}/{categorySkills.length})
+              {getTabIcon(aspect)} {aspect.toUpperCase()} ({equippedCount}/5)
             </SkillTab>
           );
         })}
       </SkillTabs>
 
+      {/* Skills Grid */}
       <SkillGrid>
-        {getFilteredSkills().length > 0 ? (
-          getFilteredSkills().map(skill => (
-            <SkillCard key={skill.id} level={skill.level} isLearned={skill.isLearned}>
-              {!skill.isLearned && (
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: 'rgba(0, 0, 0, 0.7)',
-                  borderRadius: theme.rpg.panelBorderRadius,
-                  zIndex: 5
-                }}>
-                  <div style={{
-                    fontSize: '4rem',
-                    color: theme.colors.text.muted,
-                    fontWeight: 'bold'
-                  }}>???</div>
-                </div>
-              )}
-              
-              <SkillBadge isLearned={skill.isLearned}>
-                {skill.isLearned ? 'Unlocked' : 'Locked'}
-              </SkillBadge>
-              
+        {getFilteredSkills().map(skill => {
+          const isEquipped = getEquippedSkills().some(s => s.id === skill.id);
+
+          return (
+            <SkillCard
+              key={skill.id}
+              isEquipped={isEquipped}
+              onDoubleClick={() => handleSkillDoubleClick(skill)}
+            >
               <SkillHeader>
                 <SkillIcon>{skill.icon}</SkillIcon>
                 <SkillInfo>
@@ -519,7 +557,7 @@ export const SkillScreen = React.memo(() => {
               </SkillHeader>
 
               <SkillType skillType={skill.type}>{skill.type}</SkillType>
-              
+
               <SkillDescription>{skill.description}</SkillDescription>
 
               <SkillStats>
@@ -551,23 +589,8 @@ export const SkillScreen = React.memo(() => {
                 </div>
               )}
             </SkillCard>
-          ))
-        ) : (
-          <div style={{
-            gridColumn: '1 / -1',
-            textAlign: 'center',
-            padding: theme.spacing.xl,
-            background: theme.colors.background.panel,
-            border: `2px solid ${theme.colors.border.primary}`,
-            borderRadius: theme.rpg.panelBorderRadius,
-            color: theme.colors.text.secondary
-          }}>
-            <h3 style={{ color: theme.colors.text.accent, marginBottom: theme.spacing.md }}>No Skills in this Category</h3>
-            <p style={{ margin: 0, fontSize: '1.1rem', lineHeight: 1.5 }}>
-              Select a different philosophical aspect to view available skills.
-            </p>
-          </div>
-        )}
+          );
+        })}
       </SkillGrid>
     </SkillContainer>
   );

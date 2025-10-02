@@ -25,7 +25,12 @@ function createTestCharacter(): Character {
     baseStats,
     derivedStats: calculateDerivedStats(baseStats),
     availableStatPoints: 0,
-    skills: [],
+    availableSkills: [],
+    equippedSkills: {
+      heart: [],
+      body: [],
+      mind: []
+    },
     equipment: [],
     inventory: [],
     philosophicalStance: {
@@ -49,7 +54,6 @@ function createTestEnemy(): Enemy {
     maxMana: 40,
     baseStats,
     derivedStats: calculateDerivedStats(baseStats),
-    skills: [],
     loot: [],
     type: 'sophist',
     enemyTier: 'normal',

@@ -359,7 +359,7 @@ export function canLearnSkill(character: any, skillId: string): boolean {
   if (!skill) return false;
   
   // Check if already known
-  if (character.skills.some((s: Skill) => s.id === skillId)) return false;
+  if (character.availableSkills.some((s: Skill) => s.id === skillId)) return false;
   
   return getAvailableSkills(character).some(s => s.id === skillId);
 }

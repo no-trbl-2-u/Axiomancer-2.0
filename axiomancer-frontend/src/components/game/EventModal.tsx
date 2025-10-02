@@ -1083,6 +1083,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
         }}
         onClose={() => setShowSkillModal(false)}
         playerMana={gameState.character.mana}
+        character={gameState.character}
       />
     </ModalOverlay>
   );

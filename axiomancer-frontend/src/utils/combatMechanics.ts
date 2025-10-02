@@ -1236,6 +1236,6 @@ export class CombatStateManager {
    * Get available skills for the player
    */
   public getAvailableSkills(): Skill[] {
-    return this.player.skills.filter(skill => this.canUseSkill(skill.id));
+    return this.player.availableSkills.filter(skill => this.canUseSkill(skill.id));
   }
 }

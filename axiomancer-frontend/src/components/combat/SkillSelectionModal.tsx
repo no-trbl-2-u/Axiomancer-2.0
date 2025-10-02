@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
-import { Skill, PhilosophicalAspect } from '../../types/game';
+import { Skill, PhilosophicalAspect, Character } from '../../types/game';
 import { fallacySpellbook } from '../../utils/fallacySpellbook';
 
 interface SkillSelectionModalProps {
@@ -10,6 +10,7 @@ interface SkillSelectionModalProps {
   onSkillSelect: (skill: Skill) => void;
   onClose: () => void;
   playerMana: number;
+  character: Character;
 }
 
 const ModalOverlay = styled.div<{ isOpen: boolean }>`
@@ -85,8 +86,8 @@ const SkillGrid = styled.div`
 `;
 
 const SkillCard = styled.button<{ canAfford: boolean }>`
-  background: ${props => props.canAfford ? theme.colors.background.panel : theme.colors.background.muted};
-  border: 2px solid ${props => props.canAfford ? theme.colors.border.primary : theme.colors.border.disabled};
+  background: ${props => props.canAfford ? theme.colors.background.panel : theme.colors.background.secondary};
+  border: 2px solid ${props => props.canAfford ? theme.colors.border.primary : theme.colors.border.dark};
   border-radius: ${theme.borderRadius.md};
   padding: ${theme.spacing.md};
   cursor: ${props => props.canAfford ? 'pointer' : 'not-allowed'};
@@ -97,7 +98,7 @@ const SkillCard = styled.button<{ canAfford: boolean }>`
   &:hover {
     transform: ${props => props.canAfford ? 'translateY(-2px)' : 'none'};
     box-shadow: ${props => props.canAfford ? '0 4px 8px rgba(0, 0, 0, 0.2)' : 'none'};
-    border-color: ${props => props.canAfford ? theme.colors.primary : theme.colors.border.disabled};
+    border-color: ${props => props.canAfford ? theme.colors.primary : theme.colors.border.dark};
   }
 
   .skill-header {
@@ -180,7 +181,8 @@ export const SkillSelectionModal: React.FC<SkillSelectionModalProps> = ({
   selectedAspect,
   onSkillSelect,
   onClose,
-  playerMana
+  playerMana,
+  character
 }) => {
   if (!isOpen || !selectedAspect) return null;
 
@@ -188,6 +190,9 @@ export const SkillSelectionModal: React.FC<SkillSelectionModalProps> = ({
   const availableSkills = Object.values(fallacySpellbook).filter(
     skill => skill.philosophicalAspect === selectedAspect
   );
+
+  // Get equipped skills for this aspect
+  const equippedSkills = character.equippedSkills[selectedAspect] || [];
 
   const aspectColor = getAspectColor(selectedAspect);
   const aspectIcon = getAspectIcon(selectedAspect);
