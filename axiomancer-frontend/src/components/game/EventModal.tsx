@@ -656,7 +656,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
         // Initialize combat in the global store with forest monsters
         const forestMonsters = ['elder_tree', 'tree_guardian_1', 'tree_guardian_2'];
         const randomMonster = forestMonsters[Math.floor(Math.random() * forestMonsters.length)];
-        startCombat(randomMonster);
+        startCombat(randomMonster || 'elder_tree');
         break;
       case 'moral':
         // Handle special cases first
