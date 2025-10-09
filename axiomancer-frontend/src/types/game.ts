@@ -68,7 +68,12 @@ export interface Character {
   baseStats: BaseStats;
   derivedStats: DerivedStats;
   availableStatPoints: number;
-  skills: Skill[];
+  availableSkills: Skill[];
+  equippedSkills: {
+    heart: Skill[];
+    body: Skill[];
+    mind: Skill[];
+  };
   equipment: Equipment[];
   inventory: Item[];
   philosophicalStance: PhilosophicalStance;

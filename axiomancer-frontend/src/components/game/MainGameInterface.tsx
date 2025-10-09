@@ -151,7 +151,7 @@ const LevelBadge = styled.div`
 
 const ContentArea = styled.div`
   flex: 1;
-  overflow: hidden;
+  
   position: relative;
 
   @media (max-width: 768px) {
@@ -267,8 +267,9 @@ export const MainGameInterface: React.FC = () => {
         return <SkillScreen />;
       case 'map':
         return <GlobalLocalMapScreen />;
-      case 'combat':
-        return <CombatScreen />;
+        // TODO: Get THIS to render inside an EventModal
+      // case 'combat':
+      //   return <CombatScreen />;
       default:
         return <GlobalLocalMapScreen />;
     }
@@ -354,16 +355,6 @@ export const MainGameInterface: React.FC = () => {
           <span className="icon">🎒</span>
           <span className="label">Inventory</span>
         </NavIcon>
-
-        {combat && (
-          <NavIcon
-            active={activeTab === 'combat'}
-            onClick={() => handleTabChange('combat')}
-          >
-            <span className="icon">⚔️</span>
-            <span className="label">Combat</span>
-          </NavIcon>
-        )}
       </BottomNavigation>
     </GameContainer>
   );

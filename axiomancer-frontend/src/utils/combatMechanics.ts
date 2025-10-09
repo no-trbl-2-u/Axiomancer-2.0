@@ -4,6 +4,7 @@ import { fallacySpellbook } from './fallacySpellbook';
 import { createMindAttackBuff, createHeartAttackDebuff, createReflectionBuff, createCounterArgumentBuff, createForesightBuff, createBodyDefenseBuff, createMindDefenseBuff, createHeartDefenseBuff, applyBuffDebuff } from './buffDebuffEngine';
 import { processFallacyCombatEffects, applyStatusEffectsToCombatant, filterStatusEffectsByChance } from './combatEffectBridge';
 import { applyEquipmentBonuses } from './equipmentItems';
+import { getCombatVisualState } from './combatVisuals';
 
 /**
  * Combat result structure for UI-agnostic combat resolution
@@ -783,10 +784,91 @@ export function createWisdomGuardian(): Enemy {
 }
 
 /**
+ * Forest Monster Creators
+ */
+function createElderTree(): Enemy {
+  return {
+    id: 'elder_tree',
+    name: 'Ancient Elder Tree',
+    description: 'A wise but corrupted tree that has seen too much suffering in the world.',
+    health: 80,
+    maxHealth: 80,
+    mana: 50,
+    maxMana: 50,
+    physicalAttack: 15,
+    mentalAttack: 20,
+    spiritualAttack: 18,
+    physicalDefense: 12,
+    mentalDefense: 15,
+    spiritualDefense: 14,
+    speed: 8,
+    enemyTier: 'normal',
+    portrait: {
+      imageUrl: '/forest-monsters/Elder Tree.png',
+      category: 'enemy'
+    }
+  };
+}
+
+function createForestGuardian(): Enemy {
+  return {
+    id: 'tree_guardian_1',
+    name: 'Forest Guardian',
+    description: 'A protective spirit of the forest, testing your philosophical resolve.',
+    health: 60,
+    maxHealth: 60,
+    mana: 40,
+    maxMana: 40,
+    physicalAttack: 12,
+    mentalAttack: 15,
+    spiritualAttack: 16,
+    physicalDefense: 10,
+    mentalDefense: 12,
+    spiritualDefense: 13,
+    speed: 10,
+    enemyTier: 'normal',
+    portrait: {
+      imageUrl: '/forest-monsters/Tree1.jpg',
+      category: 'enemy'
+    }
+  };
+}
+
+function createTwistedTreeSpirit(): Enemy {
+  return {
+    id: 'tree_guardian_2',
+    name: 'Twisted Tree Spirit',
+    description: 'A once-peaceful tree spirit, now filled with existential doubt.',
+    health: 70,
+    maxHealth: 70,
+    mana: 45,
+    maxMana: 45,
+    physicalAttack: 14,
+    mentalAttack: 18,
+    spiritualAttack: 17,
+    physicalDefense: 11,
+    mentalDefense: 14,
+    spiritualDefense: 13,
+    speed: 9,
+    enemyTier: 'normal',
+    portrait: {
+      imageUrl: '/forest-monsters/Tree2.jpg',
+      category: 'enemy'
+    }
+  };
+}
+
+/**
  * Factory function to create enemies by type
  */
 export function createEnemyByType(enemyType: string): Enemy {
   switch (enemyType) {
+    case 'elder_tree':
+      return createElderTree();
+    case 'tree_guardian_1':
+      return createForestGuardian();
+    case 'tree_guardian_2':
+      return createTwistedTreeSpirit();
     case 'abortive_fallacy':
       return createAbortiveFallacy();
     case 'sophist':
@@ -885,7 +967,7 @@ export class CombatStateManager {
     const attackerBuffs = isPlayer ? this.playerBuffs : this.enemyBuffs;
     const result = processBuffsDebuffs(attackerBuffs, false, {
       isAttacking: true,
-      defender: defender
+      defender
     });
 
     // Update the attacker's buffs
@@ -1186,7 +1268,6 @@ export class CombatStateManager {
    * Get visual state for UI display
    */
   public getVisualState(): any {
-    const { getCombatVisualState } = require('./combatVisuals');
     return getCombatVisualState(this.playerBuffs, this.enemyBuffs, this.player.name, this.enemy.name);
   }
 
@@ -1236,6 +1317,6 @@ export class CombatStateManager {
    * Get available skills for the player
    */
   public getAvailableSkills(): Skill[] {
-    return this.player.skills.filter(skill => this.canUseSkill(skill.id));
+    return this.player.availableSkills.filter(skill => this.canUseSkill(skill.id));
   }
 }

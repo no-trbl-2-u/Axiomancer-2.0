@@ -7,6 +7,7 @@ import { Skill, PhilosophicalAspect, BuffDebuff } from '../../types/game';
 import { saveCharacter } from '../../utils/characterSave';
 import { SkillSelectionModal } from '../combat/SkillSelectionModal';
 import { BuffDebuffDisplay } from '../combat/BuffDebuffDisplay';
+import { CombatScreen } from './CombatScreen';
 
 type EventType = 'combat' | 'moral' | 'gathering' | 'rest';
 type SkillCategory = 'body' | 'mind' | 'heart';
@@ -197,15 +198,21 @@ const ModalOverlay = styled.div<{ isOpen: boolean }>`
   padding: ${theme.spacing.lg};
 `;
 
-const ModalContent = styled.div`
+const ModalContent = styled.div<{ isCombat?: boolean }>`
   background: ${theme.colors.background.panel};
   border: 2px solid ${theme.colors.border.primary};
   border-radius: ${theme.borderRadius.lg};
-  width: 90%;
-  max-width: 800px;
+  width: ${props => props.isCombat ? '95vw' : '90%'};
+  max-width: ${props => props.isCombat ? '95vw' : '800px'};
+  height: ${props => props.isCombat ? '95vh' : 'auto'};
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
+
+  ${props => props.isCombat && `
+    display: flex;
+    flex-direction: column;
+  `}
 `;
 
 const ModalHeader = styled.div`
@@ -221,8 +228,12 @@ const ModalHeader = styled.div`
   }
 `;
 
-const ModalBody = styled.div`
-  padding: ${theme.spacing.lg};
+const ModalBody = styled.div<{ isCombat?: boolean }>`
+  padding: ${props => props.isCombat ? '0' : theme.spacing.lg};
+  ${props => props.isCombat && `
+    flex: 1;
+    overflow: hidden;
+  `}
 `;
 
 const CloseButton = styled.button`
@@ -605,6 +616,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
   const updateCharacter = useGameStore(state => state.updateCharacter);
   const updateStory = useGameStore(state => state.updateStory);
   const unlockGuardianProgression = useGameStore(state => state.unlockGuardianProgression);
+  const startCombat = useGameStore(state => state.startCombat);
   
   // Combat state
   const [enemy, setEnemy] = useState<Enemy | null>(null);
@@ -638,21 +650,13 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
   const initializeEvent = () => {
     setEventCompleted(false);
     setEventResult('');
-    
+
     switch (eventType) {
       case 'combat':
-        const randomIndex = Math.floor(Math.random() * FOREST_ENEMIES.length);
-        const randomEnemy = FOREST_ENEMIES[randomIndex];
-        if (randomEnemy) {
-          setEnemy(randomEnemy);
-          setEnemyHealth(randomEnemy.maxHealth);
-          setBattleLog([`A wild ${randomEnemy.name} appears!`, 'Choose your approach...']);
-        }
-        setSelectedCategory(null);
-        setIsPlayerTurn(true);
-        setCombatEnded(false);
-        setPlayerBuffs([]);
-        setEnemyBuffs([]);
+        // Initialize combat in the global store with forest monsters
+        const forestMonsters = ['elder_tree', 'tree_guardian_1', 'tree_guardian_2'];
+        const randomMonster = forestMonsters[Math.floor(Math.random() * forestMonsters.length)];
+        startCombat(randomMonster);
         break;
       case 'moral':
         // Handle special cases first
@@ -905,92 +909,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
 
     switch (eventType) {
       case 'combat':
-        if (!enemy) return null;
-        
-        return (
-          <CombatArea>
-            <MonsterDisplay>
-              <div className="monster-name">{enemy.name}</div>
-              <img src={enemy.imageUrl} alt={enemy.name} className="monster-image" />
-              <div className="monster-stats">
-                <div className="stat-group">
-                  <div className="stat-label">Health</div>
-                  <div className="stat-value">{enemyHealth} / {enemy.maxHealth}</div>
-                  <div className="stat-bar health">
-                    <div className="stat-fill" style={{ width: `${(enemyHealth / enemy.maxHealth) * 100}%` }} />
-                  </div>
-                </div>
-                <div className="stat-group">
-                  <div className="stat-label">Mana</div>
-                  <div className="stat-value">50 / 50</div>
-                  <div className="stat-bar mana">
-                    <div className="stat-fill" style={{ width: '100%' }} />
-                  </div>
-                </div>
-              </div>
-
-              <BuffDebuffDisplay
-                buffs={enemyBuffs}
-                target="enemy"
-              />
-            </MonsterDisplay>
-            
-            <CombatInterface>
-              <BattleLog>
-                <h4>📜 Battle Log</h4>
-                {battleLog.slice(-8).map((entry, index) => (
-                  <div key={index} className="log-entry">{entry}</div>
-                ))}
-              </BattleLog>
-
-              <CategorySelection>
-                <h4>🧠 Philosophy</h4>
-                <div className="category-buttons">
-                  {(['body', 'mind', 'heart'] as SkillCategory[]).map((category) => (
-                    <CategoryButton
-                      key={category}
-                      category={category}
-                      selected={selectedCategory === category}
-                      onClick={() => setSelectedCategory(category)}
-                    >
-                      {category === 'body' ? '💪' : category === 'mind' ? '🧠' : '❤️'}
-                      <span>{category.charAt(0).toUpperCase() + category.slice(1)}</span>
-                    </CategoryButton>
-                  ))}
-                </div>
-              </CategorySelection>
-
-              <ActionPanel>
-                <h4>⚔️ Actions</h4>
-                <div className="action-grid">
-                  <ActionButton
-                    disabled={!selectedCategory}
-                    onClick={() => handleCombatAction('attack')}
-                  >
-                    🗡️ Attack
-                  </ActionButton>
-                  <ActionButton
-                    disabled={!selectedCategory}
-                    onClick={() => setShowSkillModal(true)}
-                  >
-                    ✨ Skills
-                  </ActionButton>
-                  <ActionButton onClick={() => handleCombatAction('defend')}>
-                    🛡️ Defend
-                  </ActionButton>
-                  <ActionButton onClick={() => handleCombatAction('flee')}>
-                    🏃 Flee
-                  </ActionButton>
-                </div>
-
-                <BuffDebuffDisplay
-                  buffs={playerBuffs}
-                  target="player"
-                />
-              </ActionPanel>
-            </CombatInterface>
-          </CombatArea>
-        );
+        return <CombatScreen />;
         
       case 'moral':
         if (!currentScenario) return null;
@@ -1015,7 +934,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
           <div>
             <EventDescription>
               <div className="event-title">Resource Gathering</div>
-              <div className="event-text">You've discovered a location rich with natural resources. What would you like to gather?</div>
+              <div className="event-text">You&apos;ve discovered a location rich with natural resources. What would you like to gather?</div>
             </EventDescription>
             
             <ResourceGrid>
@@ -1043,7 +962,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
           <div>
             <EventDescription>
               <div className="event-title">Peaceful Resting Spot</div>
-              <div className="event-text">You've found a safe place to rest and recover. The soft grass and gentle breeze make this an ideal spot to regain your strength.</div>
+              <div className="event-text">You&apos;ve found a safe place to rest and recover. The soft grass and gentle breeze make this an ideal spot to regain your strength.</div>
             </EventDescription>
             
             <ActionButton onClick={handleRest}>
@@ -1061,29 +980,35 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
 
   return (
     <ModalOverlay isOpen={isOpen}>
-      <ModalContent>
+      <ModalContent isCombat={eventType === 'combat'}>
         {/* Only show close button for non-combat events */}
         {eventType !== 'combat' && (
           <CloseButton onClick={onClose}>×</CloseButton>
         )}
-        <ModalHeader>
-          <h2>{getEventTitle()}</h2>
-        </ModalHeader>
-        <ModalBody>
+        {/* Hide header for combat since CombatScreen has its own */}
+        {eventType !== 'combat' && (
+          <ModalHeader>
+            <h2>{getEventTitle()}</h2>
+          </ModalHeader>
+        )}
+        <ModalBody isCombat={eventType === 'combat'}>
           {renderEventContent()}
         </ModalBody>
       </ModalContent>
 
-      <SkillSelectionModal
-        isOpen={showSkillModal}
-        selectedAspect={selectedCategory as PhilosophicalAspect}
-        onSkillSelect={(skill) => {
-          handleSkillUse(skill);
-          setShowSkillModal(false);
-        }}
-        onClose={() => setShowSkillModal(false)}
-        playerMana={gameState.character.mana}
-      />
+      {eventType !== 'combat' && (
+        <SkillSelectionModal
+          isOpen={showSkillModal}
+          selectedAspect={selectedCategory as PhilosophicalAspect}
+          onSkillSelect={(skill) => {
+            handleSkillUse(skill);
+            setShowSkillModal(false);
+          }}
+          onClose={() => setShowSkillModal(false)}
+          playerMana={gameState.character.mana}
+          character={gameState.character}
+        />
+      )}
     </ModalOverlay>
   );
 };

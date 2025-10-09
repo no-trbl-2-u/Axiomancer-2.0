@@ -421,7 +421,7 @@ export const CharacterSelectionPage: React.FC = () => {
             <div className="progress-title">Journey Progress</div>
             <div className="progress-details">
               Current Phase: {savedCharacter.gamePhase}<br/>
-              Skills Learned: {savedCharacter.character.skills.length}<br/>
+              Skills Learned: {savedCharacter.character.availableSkills?.length || 0}<br/>
               Last Saved: {formatLastSaved(savedCharacter.savedAt)}
             </div>
           </ProgressInfo>

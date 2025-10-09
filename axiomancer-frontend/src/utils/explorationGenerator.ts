@@ -79,9 +79,14 @@ export function generateRandomExplorationNodes(globalNodeId: string, count: numb
     const nodeType = Math.random() < 0.4 ? 'dialogue' : Math.random() < 0.7 ? 'discovery' : 'combat';
 
     switch (nodeType) {
-      case 'dialogue':
+      case 'dialogue': {
         const dialogueData = childhoodDialogueTopics[Math.floor(Math.random() * childhoodDialogueTopics.length)];
-        const question = dialogueData.questions[Math.floor(Math.random() * dialogueData.questions.length)];
+        const question = dialogueData?.questions[Math.floor(Math.random() * dialogueData.questions.length)];
+
+        if (!question) {
+          console.warn('No question found for dialogue node');
+          continue;
+        }
 
         // Generate 6 dialogue options with one being the "real" answer
         const correctIndex = Math.floor(Math.random() * 6);
@@ -91,44 +96,49 @@ export function generateRandomExplorationNodes(globalNodeId: string, count: numb
             text: correctIndex === 0 ? question.deep : question.shallow,
             isCorrect: correctIndex === 0,
             response: correctIndex === 0 ? question.response : 'Oh, well...',
-            energyReward: correctIndex === 0 ? 2 : undefined
+            energyReward: correctIndex === 0 ? 2 : 0
           },
           {
             id: `option_1`,
             text: correctIndex === 1 ? question.deep : generateShallowResponse(),
             isCorrect: correctIndex === 1,
             response: correctIndex === 1 ? question.response : 'I suppose...',
-            energyReward: correctIndex === 1 ? 2 : undefined
+            energyReward: correctIndex === 1 ? 2 : 0
           },
           {
             id: `option_2`,
             text: correctIndex === 2 ? question.deep : generateShallowResponse(),
             isCorrect: correctIndex === 2,
             response: correctIndex === 2 ? question.response : 'Hmm, maybe...',
-            energyReward: correctIndex === 2 ? 2 : undefined
+            energyReward: correctIndex === 2 ? 2 : 0
           },
           {
             id: `option_3`,
             text: correctIndex === 3 ? question.deep : generateShallowResponse(),
             isCorrect: correctIndex === 3,
             response: correctIndex === 3 ? question.response : 'That\'s nice...',
-            energyReward: correctIndex === 3 ? 2 : undefined
+            energyReward: correctIndex === 3 ? 2 : 0
           },
           {
             id: `option_4`,
             text: correctIndex === 4 ? question.deep : generateShallowResponse(),
             isCorrect: correctIndex === 4,
             response: correctIndex === 4 ? question.response : 'Sure...',
-            energyReward: correctIndex === 4 ? 2 : undefined
+            energyReward: correctIndex === 4 ? 2 : 0
           },
           {
             id: `option_5`,
             text: correctIndex === 5 ? question.deep : generateShallowResponse(),
             isCorrect: correctIndex === 5,
             response: correctIndex === 5 ? question.response : 'I see...',
-            energyReward: correctIndex === 5 ? 2 : undefined
+            energyReward: correctIndex === 5 ? 2 : 0
           }
         ];
+
+        if (!dialogueData) {
+          console.warn('No dialogue data found for dialogue node');
+          continue;
+        }
 
         nodes.push({
           id: `${globalNodeId}_dialogue_${i}`,
@@ -141,9 +151,14 @@ export function generateRandomExplorationNodes(globalNodeId: string, count: numb
           dialogueOptions: options
         });
         break;
+      }
 
-      case 'combat':
+      case 'combat': {
         const enemy = childhoodCombatEnemies[Math.floor(Math.random() * childhoodCombatEnemies.length)];
+        if (!enemy) {
+          console.warn('No enemy found for combat node');
+          continue;
+        }
         nodes.push({
           id: `${globalNodeId}_combat_${i}`,
           type: 'combat',
@@ -154,9 +169,14 @@ export function generateRandomExplorationNodes(globalNodeId: string, count: numb
           enemyId: enemy.id
         });
         break;
+      }
 
-      case 'discovery':
+      case 'discovery': {
         const discovery = childhoodDiscoveries[Math.floor(Math.random() * childhoodDiscoveries.length)];
+        if (!discovery) {
+          console.warn('No discovery found for discovery node');
+          continue;
+        }
         nodes.push({
           id: `${globalNodeId}_discovery_${i}`,
           type: 'discovery',
@@ -167,10 +187,11 @@ export function generateRandomExplorationNodes(globalNodeId: string, count: numb
           discoveryType: discovery.type
         });
         break;
+      }
     }
   }
 
-  return nodes;
+  return nodes.filter(node => node !== null);
 }
 
 function generateShallowResponse(): string {
@@ -182,5 +203,6 @@ function generateShallowResponse(): string {
     'Things look good here.',
     'Hope you\'re doing fine.'
   ];
-  return shallowResponses[Math.floor(Math.random() * shallowResponses.length)];
+  const index = Math.floor(Math.random() * shallowResponses.length);
+  return shallowResponses[index] || 'That\'s interesting...';
 }

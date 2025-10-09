@@ -164,7 +164,7 @@ const MapSelector = styled.div<{ unlocked: boolean; selected: boolean }>`
   }
 `;
 
-const LocalMapContainer = styled.div<{ backgroundImage?: string }>`
+const LocalMapContainer = styled.div<{ backgroundImage?: string | undefined }>`
   position: relative;
   width: 100%;
   flex: 1;
@@ -343,7 +343,7 @@ export const GlobalLocalMapScreen: React.FC = () => {
     // Check if player has Basic Reasoning skill for other events
     const talkedToGuardian = gameState.story.talkedToGuardian;
     console.log('🔍 Story check - talkedToGuardian:', talkedToGuardian);
-    console.log('🔍 Character skills:', gameState.character.skills);
+    console.log('🔍 Character availableSkills:', gameState.character.availableSkills);
     
     if (!talkedToGuardian) {
       // Show modal instead of alert

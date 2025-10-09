@@ -4,7 +4,7 @@
  */
 
 import { CombatStateManager } from './combatMechanics';
-import { Character, Enemy, PhilosophicalAspect } from '../types/game';
+import { Character, Enemy } from '../types/game';
 import { calculateDerivedStats } from './statCalculations';
 
 // Create test character
@@ -25,7 +25,12 @@ function createTestCharacter(): Character {
     baseStats,
     derivedStats: calculateDerivedStats(baseStats),
     availableStatPoints: 0,
-    skills: [],
+    availableSkills: [],
+    equippedSkills: {
+      heart: [],
+      body: [],
+      mind: []
+    },
     equipment: [],
     inventory: [],
     philosophicalStance: {

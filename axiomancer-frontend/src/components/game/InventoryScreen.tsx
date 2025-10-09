@@ -765,14 +765,14 @@ export const InventoryScreen = React.memo(() => {
                   }}
                   onMouseEnter={(e) => {
                     setHoveredItem({
-                      item: item,
+                      item,
                       x: e.clientX,
                       y: e.clientY
                     });
                   }}
                   onMouseMove={(e) => {
                     setHoveredItem({
-                      item: item,
+                      item,
                       x: e.clientX,
                       y: e.clientY
                     });

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
-import { CombatState, PhilosophicalAspect, CombatChoice, CombatAction } from '../../types/game';
-import { CombatStateManager, generateEnemyChoice, executeFallacy } from '../../utils/combatMechanics';
+import { PhilosophicalAspect, CombatChoice, CombatAction, Skill } from '../../types/game';
+import { generateEnemyChoice } from '../../utils/combatMechanics';
 import { BuffDebuffDisplay } from '../combat/BuffDebuffDisplay';
+import { SkillSelectionModal } from '../combat/SkillSelectionModal';
 
 const CombatContainer = styled.div`
   width: 100%;
@@ -48,15 +49,20 @@ const CombatTopBar = styled.div`
   }
 `;
 
-const CombatTitle = styled.h2`
-  color: ${theme.colors.text.accent};
-  margin: 0;
-  font-size: 1.5rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+const MenuButton = styled.button`
+  background: ${theme.colors.background.secondary};
+  border: 2px solid ${theme.colors.border.primary};
+  color: ${theme.colors.text.primary};
+  border-radius: ${theme.borderRadius.lg};
+  padding: ${theme.spacing.sm} ${theme.spacing.md};
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
 
-  @media (max-width: 768px) {
-    font-size: 1.2rem;
-    text-align: center;
+  &:hover {
+    background: ${theme.colors.primary};
+    border-color: ${theme.colors.primary};
+    color: white;
   }
 `;
 
@@ -367,14 +373,15 @@ const BottomNavIcon = styled.button<{ active: boolean }>`
   }
 `;
 
-const CombatLog = styled.div`
+const CombatLog = styled.div<{ visible: boolean }>`
   background: ${theme.colors.background.panel};
   border: ${theme.rpg.borderWidth} solid ${theme.colors.border.primary};
   border-radius: ${theme.rpg.panelBorderRadius};
   padding: ${theme.spacing.md};
-  height: 200px;
+  height: ${props => props.visible ? '200px' : '0'};
   overflow-y: auto;
   margin-top: ${theme.spacing.lg};
+  transition: height 0.3s ease;
 
   h4 {
     color: ${theme.colors.text.accent};
@@ -412,51 +419,12 @@ const CombatLog = styled.div`
   }
 
   @media (max-width: 768px) {
-    height: 150px;
+    height: ${props => props.visible ? '150px' : '0'};
     padding: ${theme.spacing.sm};
     margin-top: ${theme.spacing.md};
   }
 `;
 
-const SkillModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: ${theme.spacing.md};
-`;
-
-const SkillModalContent = styled.div`
-  background: ${theme.colors.background.panel};
-  border: ${theme.rpg.borderWidth} solid ${theme.colors.border.primary};
-  border-radius: ${theme.rpg.panelBorderRadius};
-  padding: ${theme.spacing.xl};
-  max-width: 600px;
-  width: 100%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-
-  h3 {
-    color: ${theme.colors.text.accent};
-    margin: 0 0 ${theme.spacing.lg} 0;
-    font-size: 1.5rem;
-    text-align: center;
-    border-bottom: 2px solid ${theme.colors.border.primary};
-    padding-bottom: ${theme.spacing.md};
-  }
-
-  @media (max-width: 768px) {
-    padding: ${theme.spacing.lg};
-    max-height: 90vh;
-  }
-`;
 
 const SkillGrid = styled.div`
   display: grid;
@@ -527,25 +495,6 @@ const SkillCard = styled.button<{ disabled?: boolean }>`
   }
 `;
 
-const ModalCloseButton = styled.button`
-  background: ${theme.colors.background.secondary};
-  border: 2px solid ${theme.colors.border.primary};
-  border-radius: ${theme.borderRadius.lg};
-  padding: ${theme.spacing.md} ${theme.spacing.xl};
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: ${theme.colors.text.primary};
-  font-weight: 600;
-  font-size: 1rem;
-  width: 100%;
-
-  &:hover {
-    background: ${theme.colors.danger};
-    border-color: ${theme.colors.danger};
-    color: white;
-    transform: translateY(-2px);
-  }
-`;
 
 export const CombatScreen: React.FC = () => {
   // Zustand store - selective subscriptions for better performance
@@ -559,7 +508,8 @@ export const CombatScreen: React.FC = () => {
   const [combatLog, setCombatLog] = useState<string[]>([]);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [showSkillModal, setShowSkillModal] = useState(false);
-  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
+  const [combatPhase, setCombatPhase] = useState<'aspect_selection' | 'action_selection' | 'skill_selection'>('aspect_selection');
+  const [showBattleLog, setShowBattleLog] = useState(false);
 
   // Local state for tracking buff/debuff states across turns
   const [playerBuffs, setPlayerBuffs] = useState<import('../../types/game').CombatantBuffs>(() =>
@@ -582,15 +532,30 @@ export const CombatScreen: React.FC = () => {
 
   const handleAspectSelect = (aspect: PhilosophicalAspect) => {
     setSelectedAspect(aspect);
+    setCombatPhase('action_selection');
   };
 
-  const handleAction = async (action: 'attack' | 'defend' | 'flee') => {
+  const handleAction = async (action: 'attack' | 'defend' | 'flee' | 'skills' | 'back') => {
     if (!selectedAspect || !isPlayerTurn) return;
+
+    // Handle back action
+    if (action === 'back') {
+      setCombatPhase('aspect_selection');
+      setSelectedAspect(null);
+      return;
+    }
 
     // Handle flee action separately since it's not a CombatAction
     if (action === 'flee') {
       setCombatLog(prev => [...prev.slice(-7), '🏃 You attempt to flee from combat!']);
-      // TODO: Implement flee logic
+      // TODO: Implement flee logic - close modal without progressing map node
+      endCombat();
+      return;
+    }
+
+    // Handle skills action
+    if (action === 'skills') {
+      setCombatPhase('skill_selection');
       return;
     }
 
@@ -659,17 +624,68 @@ export const CombatScreen: React.FC = () => {
     }
   };
 
-  const handleSkillSelect = () => {
-    if (!isPlayerTurn) return;
 
-    // Open skill selection modal
-    setShowSkillModal(true);
+  const handleSkillSelectionBack = () => {
+    setCombatPhase('action_selection');
+  };
+
+  const handleEquippedSkillSelect = async (skill: Skill) => {
+    if (!selectedAspect || !isPlayerTurn || !combat) return;
+
+    // Check if player has enough MP
+    if (combat.player.mana < skill.manaCost) {
+      setCombatLog(prev => [...prev.slice(-7), `❌ Not enough MP! Need ${skill.manaCost}, have ${combat.player.mana}`]);
+      return;
+    }
+
+    setShowSkillModal(false);
+    setCombatPhase('action_selection');
+
+    // Execute skill
+    try {
+      const { executeFallacy, generateEnemyChoice } = await import('../../utils/combatMechanics');
+
+      // Generate enemy choice
+      const enemyChoice = generateEnemyChoice(combat.enemy, [{ aspect: selectedAspect, action: 'skill' }]);
+
+      // Execute the fallacy
+      const result = executeFallacy(
+        combat.player,
+        combat.enemy,
+        skill.id,
+        combat.enemyBuffs,
+        combat.playerBuffs,
+        selectedAspect === enemyChoice.aspect // has advantage if aspects match
+      );
+
+      // Deduct MP
+      const newPlayerMana = combat.player.mana - skill.manaCost;
+      updateCharacter({ mana: newPlayerMana });
+
+      // Apply damage
+      const newEnemyHealth = Math.max(0, combat.enemy.health - result.damage);
+
+      setCombatLog(prev => [...prev.slice(-7),
+        `💫 ${combat.player.name} uses ${skill.name}!`,
+        `⚡ Deals ${result.damage} damage to ${combat.enemy.name}!`,
+        ...result.effects
+      ]);
+
+      // Check if combat ended
+      if (newEnemyHealth <= 0) {
+        setCombatLog(prev => [...prev.slice(-7), `🎉 Victory! ${combat.enemy.name} has been defeated!`]);
+        setTimeout(() => endCombat(), 2000);
+      }
+    } catch (error) {
+      console.error('Error executing skill:', error);
+      setCombatLog(prev => [...prev.slice(-7), '❌ Error using skill!']);
+    }
   };
 
   const handleUseSkill = async (skillId: string) => {
     if (!selectedAspect || !isPlayerTurn || !combat) return;
 
-    const skill = character.skills.find(s => s.id === skillId);
+    const skill = character.availableSkills.find(s => s.id === skillId);
     if (!skill) {
       setCombatLog(prev => [...prev.slice(-7), '❌ Skill not found!']);
       return;
@@ -733,11 +749,6 @@ export const CombatScreen: React.FC = () => {
 
   return (
     <CombatContainer>
-      <CombatTopBar>
-        <CombatTitle>Combat Arena</CombatTitle>
-        <RoundIndicator>Round {combat.round}</RoundIndicator>
-      </CombatTopBar>
-
       <CombatArea>
         <CombatMainArea>
           {/* Player Panel */}
@@ -788,45 +799,96 @@ export const CombatScreen: React.FC = () => {
         <ActionPanel>
           <ActionTitle>Your Turn</ActionTitle>
 
-          <AspectSelection>
-            {(['body', 'mind', 'heart'] as PhilosophicalAspect[]).map((aspect) => (
-              <AspectButton
-                key={aspect}
-                selected={selectedAspect === aspect}
-                aspect={aspect}
-                onClick={() => handleAspectSelect(aspect)}
-              >
-                <span className="icon">
-                  {aspect === 'body' ? '💪' : aspect === 'mind' ? '🧠' : '❤️'}
-                </span>
-                <span>{aspect.charAt(0).toUpperCase() + aspect.slice(1)}</span>
-              </AspectButton>
-            ))}
-          </AspectSelection>
+          {combatPhase === 'aspect_selection' && (
+            <>
+              <AspectSelection>
+                {(['body', 'mind', 'heart'] as PhilosophicalAspect[]).map((aspect) => (
+                  <AspectButton
+                    key={aspect}
+                    selected={selectedAspect === aspect}
+                    aspect={aspect}
+                    onClick={() => handleAspectSelect(aspect)}
+                  >
+                    <span className="icon">
+                      {aspect === 'body' ? '💪' : aspect === 'mind' ? '🧠' : '❤️'}
+                    </span>
+                    <span>{aspect.charAt(0).toUpperCase() + aspect.slice(1)}</span>
+                  </AspectButton>
+                ))}
+              </AspectSelection>
+            </>
+          )}
 
-          <ActionButtons>
-            <ActionButton
-              disabled={!selectedAspect}
-              onClick={() => handleAction('attack')}
-            >
-              ⚔️ Attack
-            </ActionButton>
-            <ActionButton
-              disabled={!selectedAspect}
-              onClick={handleSkillSelect}
-            >
-              ✨ Skill
-            </ActionButton>
-            <ActionButton onClick={() => handleAction('defend')}>
-              🛡️ Defend
-            </ActionButton>
-            <ActionButton onClick={() => handleAction('flee')}>
-              🏃 Flee
-            </ActionButton>
-          </ActionButtons>
+          {combatPhase === 'action_selection' && selectedAspect && (
+            <>
+              <div style={{ textAlign: 'center', marginBottom: theme.spacing.lg }}>
+                Selected: {selectedAspect.charAt(0).toUpperCase() + selectedAspect.slice(1)}
+              </div>
+
+              <ActionButtons>
+                <ActionButton onClick={() => handleAction('attack')}>
+                  ⚔️ Attack
+                </ActionButton>
+                <ActionButton onClick={() => handleAction('skills')}>
+                  ✨ Skills
+                </ActionButton>
+                <ActionButton onClick={() => handleAction('defend')}>
+                  🛡️ Defend
+                </ActionButton>
+                <ActionButton onClick={() => handleAction('flee')}>
+                  🏃 Flee
+                </ActionButton>
+                <ActionButton onClick={() => handleAction('back')}>
+                  ⬅️ Back
+                </ActionButton>
+              </ActionButtons>
+            </>
+          )}
+
+          {combatPhase === 'skill_selection' && selectedAspect && (
+            <>
+              <div style={{ textAlign: 'center', marginBottom: theme.spacing.lg }}>
+                Select {selectedAspect.charAt(0).toUpperCase() + selectedAspect.slice(1)} Skill
+              </div>
+
+              <SkillGrid>
+                {character.equippedSkills[selectedAspect]?.length > 0 ? (
+                  character.equippedSkills[selectedAspect].map((skill) => {
+                    const canAfford = combat && combat.player.mana >= skill.manaCost;
+                    return (
+                      <SkillCard
+                        key={skill.id}
+                        disabled={!canAfford}
+                        onClick={() => canAfford && handleEquippedSkillSelect(skill)}
+                        title={!canAfford ? `Not enough MP! Need ${skill.manaCost}, have ${combat?.player.mana}` : ''}
+                      >
+                        <div className="skill-header">
+                          <span className="skill-icon">{skill.icon}</span>
+                          <span className="skill-name">{skill.name}</span>
+                          <span className="skill-cost">{skill.manaCost} MP</span>
+                        </div>
+                        <div className="skill-description">{skill.description}</div>
+                        {skill.damage && (
+                          <div className="skill-damage">⚔️ {skill.damage} base damage</div>
+                        )}
+                      </SkillCard>
+                    );
+                  })
+                ) : (
+                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: theme.colors.text.muted, padding: theme.spacing.xl }}>
+                    No skills equipped for {selectedAspect}. Go to Skills tab to equip some!
+                  </div>
+                )}
+              </SkillGrid>
+
+              <ActionButton onClick={handleSkillSelectionBack}>
+                ⬅️ Back
+              </ActionButton>
+            </>
+          )}
         </ActionPanel>
 
-        <CombatLog>
+        <CombatLog visible={showBattleLog}>
           <h4>📜 Combat Log</h4>
           {combatLog.slice(-8).map((entry, index) => (
             <div key={index} className="log-entry">{entry}</div>
@@ -835,79 +897,14 @@ export const CombatScreen: React.FC = () => {
       </CombatArea>
 
       {/* Skill Selection Modal */}
-      {showSkillModal && (
-        <SkillModalOverlay onClick={() => setShowSkillModal(false)}>
-          <SkillModalContent onClick={(e) => e.stopPropagation()}>
-            <h3>✨ Select a Skill</h3>
-            <SkillGrid>
-              {character.skills.length > 0 ? (
-                character.skills.map((skill) => {
-                  const canAfford = combat && combat.player.mana >= skill.manaCost;
-                  return (
-                    <SkillCard
-                      key={skill.id}
-                      disabled={!canAfford}
-                      onClick={() => canAfford && handleUseSkill(skill.id)}
-                      title={!canAfford ? `Not enough MP! Need ${skill.manaCost}, have ${combat?.player.mana}` : ''}
-                    >
-                      <div className="skill-header">
-                        <span className="skill-icon">{skill.icon}</span>
-                        <span className="skill-name">{skill.name}</span>
-                        <span className="skill-cost">{skill.manaCost} MP</span>
-                      </div>
-                      <div className="skill-description">{skill.description}</div>
-                      {skill.damage && (
-                        <div className="skill-damage">⚔️ {skill.damage} base damage</div>
-                      )}
-                    </SkillCard>
-                  );
-                })
-              ) : (
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: theme.colors.text.muted, padding: theme.spacing.xl }}>
-                  No skills learned yet. Talk to your Guardian to learn your first skill!
-                </div>
-              )}
-            </SkillGrid>
-            <ModalCloseButton onClick={() => setShowSkillModal(false)}>
-              Close
-            </ModalCloseButton>
-          </SkillModalContent>
-        </SkillModalOverlay>
-      )}
-
-      <BottomNavigation>
-        <BottomNavIcon
-          active={false}
-          onClick={() => changeScreen('map')}
-        >
-          <span className="icon">🗺️</span>
-          <span className="label">Map</span>
-        </BottomNavIcon>
-
-        <BottomNavIcon
-          active={false}
-          onClick={() => changeScreen('character')}
-        >
-          <span className="icon">👤</span>
-          <span className="label">Character</span>
-        </BottomNavIcon>
-
-        <BottomNavIcon
-          active={false}
-          onClick={() => changeScreen('skills')}
-        >
-          <span className="icon">📚</span>
-          <span className="label">Skills</span>
-        </BottomNavIcon>
-
-        <BottomNavIcon
-          active={false}
-          onClick={() => changeScreen('inventory')}
-        >
-          <span className="icon">🎒</span>
-          <span className="label">Inventory</span>
-        </BottomNavIcon>
-      </BottomNavigation>
+      <SkillSelectionModal
+        isOpen={showSkillModal}
+        selectedAspect={selectedAspect}
+        onSkillSelect={(skill) => handleUseSkill(skill.id)}
+        onClose={() => setShowSkillModal(false)}
+        playerMana={combat?.player.mana || 0}
+        character={character}
+      />
     </CombatContainer>
   );
 };

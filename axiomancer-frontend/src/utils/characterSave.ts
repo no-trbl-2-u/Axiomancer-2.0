@@ -62,7 +62,14 @@ function migrateCharacterData(character: any): Character {
     maxMana: character.maxMana || maxMP,
     health: Math.min(character.health || maxHP, maxHP),
     mana: Math.min(character.mana || maxMP, maxMP),
-    availableStatPoints: character.availableStatPoints || 0
+    availableStatPoints: character.availableStatPoints || 0,
+    // Ensure skills properties are always defined
+    availableSkills: character.availableSkills || [],
+    equippedSkills: character.equippedSkills || {
+      heart: [],
+      body: [],
+      mind: []
+    }
   };
 }
 

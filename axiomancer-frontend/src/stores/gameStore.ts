@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, CharacterPortrait, BaseStats, Equipment, EquipmentSlot, Skill } from '../types/game';
+import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, CharacterPortrait, BaseStats, Equipment, EquipmentSlot, Skill, PhilosophicalAspect } from '../types/game';
 import { initialQuests } from '../utils/questSystem';
 import { createEnemyByType } from '../utils/combatMechanics';
 import { loadCharacter, saveCharacter } from '../utils/characterSave';
@@ -59,6 +59,8 @@ interface GameStore {
   // Skill System
   learnSkill: (skill: Skill) => void;
   canLearnSkill: (skill: Skill) => boolean;
+  equipSkill: (skill: Skill, aspect: PhilosophicalAspect) => void;
+  unequipSkill: (skillId: string, aspect: PhilosophicalAspect) => void;
   
   // Screen Navigation
   changeScreen: (screen: GameScreen) => void;
@@ -798,7 +800,12 @@ function createInitialGameState(): GameState {
       baseStats: initialBaseStats,
       derivedStats: initialDerivedStats,
       availableStatPoints: 0,
-      skills: [],
+      availableSkills: [],
+      equippedSkills: {
+        heart: [],
+        body: [],
+        mind: []
+      },
       equipment: [],
       inventory: [],
       philosophicalStance: {
@@ -1141,7 +1148,12 @@ export const useGameStore = create<GameStore>()(
 
         // Add the Basic Reasoning skill
         get().updateCharacter({
-          skills: [basicReasoningSkill]
+          availableSkills: [basicReasoningSkill],
+          equippedSkills: {
+            heart: [],
+            body: [],
+            mind: [basicReasoningSkill]
+          }
         });
 
         // Unlock all nodes connected to the guardian
@@ -1311,7 +1323,7 @@ export const useGameStore = create<GameStore>()(
       canLearnSkill: (skill: Skill): boolean => {
         const state = get();
         // Check if already learned
-        if (state.gameState.character.skills.some(s => s.id === skill.id)) {
+        if (state.gameState.character.availableSkills.some(s => s.id === skill.id)) {
           return false;
         }
 
@@ -1349,7 +1361,7 @@ export const useGameStore = create<GameStore>()(
         }
 
         // Check if skill is already learned
-        if (state.gameState.character.skills.some(s => s.id === skill.id)) {
+        if (state.gameState.character.availableSkills.some(s => s.id === skill.id)) {
           console.log(`⚠️ Skill ${skill.name} is already learned`);
           return;
         }
@@ -1361,10 +1373,74 @@ export const useGameStore = create<GameStore>()(
             ...innerState.gameState,
             character: {
               ...innerState.gameState.character,
-              skills: [...innerState.gameState.character.skills, skill],
+              availableSkills: [...innerState.gameState.character.availableSkills, skill],
             },
           },
         }));
+      },
+
+      equipSkill: (skill: Skill, aspect: PhilosophicalAspect) => {
+        set((state) => {
+          const currentEquipped = state.gameState.character.equippedSkills[aspect];
+          if (currentEquipped.length >= 5) {
+            console.warn(`Cannot equip more than 5 skills for ${aspect}`);
+            return state;
+          }
+
+          // Check if skill is already equipped
+          if (currentEquipped.some(s => s.id === skill.id)) {
+            console.log(`Skill ${skill.name} is already equipped for ${aspect}`);
+            return state;
+          }
+
+          // Auto-learn the skill if not already available
+          const availableSkills = state.gameState.character.availableSkills;
+          const skillAlreadyAvailable = availableSkills.some(s => s.id === skill.id);
+          const updatedAvailableSkills = skillAlreadyAvailable 
+            ? availableSkills 
+            : [...availableSkills, skill];
+
+          console.log(`✅ Equipped ${skill.name} to ${aspect}`);
+
+          return {
+            gameState: {
+              ...state.gameState,
+              character: {
+                ...state.gameState.character,
+                availableSkills: updatedAvailableSkills,
+                equippedSkills: {
+                  ...state.gameState.character.equippedSkills,
+                  [aspect]: [...currentEquipped, skill]
+                }
+              }
+            }
+          };
+        });
+      },
+
+      unequipSkill: (skillId: string, aspect: PhilosophicalAspect) => {
+        set((state) => {
+          const currentEquipped = state.gameState.character.equippedSkills[aspect];
+          const skillIndex = currentEquipped.findIndex(s => s.id === skillId);
+
+          if (skillIndex === -1) {
+            console.warn(`Skill ${skillId} is not equipped for ${aspect}`);
+            return state;
+          }
+
+          return {
+            gameState: {
+              ...state.gameState,
+              character: {
+                ...state.gameState.character,
+                equippedSkills: {
+                  ...state.gameState.character.equippedSkills,
+                  [aspect]: currentEquipped.filter((_, index) => index !== skillIndex)
+                }
+              }
+            }
+          };
+        });
       },
 
       // Screen Navigation

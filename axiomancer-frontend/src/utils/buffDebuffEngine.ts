@@ -293,7 +293,7 @@ export function calculateModifiedStats(
   baseStats: DerivedStats,
   combatantBuffs: CombatantBuffs
 ): DerivedStats {
-  let modifiedStats = { ...baseStats };
+  const modifiedStats = { ...baseStats };
 
   // Apply all buff/debuff effects
   [...combatantBuffs.buffs, ...combatantBuffs.debuffs].forEach(effect => {
