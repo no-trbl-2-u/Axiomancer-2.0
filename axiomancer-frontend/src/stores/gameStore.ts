@@ -1393,17 +1393,21 @@ export const useGameStore = create<GameStore>()(
             return state;
           }
 
-          // Check if skill is available
-          if (!state.gameState.character.availableSkills.some(s => s.id === skill.id)) {
-            console.warn(`Skill ${skill.name} is not available`);
-            return state;
-          }
+          // Auto-learn the skill if not already available
+          const availableSkills = state.gameState.character.availableSkills;
+          const skillAlreadyAvailable = availableSkills.some(s => s.id === skill.id);
+          const updatedAvailableSkills = skillAlreadyAvailable 
+            ? availableSkills 
+            : [...availableSkills, skill];
+
+          console.log(`✅ Equipped ${skill.name} to ${aspect}`);
 
           return {
             gameState: {
               ...state.gameState,
               character: {
                 ...state.gameState.character,
+                availableSkills: updatedAvailableSkills,
                 equippedSkills: {
                   ...state.gameState.character.equippedSkills,
                   [aspect]: [...currentEquipped, skill]

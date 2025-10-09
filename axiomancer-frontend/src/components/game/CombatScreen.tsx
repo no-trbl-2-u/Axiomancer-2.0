@@ -66,18 +66,6 @@ const MenuButton = styled.button`
   }
 `;
 
-const CombatTitle = styled.h2`
-  color: ${theme.colors.text.accent};
-  margin: 0;
-  font-size: 1.5rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-
-  @media (max-width: 768px) {
-    font-size: 1.2rem;
-    text-align: center;
-  }
-`;
-
 const RoundIndicator = styled.div`
   color: ${theme.colors.text.secondary};
   font-size: 1rem;
@@ -761,16 +749,6 @@ export const CombatScreen: React.FC = () => {
 
   return (
     <CombatContainer>
-      <CombatTopBar>
-        <CombatTitle>Combat Arena</CombatTitle>
-        <div style={{ display: 'flex', gap: theme.spacing.md, alignItems: 'center' }}>
-          <RoundIndicator>Round {combat.round}</RoundIndicator>
-          <MenuButton onClick={() => setShowBattleLog(!showBattleLog)}>
-            📜
-          </MenuButton>
-        </div>
-      </CombatTopBar>
-
       <CombatArea>
         <CombatMainArea>
           {/* Player Panel */}
@@ -927,40 +905,6 @@ export const CombatScreen: React.FC = () => {
         playerMana={combat?.player.mana || 0}
         character={character}
       />
-
-      <BottomNavigation>
-        <BottomNavIcon
-          active={false}
-          onClick={() => changeScreen('map')}
-        >
-          <span className="icon">🗺️</span>
-          <span className="label">Map</span>
-        </BottomNavIcon>
-
-        <BottomNavIcon
-          active={false}
-          onClick={() => changeScreen('character')}
-        >
-          <span className="icon">👤</span>
-          <span className="label">Character</span>
-        </BottomNavIcon>
-
-        <BottomNavIcon
-          active={false}
-          onClick={() => changeScreen('skills')}
-        >
-          <span className="icon">📚</span>
-          <span className="label">Skills</span>
-        </BottomNavIcon>
-
-        <BottomNavIcon
-          active={false}
-          onClick={() => changeScreen('inventory')}
-        >
-          <span className="icon">🎒</span>
-          <span className="label">Inventory</span>
-        </BottomNavIcon>
-      </BottomNavigation>
     </CombatContainer>
   );
 };

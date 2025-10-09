@@ -19,7 +19,7 @@ const BackgroundImage = styled.img`
   left: 50%;
   transform: translate(-50%, -50%);
   /* Display at a static size based on viewport height */
-  height: min(80vh, 600px);
+  height: min(90vh, 900px);
   width: auto;
   object-fit: contain;
   object-position: center;

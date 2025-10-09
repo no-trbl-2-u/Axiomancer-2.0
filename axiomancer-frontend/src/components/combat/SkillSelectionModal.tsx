@@ -186,13 +186,8 @@ export const SkillSelectionModal: React.FC<SkillSelectionModalProps> = ({
 }): JSX.Element | null => {
   if (!isOpen || !selectedAspect) return null;
 
-  // Filter skills by selected aspect
-  const availableSkills = Object.values(fallacySpellbook).filter(
-    skill => skill.philosophicalAspect === selectedAspect
-  );
-
-  // Get equipped skills for this aspect (currently unused but kept for future use)
-  // const equippedSkills = character.equippedSkills[selectedAspect] || [];
+  // Get equipped skills for this aspect - ONLY show equipped skills in combat!
+  const equippedSkills = character.equippedSkills[selectedAspect] || [];
 
   const aspectColor = getAspectColor(selectedAspect);
   const aspectIcon = getAspectIcon(selectedAspect);
@@ -210,17 +205,17 @@ export const SkillSelectionModal: React.FC<SkillSelectionModalProps> = ({
           </div>
         </ModalHeader>
 
-        {availableSkills.length === 0 ? (
+        {equippedSkills.length === 0 ? (
           <NoSkillsMessage>
             <div className="icon">😔</div>
-            <div>No Skills of selected argument</div>
+            <div>No Skills Equipped</div>
             <div style={{ fontSize: '0.9rem', marginTop: theme.spacing.sm }}>
-              You don&apos;t have any {selectedAspect} skills available yet.
+              You don&apos;t have any {selectedAspect} skills equipped. Visit the Skills tab to equip some!
             </div>
           </NoSkillsMessage>
         ) : (
           <SkillGrid>
-            {availableSkills.map((skill) => {
+            {equippedSkills.map((skill) => {
               const canAfford = playerMana >= skill.manaCost;
 
               return (

@@ -375,4 +375,40 @@ export class DatabaseService {
       savedAt: new Date(row.updated_at).getTime()
     };
   }
+
+  /**
+   * Clear all data from the database (for development/testing purposes)
+   * WARNING: This will delete all users and character states!
+   */
+  static async clearDatabase(): Promise<void> {
+    if (this.sqliteDb) {
+      return new Promise((resolve, reject) => {
+        // Delete in reverse order due to foreign key constraints
+        this.sqliteDb!.run('DELETE FROM character_states', (err) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          
+          this.sqliteDb!.run('DELETE FROM users', (err) => {
+            if (err) reject(err);
+            else resolve();
+          });
+        });
+      });
+    } else if (this.pgPool) {
+      // PostgreSQL will handle cascade deletion automatically
+      await this.pgPool.query('DELETE FROM users');
+      await this.pgPool.query('DELETE FROM character_states');
+    } else {
+      throw new Error('Database not initialized');
+    }
+  }
+
+  /**
+   * Get the underlying database connection for direct queries
+   */
+  static getConnection(): sqlite3.Database | Pool | null {
+    return this.sqliteDb || this.pgPool;
+  }
 }

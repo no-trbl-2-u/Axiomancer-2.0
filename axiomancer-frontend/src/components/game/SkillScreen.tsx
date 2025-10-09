@@ -14,17 +14,6 @@ const SkillContainer = styled.div`
   background: ${theme.colors.background.primary};
   position: relative;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at center, rgba(75, 0, 130, 0.2) 0%, rgba(0, 0, 0, 0.8) 70%);
-    pointer-events: none;
-  }
-
   @media (max-width: 768px) {
     padding: 100px ${theme.spacing.md} 80px;
   }

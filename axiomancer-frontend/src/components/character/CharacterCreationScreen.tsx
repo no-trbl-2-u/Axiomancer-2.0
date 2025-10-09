@@ -20,18 +20,18 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+  background: linear-gradient(0deg,rgb(21, 21, 29) 0%, #1e1b4b 100%);
   padding: 0.5rem;
   overflow: hidden;
 `;
 
 const CreationContainer = styled.div`
   display: flex;
-  gap: 0.75rem;
+  gap: 3rem;
   max-width: 1100px;
   width: 100%;
   height: 100%;
-  max-height: 98vh;
+  max-height: 85vh;
 `;
 
 const LeftSquare = styled.div`
@@ -42,7 +42,7 @@ const LeftSquare = styled.div`
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 2rem;
 
   h2 {
     color: ${theme.colors.text.accent};
@@ -94,7 +94,9 @@ const FormGroup = styled.div`
   }
 
   input, select {
-    padding: 0.5rem;
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
     border: 2px solid ${theme.colors.border.secondary};
     border-radius: ${theme.borderRadius.md};
     background: ${theme.colors.background.secondary};
@@ -109,17 +111,23 @@ const FormGroup = styled.div`
 `;
 
 const PortraitDisplay = styled.div`
+  height: 20%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+
   img {
-    width: 90px;
-    height: 90px;
+    height: 100%;
+    width: 35%;
     border-radius: 50%;
     border: 2px solid ${theme.colors.border.primary};
-    object-fit: cover;
+    object-fit: fill;
   }
 
   .placeholder {
-    width: 90px;
-    height: 90px;
+    height: 100%;
+    width: 30%;
     border-radius: 50%;
     border: 2px dashed ${theme.colors.border.secondary};
     display: flex;
@@ -183,14 +191,14 @@ const CreateButton = styled.button`
   background: ${theme.colors.primary};
   color: white;
   border: none;
-  padding: 0.6rem 1rem;
+  padding: 20px;
   border-radius: ${theme.borderRadius.md};
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   width: 100%;
   transition: all 0.3s ease;
-  margin-top: auto;
+  margin-top: 30px;
 
   &:hover {
     background: ${theme.colors.accent};
@@ -344,7 +352,16 @@ export const CharacterCreationScreen: React.FC = () => {
     <Container>
       <CreationContainer>
         <LeftSquare>
-          <h2>Character Creation - UPDATED {new Date().toLocaleTimeString()}</h2>
+
+          <PortraitDisplay>
+            {selectedPortrait ? (
+              <img src={selectedPortrait} alt="Character portrait" />
+            ) : (
+              <div className="placeholder">
+                Select Portrait
+              </div>
+            )}
+          </PortraitDisplay>
 
           <FormGroup>
             <label htmlFor="name">Enter Name</label>
@@ -400,16 +417,6 @@ export const CharacterCreationScreen: React.FC = () => {
 
         <RightSquare>
           <h2>Character Preview</h2>
-
-          <PortraitDisplay>
-            {selectedPortrait ? (
-              <img src={selectedPortrait} alt="Character portrait" />
-            ) : (
-              <div className="placeholder">
-                Select Portrait
-              </div>
-            )}
-          </PortraitDisplay>
 
           <StatsContainer>
             <PointsDisplay>

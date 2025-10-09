@@ -11,7 +11,9 @@
     "lint:fix": "eslint src/**/*.{js,ts} --fix",
     "format": "prettier --write src/**/*.{js,ts,json}",
     "format:check": "prettier --check src/**/*.{js,ts,json}",
-    "test": "jest"
+    "test": "jest",
+    "db:clear": "ts-node src/scripts/clearDatabase.ts",
+    "db:clear:force": "ts-node src/scripts/clearDatabaseForce.ts"
   },
   "keywords": ["axiomancer", "backend", "api"],
   "author": "",
