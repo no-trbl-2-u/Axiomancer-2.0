@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
+import { useDebugStore } from '../../stores/debugStore';
 import { getAvailableSkills, applySkillEffect } from '../../utils/fallacySkills';
 import { Skill, PhilosophicalAspect, BuffDebuff } from '../../types/game';
 import { saveCharacter } from '../../utils/characterSave';
@@ -617,7 +618,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
   const updateStory = useGameStore(state => state.updateStory);
   const unlockGuardianProgression = useGameStore(state => state.unlockGuardianProgression);
   const startCombat = useGameStore(state => state.startCombat);
-  
+
+  // Debug store - global debug state
+  const debugMode = useDebugStore(state => state.debugMode);
+  const nextEventType = useDebugStore(state => state.nextEventType);
+
   // Combat state
   const [enemy, setEnemy] = useState<Enemy | null>(null);
   const [enemyHealth, setEnemyHealth] = useState(0);
@@ -628,19 +633,20 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
   const [showSkillModal, setShowSkillModal] = useState(false);
   const [playerBuffs, setPlayerBuffs] = useState<BuffDebuff[]>([]);
   const [enemyBuffs, setEnemyBuffs] = useState<BuffDebuff[]>([]);
-  
+
   // Event state
   const [currentScenario, setCurrentScenario] = useState<MoralScenario | null>(null);
   const [eventCompleted, setEventCompleted] = useState(false);
   const [eventResult, setEventResult] = useState<string>('');
-  
+
   const [availableSkills, setAvailableSkills] = useState<Skill[]>([]);
 
   useEffect(() => {
     if (isOpen) {
       initializeEvent();
     }
-  }, [isOpen, eventType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, eventType, debugMode, nextEventType]);
 
   useEffect(() => {
     const skills = getAvailableSkills(gameState.character);
@@ -651,7 +657,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
     setEventCompleted(false);
     setEventResult('');
 
-    switch (eventType) {
+    // Use debug event type if debug mode is on, otherwise use the passed eventType
+    const actualEventType = debugMode ? nextEventType : eventType;
+
+    switch (actualEventType) {
       case 'combat':
         // Initialize combat in the global store with forest monsters
         const forestMonsters = ['elder_tree', 'tree_guardian_1', 'tree_guardian_2'];

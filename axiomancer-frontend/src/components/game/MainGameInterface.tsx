@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
+import { useDebugStore } from '../../stores/debugStore';
 
 // Import all our game screens
 import { CharacterScreen } from './CharacterScreen';
@@ -11,6 +12,7 @@ import { GlobalLocalMapScreen } from './GlobalLocalMapScreen';
 import { CombatScreen } from './CombatScreen';
 
 type ActiveTab = 'character' | 'inventory' | 'skills' | 'map' | 'combat';
+type EventType = 'combat' | 'moral' | 'gathering' | 'rest';
 
 const GameContainer = styled.div`
   width: 100vw;
@@ -226,13 +228,101 @@ const NavIcon = styled.button<{ active: boolean }>`
   }
 `;
 
+const DebugPanel = styled.div`
+  position: fixed;
+  top: ${theme.spacing.md};
+  right: ${theme.spacing.md};
+  background: ${theme.colors.background.panel};
+  border: 2px solid ${theme.colors.primary};
+  border-radius: ${theme.borderRadius.md};
+  padding: ${theme.spacing.md};
+  z-index: 1000;
+  min-width: 250px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+
+  .debug-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: ${theme.spacing.md};
+    padding-bottom: ${theme.spacing.sm};
+    border-bottom: 1px solid ${theme.colors.border.primary};
+
+    h3 {
+      margin: 0;
+      color: ${theme.colors.primary};
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: ${theme.spacing.sm};
+      color: ${theme.colors.text.primary};
+      font-size: 0.85rem;
+      cursor: pointer;
+
+      input[type="checkbox"] {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .debug-control {
+    margin-bottom: ${theme.spacing.sm};
+
+    label {
+      display: block;
+      color: ${theme.colors.text.secondary};
+      font-size: 0.8rem;
+      margin-bottom: ${theme.spacing.xs};
+    }
+
+    select {
+      width: 100%;
+      background: ${theme.colors.background.secondary};
+      color: ${theme.colors.text.primary};
+      border: 1px solid ${theme.colors.border.primary};
+      border-radius: ${theme.borderRadius.sm};
+      padding: ${theme.spacing.sm};
+      font-size: 0.85rem;
+      cursor: pointer;
+
+      &:focus {
+        outline: none;
+        border-color: ${theme.colors.primary};
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .debug-info {
+    margin-top: ${theme.spacing.sm};
+    padding-top: ${theme.spacing.sm};
+    border-top: 1px solid ${theme.colors.border.secondary};
+    font-size: 0.75rem;
+    color: ${theme.colors.text.muted};
+  }
+`;
+
 export const MainGameInterface: React.FC = () => {
   // Zustand store - selective subscriptions
   const character = useGameStore(state => state.gameState.character);
   const combat = useGameStore(state => state.gameState.combat);
   const currentScreen = useGameStore(state => state.currentScreen);
   const changeScreen = useGameStore(state => state.changeScreen);
-  
+
+  // Debug store
+  const debugMode = useDebugStore(state => state.debugMode);
+  const nextEventType = useDebugStore(state => state.nextEventType);
+  const setDebugMode = useDebugStore(state => state.setDebugMode);
+  const setNextEventType = useDebugStore(state => state.setNextEventType);
+
   const [activeTab, setActiveTab] = useState<ActiveTab>('map');
 
   // Update active tab based on current screen
@@ -286,6 +376,43 @@ export const MainGameInterface: React.FC = () => {
 
   return (
     <GameContainer>
+      {/* Debug Panel - Global */}
+      <DebugPanel>
+        <div className="debug-header">
+          <h3>🐛 Debug Mode</h3>
+          <label>
+            <input
+              type="checkbox"
+              checked={debugMode}
+              onChange={(e) => setDebugMode(e.target.checked)}
+            />
+            Enable
+          </label>
+        </div>
+
+        <div className="debug-control">
+          <label>Next Event Type:</label>
+          <select
+            value={nextEventType}
+            onChange={(e) => setNextEventType(e.target.value as EventType)}
+            disabled={!debugMode}
+          >
+            <option value="combat">Combat</option>
+            <option value="moral">Moral Dilemma</option>
+            <option value="gathering">Resource Gathering</option>
+            <option value="rest">Rest</option>
+          </select>
+        </div>
+
+        <div className="debug-info">
+          {debugMode ? (
+            <>Next event will be: <strong>{nextEventType}</strong></>
+          ) : (
+            <>Events are random</>
+          )}
+        </div>
+      </DebugPanel>
+
       {/* Top Bar with Player Info */}
       <TopBar>
         <PlayerPortrait>
