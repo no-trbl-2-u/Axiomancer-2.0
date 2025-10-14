@@ -275,11 +275,13 @@ export const MainGameInterface: React.FC = () => {
     }
   };
 
-  const getPortraitUrl = () => {
-    if (character.portrait?.imageUrl) {
+  const getPortraitUrl = () => {    
+    if (character?.portrait?.imageUrl) {
       return character.portrait.imageUrl;
     }
-    return '/portraits/c-begger.png'; // Default portrait
+    
+    // TODO: Create backup system for fallback portrait
+    return '/portraits/c-begger.jpg';
   };
 
   return (

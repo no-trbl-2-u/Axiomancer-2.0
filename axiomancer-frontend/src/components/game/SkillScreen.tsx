@@ -10,7 +10,7 @@ const SkillContainer = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 120px ${theme.spacing.xl} 100px;
+  padding: 40px ${theme.spacing.xl} 40px;
   background: ${theme.colors.background.primary};
   position: relative;
 
