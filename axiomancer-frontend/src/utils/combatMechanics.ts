@@ -1,7 +1,7 @@
-import { PhilosophicalAspect, CombatChoice, CombatRoundResult, Character, Enemy, BaseStats, DerivedStats, Skill } from '../types/game';
+import { PhilosophicalAspect, CombatChoice, CombatRoundResult, Character, Enemy, BaseStats, DerivedStats, Skill, CombatantBuffs } from '../types/game';
 import { calculateDerivedStats, calculateMaxHP, calculateMaxMP } from './statCalculations';
 import { fallacySpellbook } from './fallacySpellbook';
-import { createMindAttackBuff, createHeartAttackDebuff, createReflectionBuff, createCounterArgumentBuff, createForesightBuff, createBodyDefenseBuff, createMindDefenseBuff, createHeartDefenseBuff, applyBuffDebuff } from './buffDebuffEngine';
+import { createMindAttackBuff, createHeartAttackDebuff, createReflectionBuff, createCounterArgumentBuff, createForesightBuff, createBodyDefenseBuff, createMindDefenseBuff, createHeartDefenseBuff, applyBuffDebuff, calculateModifiedStats } from './buffDebuffEngine';
 import { processFallacyCombatEffects, applyStatusEffectsToCombatant, filterStatusEffectsByChance } from './combatEffectBridge';
 import { applyEquipmentBonuses } from './equipmentItems';
 import { getCombatVisualState } from './combatVisuals';
@@ -93,16 +93,26 @@ export function executeCombatAction(
   defender: Character | Enemy,
   argumentType: PhilosophicalAspect,
   action: string,
-  hasAdvantage: boolean
+  hasAdvantage: boolean,
+  attackerBuffs?: CombatantBuffs,
+  defenderBuffs?: CombatantBuffs
 ): CombatActionResult {
-  // Apply equipment bonuses to attacker and defender if they have equipment
-  const attackerStats = (attacker as any).equippedItems && Object.keys((attacker as any).equippedItems).length > 0
+  // Apply equipment bonuses first
+  let attackerStats = (attacker as any).equippedItems && Object.keys((attacker as any).equippedItems).length > 0
     ? applyEquipmentBonuses(attacker.derivedStats, Object.values((attacker as any).equippedItems), argumentType)
     : attacker.derivedStats;
 
-  const defenderStats = (defender as any).equippedItems && Object.keys((defender as any).equippedItems).length > 0
+  let defenderStats = (defender as any).equippedItems && Object.keys((defender as any).equippedItems).length > 0
     ? applyEquipmentBonuses(defender.derivedStats, Object.values((defender as any).equippedItems), argumentType)
     : defender.derivedStats;
+
+  // Apply buff/debuff modifications to stats
+  if (attackerBuffs) {
+    attackerStats = calculateModifiedStats(attackerStats, attackerBuffs);
+  }
+  if (defenderBuffs) {
+    defenderStats = calculateModifiedStats(defenderStats, defenderBuffs);
+  }
   const result: CombatActionResult = {
     hit: false,
     damage: 0,
@@ -122,11 +132,11 @@ export function executeCombatAction(
       // Apply defend buffs based on argument type per Combat.md
       if (argumentType === 'body') {
         result.effects.push('Physical defense doubled, ailment defense halved');
-        const reflectBuff = createReflectionBuff(Math.floor(attacker.derivedStats.physicalAttack * (hasAdvantage ? 0.5 : 0.25)));
+        const reflectBuff = createReflectionBuff(Math.floor(attackerStats.physicalAttack * (hasAdvantage ? 0.5 : 0.25)));
         result.buffsApplied.push(reflectBuff);
       } else if (argumentType === 'mind') {
         result.effects.push('Mind defense doubled, physical defense halved');
-        const counterBuff = createCounterArgumentBuff(Math.floor(attacker.derivedStats.mindAttack * (hasAdvantage ? 0.5 : 0.25)), 3);
+        const counterBuff = createCounterArgumentBuff(Math.floor(attackerStats.mindAttack * (hasAdvantage ? 0.5 : 0.25)), 3);
         result.buffsApplied.push(counterBuff);
       } else if (argumentType === 'heart') {
         result.effects.push('Ailment defense doubled, mind defense halved');
@@ -156,31 +166,31 @@ export function executeCombatAction(
   switch (action) {
     case 'attack':
       if (argumentType === 'body') {
-        baseDamage = attacker.derivedStats.physicalAttack;
-        defense = defender.derivedStats.physicalDefense;
+        baseDamage = attackerStats.physicalAttack;
+        defense = defenderStats.physicalDefense;
         if (hasAdvantage) {
           baseDamage = Math.floor(baseDamage * 1.5);
           result.effects.push('Body argument advantage: +50% damage!');
         }
       } else if (argumentType === 'mind') {
-        baseDamage = Math.floor(attacker.derivedStats.mindAttack * 0.75);
-        defense = defender.derivedStats.mindDefense;
-        let followUpDamage = Math.floor(attacker.derivedStats.mindAttack * 0.25);
+        baseDamage = Math.floor(attackerStats.mindAttack * 0.75);
+        defense = defenderStats.mindDefense;
+        let followUpDamage = Math.floor(attackerStats.mindAttack * 0.25);
         if (hasAdvantage) {
-          baseDamage = attacker.derivedStats.mindAttack;
-          followUpDamage = Math.floor(attacker.derivedStats.mindAttack * 0.5);
+          baseDamage = attackerStats.mindAttack;
+          followUpDamage = Math.floor(attackerStats.mindAttack * 0.5);
           result.effects.push('Mind argument advantage: Full damage + stronger follow-up!');
         }
         const mindBuff = createMindAttackBuff(followUpDamage);
         result.buffsApplied.push(mindBuff);
         result.effects.push(`Mind attack creates follow-up damage next turn (${followUpDamage} fixed damage)`);
       } else if (argumentType === 'heart') {
-        baseDamage = Math.floor(attacker.derivedStats.ailmentAttack * 0.5);
-        defense = defender.derivedStats.ailmentDefense;
+        baseDamage = Math.floor(attackerStats.ailmentAttack * 0.5);
+        defense = defenderStats.ailmentDefense;
         let guiltDamage = Math.floor((baseDamage - defense) * 0.5);
         let chanceToFade: number | undefined = undefined;
         if (hasAdvantage) {
-          baseDamage = Math.floor(attacker.derivedStats.ailmentAttack * 0.75);
+          baseDamage = Math.floor(attackerStats.ailmentAttack * 0.75);
           guiltDamage = Math.floor((baseDamage - defense) * 1); // 100% of damage done
           chanceToFade = 15; // 15% chance to fade per turn
           result.effects.push('Heart argument advantage: Increased damage + stronger guilt!');
@@ -198,8 +208,8 @@ export function executeCombatAction(
       break;
     case 'special':
       // Special attacks (fallacies) will be handled separately
-      baseDamage = Math.floor(attacker.derivedStats.mindAttack * 0.6);
-      defense = defender.derivedStats.mindDefense;
+      baseDamage = Math.floor(attackerStats.mindAttack * 0.6);
+      defense = defenderStats.mindDefense;
       break;
   }
 
@@ -246,14 +256,18 @@ export function executeFallacy(
     };
   }
 
-  // Apply equipment bonuses to attacker and defender if they have equipment
-  const attackerStats = (attacker as any).equippedItems && Object.keys((attacker as any).equippedItems).length > 0
+  // Apply equipment bonuses first
+  let attackerStats = (attacker as any).equippedItems && Object.keys((attacker as any).equippedItems).length > 0
     ? applyEquipmentBonuses(attacker.derivedStats, Object.values((attacker as any).equippedItems))
     : attacker.derivedStats;
 
-  const defenderStats = (defender as any).equippedItems && Object.keys((defender as any).equippedItems).length > 0
+  let defenderStats = (defender as any).equippedItems && Object.keys((defender as any).equippedItems).length > 0
     ? applyEquipmentBonuses(defender.derivedStats, Object.values((defender as any).equippedItems))
     : defender.derivedStats;
+
+  // Apply buff/debuff modifications to stats
+  attackerStats = calculateModifiedStats(attackerStats, attackerBuffs);
+  defenderStats = calculateModifiedStats(defenderStats, targetBuffs);
 
   const result: CombatActionResult = {
     hit: false,
@@ -275,8 +289,8 @@ export function executeFallacy(
   // Deduct mana (this would be handled by the UI)
   result.effects.push(`${attacker.name} uses ${fallacy.name}! (-${fallacy.manaCost} MP)`);
 
-  // Check hit using D20 system
-  result.hit = calculateHitChance(attacker.derivedStats, defender.derivedStats);
+  // Check hit using D20 system with modified stats
+  result.hit = calculateHitChance(attackerStats, defenderStats);
 
   if (!result.hit) {
     result.effects.push(`${fallacy.name} misses ${defender.name}!`);
@@ -289,13 +303,13 @@ export function executeFallacy(
   // Calculate base damage from fallacy
   let baseDamage = fallacy.damage || 0;
 
-  // Add stat-based damage based on fallacy type
+  // Add stat-based damage based on fallacy type using modified stats
   if (fallacy.philosophicalAspect === 'body') {
-    baseDamage += Math.floor(attacker.derivedStats.physicalAttack * 0.5);
+    baseDamage += Math.floor(attackerStats.physicalAttack * 0.5);
   } else if (fallacy.philosophicalAspect === 'mind') {
-    baseDamage += Math.floor(attacker.derivedStats.mindAttack * 0.5);
+    baseDamage += Math.floor(attackerStats.mindAttack * 0.5);
   } else if (fallacy.philosophicalAspect === 'heart') {
-    baseDamage += Math.floor(attacker.derivedStats.ailmentAttack * 0.5);
+    baseDamage += Math.floor(attackerStats.ailmentAttack * 0.5);
   }
 
   // Apply critical hit multiplier
@@ -304,14 +318,14 @@ export function executeFallacy(
     result.effects.push('CRITICAL FALLACY! Double damage!');
   }
 
-  // Calculate defense
+  // Calculate defense using modified stats
   let defense = 0;
   if (fallacy.philosophicalAspect === 'body') {
-    defense = defender.derivedStats.physicalDefense;
+    defense = defenderStats.physicalDefense;
   } else if (fallacy.philosophicalAspect === 'mind') {
-    defense = defender.derivedStats.mindDefense;
+    defense = defenderStats.mindDefense;
   } else if (fallacy.philosophicalAspect === 'heart') {
-    defense = defender.derivedStats.ailmentDefense;
+    defense = defenderStats.ailmentDefense;
   }
 
   // Final damage calculation
@@ -426,7 +440,9 @@ export function resolveCombatRound(
     enemy,
     playerChoice.aspect,
     playerChoice.action,
-    advantage === 'player'
+    advantage === 'player',
+    { buffs: [], debuffs: [] }, // Player buffs - would be passed from combat state
+    { buffs: [], debuffs: [] }  // Enemy buffs - would be passed from combat state
   );
 
   const enemyResult = executeCombatAction(
@@ -434,7 +450,9 @@ export function resolveCombatRound(
     player,
     enemyChoice.aspect,
     enemyChoice.action,
-    advantage === 'enemy'
+    advantage === 'enemy',
+    { buffs: [], debuffs: [] }, // Enemy buffs - would be passed from combat state
+    { buffs: [], debuffs: [] }  // Player buffs - would be passed from combat state
   );
 
   // Determine overall winner based on damage dealt
@@ -1052,7 +1070,9 @@ export class CombatStateManager {
         this.enemy,
         playerChoice.aspect,
         playerChoice.action,
-        aspectWinner === 'player'
+        aspectWinner === 'player',
+        this.playerBuffs,
+        this.enemyBuffs
       );
     }
 
@@ -1076,7 +1096,9 @@ export class CombatStateManager {
         this.player,
         enemyChoice.aspect,
         enemyChoice.action,
-        aspectWinner === 'enemy'
+        aspectWinner === 'enemy',
+        this.enemyBuffs,
+        this.playerBuffs
       );
     }
 

@@ -768,7 +768,8 @@ export const CombatScreen: React.FC = () => {
             </MPBar>
 
             <BuffDebuffDisplay
-              buffs={[...playerBuffs.buffs, ...playerBuffs.debuffs]}
+              buffs={playerBuffs.buffs}
+              debuffs={playerBuffs.debuffs}
               target="player"
             />
           </CombatantPanel>
@@ -790,7 +791,8 @@ export const CombatScreen: React.FC = () => {
             </MPBar>
 
             <BuffDebuffDisplay
-              buffs={[...enemyBuffs.buffs, ...enemyBuffs.debuffs]}
+              buffs={enemyBuffs.buffs}
+              debuffs={enemyBuffs.debuffs}
               target="enemy"
             />
           </CombatantPanel>
