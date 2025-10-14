@@ -1416,6 +1416,11 @@ export const useGameStore = create<GameStore>()(
             }
           };
         });
+
+        // Auto-save after equipping skill
+        setTimeout(() => {
+          get().saveGame();
+        }, 500);
       },
 
       unequipSkill: (skillId: string, aspect: PhilosophicalAspect) => {
@@ -1441,6 +1446,11 @@ export const useGameStore = create<GameStore>()(
             }
           };
         });
+
+        // Auto-save after unequipping skill
+        setTimeout(() => {
+          get().saveGame();
+        }, 500);
       },
 
       // Screen Navigation

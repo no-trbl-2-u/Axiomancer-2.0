@@ -1,9 +1,6 @@
 import { GameState, Character } from '../types/game';
 import { characterService } from '../services/characterService';
-import { createInitialBaseStats, calculateDerivedStats, calculateMaxHP, calculateMaxMP } from './statCalculations';
-
-const CHARACTER_SAVE_KEY = 'axiomancer_character';
-const GAME_STATE_SAVE_KEY = 'axiomancer_game_state';
+import { calculateDerivedStats, calculateMaxHP, calculateMaxMP } from './statCalculations';
 
 export interface SavedCharacterData {
   character: GameState['character'];
