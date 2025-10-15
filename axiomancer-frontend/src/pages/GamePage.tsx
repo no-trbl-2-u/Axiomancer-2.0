@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { theme } from '../styles/theme';
 import { useGameStore } from '../stores/gameStore';
 import { CharacterCreationScreen } from '../components/character/CharacterCreationScreen';
 import { MainGameInterface } from '../components/game/MainGameInterface';

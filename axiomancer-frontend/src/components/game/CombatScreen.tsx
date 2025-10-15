@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
-import { PhilosophicalAspect, CombatChoice, CombatAction, Skill } from '../../types/game';
-import { generateEnemyChoice } from '../../utils/combatMechanics';
+import { PhilosophicalAspect, CombatAction, Skill } from '../../types/game';
 import { BuffDebuffDisplay } from '../combat/BuffDebuffDisplay';
 import { SkillSelectionModal } from '../combat/SkillSelectionModal';
+import { MasterCombatStateManager } from '../../utils/combatStateManager';
+import { CombatState, CombatResolutionStep, BattleLogEntry } from '../../types/combatState';
+import { addPersistentEffects } from '../../utils/persistentEffects';
 
 const CombatContainer = styled.div`
   width: 100%;
@@ -66,13 +68,45 @@ const MenuButton = styled.button`
   }
 `;
 
-const RoundIndicator = styled.div`
-  color: ${theme.colors.text.secondary};
-  font-size: 1rem;
-  font-weight: 600;
+const TurnDisplay = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${theme.spacing.xs};
+`;
+
+const TurnNumber = styled.div`
+  color: ${theme.colors.text.accent};
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 
   @media (max-width: 768px) {
-    font-size: 0.9rem;
+    font-size: 1rem;
+  }
+`;
+
+const PhaseIndicator = styled.div<{ phase: string }>`
+  color: ${props => {
+    switch (props.phase) {
+      case 'selection': return theme.colors.info;
+      case 'resolution': return theme.colors.warning;
+      case 'turn_end': return theme.colors.success;
+      case 'ended': return theme.colors.danger;
+      default: return theme.colors.text.secondary;
+    }
+  }};
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  padding: ${theme.spacing.xs} ${theme.spacing.sm};
+  border-radius: ${theme.borderRadius.md};
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid currentColor;
+
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
   }
 `;
 
@@ -199,9 +233,12 @@ const ActionPanel = styled.div`
   border-radius: ${theme.rpg.panelBorderRadius};
   padding: ${theme.spacing.lg};
   box-shadow: ${theme.shadows.panel};
+  max-height: 300px;
+  overflow-y: auto;
 
   @media (max-width: 768px) {
     padding: ${theme.spacing.md};
+    max-height: 250px;
   }
 `;
 
@@ -312,68 +349,41 @@ const ActionButton = styled.button<{ disabled?: boolean }>`
   }
 `;
 
-const BottomNavigation = styled.div`
+const ResolutionOverlay = styled.div<{ show: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: ${props => props.show ? 'flex' : 'none'};
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+`;
+
+const ResolutionMessage = styled.div`
   background: ${theme.colors.background.panel};
-  border-top: 2px solid ${theme.colors.border.primary};
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: ${theme.spacing.md};
-  z-index: 100;
-
-  @media (max-width: 768px) {
-    padding: ${theme.spacing.sm};
-    gap: ${theme.spacing.xs};
+  border: 3px solid ${theme.colors.border.primary};
+  border-radius: ${theme.borderRadius.lg};
+  padding: ${theme.spacing.xl};
+  text-align: center;
+  max-width: 500px;
+  
+  h3 {
+    color: ${theme.colors.text.accent};
+    margin: 0 0 ${theme.spacing.md} 0;
+    font-size: 1.5rem;
+  }
+  
+  p {
+    color: ${theme.colors.text.primary};
+    margin: 0;
+    font-size: 1.1rem;
   }
 `;
 
-const BottomNavIcon = styled.button<{ active: boolean }>`
-  background: ${props => props.active ? theme.colors.primary : theme.colors.background.secondary};
-  border: 2px solid ${props => props.active ? theme.colors.primary : theme.colors.border.primary};
-  color: ${props => props.active ? theme.colors.dark : theme.colors.text.primary};
-  border-radius: ${theme.borderRadius.xl};
-  padding: ${theme.spacing.lg};
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: ${theme.spacing.xs};
-  min-width: 80px;
-  flex: 1;
-
-  &:hover {
-    background: ${theme.colors.primary};
-    color: ${theme.colors.dark};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  .icon {
-    font-size: 2rem;
-
-    @media (max-width: 768px) {
-      font-size: 1.5rem;
-    }
-  }
-
-  .label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-
-    @media (max-width: 768px) {
-      font-size: 0.7rem;
-    }
-  }
-
-  @media (max-width: 768px) {
-    min-width: 60px;
-    padding: ${theme.spacing.md};
-  }
-`;
-
-const CombatLog = styled.div<{ visible: boolean }>`
+const BattleLog = styled.div<{ visible: boolean }>`
   background: ${theme.colors.background.panel};
   border: ${theme.rpg.borderWidth} solid ${theme.colors.border.primary};
   border-radius: ${theme.rpg.panelBorderRadius};
@@ -393,28 +403,27 @@ const CombatLog = styled.div<{ visible: boolean }>`
 
   .log-entry {
     color: ${theme.colors.text.secondary};
-    margin-bottom: ${theme.spacing.xs};
+    margin-bottom: ${theme.spacing.sm};
     font-size: 0.85rem;
     line-height: 1.3;
     padding: ${theme.spacing.xs};
     border-radius: ${theme.borderRadius.sm};
+    border-left: 3px solid ${theme.colors.border.primary};
 
-    &.damage {
-      background: rgba(239, 68, 68, 0.1);
-      color: ${theme.colors.danger};
-      font-weight: 600;
+    .turn {
+      color: ${theme.colors.text.accent};
+      font-weight: bold;
     }
 
-    &.heal {
-      background: rgba(34, 197, 94, 0.1);
-      color: ${theme.colors.success};
-      font-weight: 600;
-    }
-
-    &.system {
-      background: rgba(59, 130, 246, 0.1);
+    .decisions {
       color: ${theme.colors.info};
+      font-weight: 600;
+    }
+
+    .result {
+      color: ${theme.colors.success};
       font-style: italic;
+      margin-top: ${theme.spacing.xs};
     }
   }
 
@@ -425,118 +434,83 @@ const CombatLog = styled.div<{ visible: boolean }>`
   }
 `;
 
-
-const SkillGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: ${theme.spacing.md};
-  margin-bottom: ${theme.spacing.lg};
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const SkillCard = styled.button<{ disabled?: boolean }>`
-  background: ${props => props.disabled ? theme.colors.background.secondary : 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(29, 78, 216, 0.2))'};
-  border: 2px solid ${props => props.disabled ? theme.colors.border.dark : theme.colors.primary};
-  border-radius: ${theme.borderRadius.lg};
-  padding: ${theme.spacing.md};
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-  transition: all 0.3s ease;
-  opacity: ${props => props.disabled ? 0.5 : 1};
-  text-align: left;
-
-  &:hover:not(:disabled) {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-    border-color: ${theme.colors.accent};
-  }
-
-  .skill-header {
-    display: flex;
-    align-items: center;
-    gap: ${theme.spacing.sm};
-    margin-bottom: ${theme.spacing.xs};
-  }
-
-  .skill-icon {
-    font-size: 1.5rem;
-  }
-
-  .skill-name {
-    color: ${theme.colors.text.accent};
-    font-size: 1rem;
-    font-weight: 600;
-    flex: 1;
-  }
-
-  .skill-cost {
-    color: ${theme.colors.info};
-    font-size: 0.85rem;
-    font-weight: bold;
-    background: rgba(59, 130, 246, 0.2);
-    padding: 2px 8px;
-    border-radius: ${theme.borderRadius.sm};
-  }
-
-  .skill-description {
-    color: ${theme.colors.text.secondary};
-    font-size: 0.8rem;
-    line-height: 1.3;
-    margin-top: ${theme.spacing.xs};
-  }
-
-  .skill-damage {
-    color: ${theme.colors.danger};
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-top: ${theme.spacing.xs};
-  }
-`;
-
-
 export const CombatScreen: React.FC = () => {
-  // Zustand store - selective subscriptions for better performance
+  // Zustand store
   const combat = useGameStore(state => state.gameState.combat);
   const character = useGameStore(state => state.gameState.character);
   const endCombat = useGameStore(state => state.endCombat);
-  const changeScreen = useGameStore(state => state.changeScreen);
   const updateCharacter = useGameStore(state => state.updateCharacter);
   
+  // Master Combat State Manager
+  const combatManagerRef = useRef<MasterCombatStateManager | null>(null);
+  const [combatState, setCombatState] = useState<CombatState | null>(null);
   const [selectedAspect, setSelectedAspect] = useState<PhilosophicalAspect | null>(null);
-  const [combatLog, setCombatLog] = useState<string[]>([]);
-  const [isPlayerTurn, setIsPlayerTurn] = useState(true);
-  const [showSkillModal, setShowSkillModal] = useState(false);
   const [combatPhase, setCombatPhase] = useState<'aspect_selection' | 'action_selection' | 'skill_selection'>('aspect_selection');
+  const [showSkillModal, setShowSkillModal] = useState(false);
   const [showBattleLog, setShowBattleLog] = useState(false);
+  const [isProcessingTurn, setIsProcessingTurn] = useState(false);
+  const [currentResolutionStep, setCurrentResolutionStep] = useState<CombatResolutionStep | null>(null);
 
-  // Local state for tracking buff/debuff states across turns
-  const [playerBuffs, setPlayerBuffs] = useState<import('../../types/game').CombatantBuffs>(() =>
-    combat?.playerBuffs || { buffs: [], debuffs: [] }
-  );
-  const [enemyBuffs, setEnemyBuffs] = useState<import('../../types/game').CombatantBuffs>(() =>
-    combat?.enemyBuffs || { buffs: [], debuffs: [] }
-  );
-
+  // Initialize combat manager
   useEffect(() => {
-    if (combat) {
-      setCombatLog(combat.log.map(entry => `${entry.actor}: ${entry.action}`));
-      setIsPlayerTurn(combat.turn === 'player');
+    console.log('🎮 Combat useEffect triggered:', { combat: !!combat, manager: !!combatManagerRef.current });
+    if (combat && !combatManagerRef.current) {
+      console.log('🚀 Initializing MasterCombatStateManager with:', { player: combat.player?.name, enemy: combat.enemy?.name });
+      try {
+        combatManagerRef.current = new MasterCombatStateManager(combat.player, combat.enemy);
+        
+        // Set up callbacks for visual presentation
+        combatManagerRef.current.setCallbacks({
+          onStepExecute: (step: CombatResolutionStep) => {
+            console.log('⚡ Combat step executed:', step);
+            setCurrentResolutionStep(step);
+            // Update combat state to reflect the step
+            if (combatManagerRef.current) {
+              setCombatState(combatManagerRef.current.getCombatState());
+            }
+          },
+          onTurnComplete: (battleLog: BattleLogEntry) => {
+            console.log('✅ Turn completed:', battleLog);
+          },
+          onCombatEnd: (winner: string, result: string) => {
+            console.log('🏁 Combat ended:', winner, result);
+            handleCombatEnd(winner, result);
+          }
+        });
+
+        const initialState = combatManagerRef.current.getCombatState();
+        console.log('📊 Initial combat state:', initialState);
+        setCombatState(initialState);
+      } catch (error) {
+        console.error('❌ Error initializing combat manager:', error);
+      }
     }
   }, [combat]);
 
-  if (!combat) {
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      combatManagerRef.current = null;
+    };
+  }, []);
+
+  if (!combat || !combatState) {
     return null;
   }
 
   const handleAspectSelect = (aspect: PhilosophicalAspect) => {
+    if (isProcessingTurn || combatState.phase !== 'selection') return;
     setSelectedAspect(aspect);
     setCombatPhase('action_selection');
   };
 
   const handleAction = async (action: 'attack' | 'defend' | 'flee' | 'skills' | 'back') => {
-    if (!selectedAspect || !isPlayerTurn) return;
+    console.log('🎯 Action triggered:', { action, selectedAspect, isProcessingTurn, hasManager: !!combatManagerRef.current });
+    
+    if (!selectedAspect || isProcessingTurn || !combatManagerRef.current) {
+      console.log('❌ Action blocked:', { selectedAspect, isProcessingTurn, hasManager: !!combatManagerRef.current });
+      return;
+    }
 
     // Handle back action
     if (action === 'back') {
@@ -545,11 +519,9 @@ export const CombatScreen: React.FC = () => {
       return;
     }
 
-    // Handle flee action separately since it's not a CombatAction
+    // Handle flee action
     if (action === 'flee') {
-      setCombatLog(prev => [...prev.slice(-7), '🏃 You attempt to flee from combat!']);
-      // TODO: Implement flee logic - close modal without progressing map node
-      endCombat();
+      handleCombatEnd('fled', 'You fled from combat!');
       return;
     }
 
@@ -559,185 +531,93 @@ export const CombatScreen: React.FC = () => {
       return;
     }
 
-    const playerChoice: CombatChoice = {
-      aspect: selectedAspect,
-      action: action as CombatAction
-    };
-
-    // Generate enemy choice
-    const enemyChoice = generateEnemyChoice(combat.enemy, [playerChoice]);
-
-    // Check for Agree to Disagree (both defend)
-    if (action === 'defend' && enemyChoice.action === 'defend') {
-      const agreeToDisagreeCounter = (combat as any).agreeToDisagreeCounter || 0;
-      const newCounter = agreeToDisagreeCounter + 1;
-      const threshold = getAgreeToDisagreeThreshold(combat.enemy.enemyTier || 'normal');
-
-      if (newCounter >= threshold) {
-        setCombatLog(prev => [...prev.slice(-7), `After ${newCounter} rounds of mutual defense, you both agree to disagree!`]);
-        // End combat with agree to disagree resolution
-        setTimeout(() => {
-          endCombat();
-        }, 2000);
-        return;
-      } else {
-        setCombatLog(prev => [...prev.slice(-7), `Both sides defend their positions. Agree to Disagree counter: ${newCounter}/${threshold}`]);
-        return;
-      }
-    }
-
-    // Execute combat round
+    // Execute combat turn
+    console.log('⚔️ Executing combat turn:', { aspect: selectedAspect, action });
+    setIsProcessingTurn(true);
+    
     try {
-      const { CombatStateManager } = await import('../../utils/combatMechanics');
-      const manager = new CombatStateManager(combat.player, combat.enemy);
+      const result = await combatManagerRef.current.executeTurn({
+        aspect: selectedAspect,
+        action: action as CombatAction,
+      });
 
-      const result = await manager.executeTurn(playerChoice);
+      console.log('📊 Combat turn result:', result);
 
-      // Update local buff states with returned values
-      setPlayerBuffs(result.playerBuffs);
-      setEnemyBuffs(result.enemyBuffs);
-
-      setCombatLog(prev => [...prev.slice(-7), ...result.turnEffects]);
+      // Update local state
+      setCombatState(combatManagerRef.current.getCombatState());
 
       if (result.combatEnded) {
-        if (result.winner === 'agree_to_disagree') {
-          setCombatLog(prev => [...prev.slice(-7), 'Combat ends in philosophical agreement!']);
-        } else {
-          setCombatLog(prev => [...prev.slice(-7), `Combat ended! ${result.winner === 'player' ? 'Victory!' : 'Defeat!'}`]);
-        }
-        setTimeout(() => {
-          endCombat();
-        }, 2000);
+        handleCombatEnd(result.winner || 'unknown', result.battleLogEntry?.result || 'Combat ended');
+      } else {
+        // Reset for next turn
+        setSelectedAspect(null);
+        setCombatPhase('aspect_selection');
       }
     } catch (error) {
-      console.error('Combat execution error:', error);
-      // Fallback to simple combat resolution
-      setCombatLog(prev => [...prev.slice(-7), `Combat resolution: ${action} with ${selectedAspect}`]);
+      console.error('❌ Combat execution error:', error);
+    } finally {
+      setIsProcessingTurn(false);
+      setCurrentResolutionStep(null);
     }
   };
 
-  const getAgreeToDisagreeThreshold = (enemyTier: string): number => {
-    switch (enemyTier) {
-      case 'elite': return 5;
-      case 'boss': return 10;
-      default: return 3;
-    }
-  };
+  const handleSkillSelect = async (skill: Skill) => {
+    if (!selectedAspect || isProcessingTurn || !combatManagerRef.current) return;
 
-
-  const handleSkillSelectionBack = () => {
-    setCombatPhase('action_selection');
-  };
-
-  const handleEquippedSkillSelect = async (skill: Skill) => {
-    if (!selectedAspect || !isPlayerTurn || !combat) return;
-
-    // Check if player has enough MP
-    if (combat.player.mana < skill.manaCost) {
-      setCombatLog(prev => [...prev.slice(-7), `❌ Not enough MP! Need ${skill.manaCost}, have ${combat.player.mana}`]);
-      return;
+    // Check mana cost
+    if (combatState.player.mana < skill.manaCost) {
+      return; // Not enough mana
     }
 
     setShowSkillModal(false);
     setCombatPhase('action_selection');
+    setIsProcessingTurn(true);
 
-    // Execute skill
     try {
-      const { executeFallacy, generateEnemyChoice } = await import('../../utils/combatMechanics');
+      const result = await combatManagerRef.current.executeTurn({
+        aspect: selectedAspect,
+        action: 'special',
+        selectedSkill: skill.id,
+      });
 
-      // Generate enemy choice
-      const enemyChoice = generateEnemyChoice(combat.enemy, [{ aspect: selectedAspect, action: 'skill' }]);
+      setCombatState(combatManagerRef.current.getCombatState());
 
-      // Execute the fallacy
-      const result = executeFallacy(
-        combat.player,
-        combat.enemy,
-        skill.id,
-        combat.enemyBuffs,
-        combat.playerBuffs,
-        selectedAspect === enemyChoice.aspect // has advantage if aspects match
-      );
-
-      // Deduct MP
-      const newPlayerMana = combat.player.mana - skill.manaCost;
-      updateCharacter({ mana: newPlayerMana });
-
-      // Apply damage
-      const newEnemyHealth = Math.max(0, combat.enemy.health - result.damage);
-
-      setCombatLog(prev => [...prev.slice(-7),
-        `💫 ${combat.player.name} uses ${skill.name}!`,
-        `⚡ Deals ${result.damage} damage to ${combat.enemy.name}!`,
-        ...result.effects
-      ]);
-
-      // Check if combat ended
-      if (newEnemyHealth <= 0) {
-        setCombatLog(prev => [...prev.slice(-7), `🎉 Victory! ${combat.enemy.name} has been defeated!`]);
-        setTimeout(() => endCombat(), 2000);
+      if (result.combatEnded) {
+        handleCombatEnd(result.winner || 'unknown', result.battleLogEntry?.result || 'Combat ended');
+      } else {
+        setSelectedAspect(null);
+        setCombatPhase('aspect_selection');
       }
     } catch (error) {
-      console.error('Error executing skill:', error);
-      setCombatLog(prev => [...prev.slice(-7), '❌ Error using skill!']);
+      console.error('Skill execution error:', error);
+    } finally {
+      setIsProcessingTurn(false);
+      setCurrentResolutionStep(null);
     }
   };
 
-  const handleUseSkill = async (skillId: string) => {
-    if (!selectedAspect || !isPlayerTurn || !combat) return;
+  const handleCombatEnd = (_winner: string, _result: string) => {
+    if (!combatManagerRef.current) return;
 
-    const skill = character.availableSkills.find(s => s.id === skillId);
-    if (!skill) {
-      setCombatLog(prev => [...prev.slice(-7), '❌ Skill not found!']);
-      return;
-    }
+    // Export final combat state
+    const finalState = combatManagerRef.current.exportFinalState();
 
-    // Check if player has enough MP
-    if (combat.player.mana < skill.manaCost) {
-      setCombatLog(prev => [...prev.slice(-7), `❌ Not enough MP! Need ${skill.manaCost}, have ${combat.player.mana}`]);
-      return;
-    }
+    // Update character with persistent effects and health/mana
+    const updatedCharacter = addPersistentEffects(
+      {
+        ...character,
+        health: finalState.playerHealth,
+        mana: finalState.playerMana,
+      },
+      finalState.persistentEffects
+    );
 
-    setShowSkillModal(false);
+    updateCharacter(updatedCharacter);
 
-    // Execute skill
-    try {
-      const { executeFallacy, generateEnemyChoice } = await import('../../utils/combatMechanics');
-
-      // Generate enemy choice
-      const enemyChoice = generateEnemyChoice(combat.enemy, [{ aspect: selectedAspect, action: 'skill' }]);
-
-      // Execute the fallacy
-      const result = executeFallacy(
-        combat.player,
-        combat.enemy,
-        skillId,
-        combat.enemyBuffs,
-        combat.playerBuffs,
-        selectedAspect === enemyChoice.aspect // has advantage if aspects match
-      );
-
-      // Deduct MP
-      const newPlayerMana = combat.player.mana - skill.manaCost;
-      updateCharacter({ mana: newPlayerMana });
-
-      // Apply damage
-      const newEnemyHealth = Math.max(0, combat.enemy.health - result.damage);
-
-      setCombatLog(prev => [...prev.slice(-7),
-        `💫 ${combat.player.name} uses ${skill.name}!`,
-        `⚡ Deals ${result.damage} damage to ${combat.enemy.name}!`,
-        ...result.effects
-      ]);
-
-      // Check if combat ended
-      if (newEnemyHealth <= 0) {
-        setCombatLog(prev => [...prev.slice(-7), `🎉 Victory! ${combat.enemy.name} has been defeated!`]);
-        setTimeout(() => endCombat(), 2000);
-      }
-    } catch (error) {
-      console.error('Error executing skill:', error);
-      setCombatLog(prev => [...prev.slice(-7), '❌ Error using skill!']);
-    }
+    // End combat
+    setTimeout(() => {
+      endCombat();
+    }, 2000);
   };
 
   const getPortraitUrl = (entity: any) => {
@@ -750,25 +630,43 @@ export const CombatScreen: React.FC = () => {
   return (
     <CombatContainer>
       <CombatArea>
+        <CombatTopBar>
+          <MenuButton onClick={() => setShowBattleLog(!showBattleLog)}>
+            📜 Battle Log
+          </MenuButton>
+          
+          <TurnDisplay>
+            <TurnNumber>Turn {combatState.turnNumber}</TurnNumber>
+            <PhaseIndicator phase={combatState.phase}>
+              {combatState.phase.replace('_', ' ')}
+            </PhaseIndicator>
+          </TurnDisplay>
+          
+          <MenuButton onClick={() => handleAction('flee')}>
+            🏃 Flee
+          </MenuButton>
+        </CombatTopBar>
+
         <CombatMainArea>
           {/* Player Panel */}
           <CombatantPanel side="left">
             <PortraitContainer>
-              <PortraitImage src={getPortraitUrl(combat.player)} alt={combat.player.name} />
+              <PortraitImage src={getPortraitUrl(combatState.originalPlayer)} alt={combatState.originalPlayer.name} />
             </PortraitContainer>
-            <CombatantName>{combat.player.name}</CombatantName>
+            <CombatantName>{combatState.originalPlayer.name}</CombatantName>
 
             <HPBar>
-              <HPFill percentage={(combat.player.health / combat.player.maxHealth) * 100} />
-              <HPText>{combat.player.health} / {combat.player.maxHealth}</HPText>
+              <HPFill percentage={(combatState.player.health / combatState.player.maxHealth) * 100} />
+              <HPText>{combatState.player.health} / {combatState.player.maxHealth}</HPText>
             </HPBar>
 
             <MPBar>
-              <MPFill percentage={(combat.player.mana / combat.player.maxMana) * 100} />
+              <MPFill percentage={(combatState.player.mana / combatState.player.maxMana) * 100} />
             </MPBar>
 
             <BuffDebuffDisplay
-              buffs={[...playerBuffs.buffs, ...playerBuffs.debuffs]}
+              buffs={combatState.player.buffs}
+              debuffs={combatState.player.debuffs}
               target="player"
             />
           </CombatantPanel>
@@ -776,50 +674,51 @@ export const CombatScreen: React.FC = () => {
           {/* Enemy Panel */}
           <CombatantPanel side="right">
             <PortraitContainer>
-              <PortraitImage src={getPortraitUrl(combat.enemy)} alt={combat.enemy.name} />
+              <PortraitImage src={getPortraitUrl(combatState.originalEnemy)} alt={combatState.originalEnemy.name} />
             </PortraitContainer>
-            <CombatantName>{combat.enemy.name}</CombatantName>
+            <CombatantName>{combatState.originalEnemy.name}</CombatantName>
 
             <HPBar>
-              <HPFill percentage={(combat.enemy.health / combat.enemy.maxHealth) * 100} />
-              <HPText>{combat.enemy.health} / {combat.enemy.maxHealth}</HPText>
+              <HPFill percentage={(combatState.enemy.health / combatState.enemy.maxHealth) * 100} />
+              <HPText>{combatState.enemy.health} / {combatState.enemy.maxHealth}</HPText>
             </HPBar>
 
             <MPBar>
-              <MPFill percentage={(combat.enemy.mana / combat.enemy.maxMana) * 100} />
+              <MPFill percentage={(combatState.enemy.mana / combatState.enemy.maxMana) * 100} />
             </MPBar>
 
             <BuffDebuffDisplay
-              buffs={[...enemyBuffs.buffs, ...enemyBuffs.debuffs]}
+              buffs={combatState.enemy.buffs}
+              debuffs={combatState.enemy.debuffs}
               target="enemy"
             />
           </CombatantPanel>
         </CombatMainArea>
 
         <ActionPanel>
-          <ActionTitle>Your Turn</ActionTitle>
+          <ActionTitle>
+            {isProcessingTurn ? 'Resolving Actions...' : 'Your Turn'}
+          </ActionTitle>
 
-          {combatPhase === 'aspect_selection' && (
-            <>
-              <AspectSelection>
-                {(['body', 'mind', 'heart'] as PhilosophicalAspect[]).map((aspect) => (
-                  <AspectButton
-                    key={aspect}
-                    selected={selectedAspect === aspect}
-                    aspect={aspect}
-                    onClick={() => handleAspectSelect(aspect)}
-                  >
-                    <span className="icon">
-                      {aspect === 'body' ? '💪' : aspect === 'mind' ? '🧠' : '❤️'}
-                    </span>
-                    <span>{aspect.charAt(0).toUpperCase() + aspect.slice(1)}</span>
-                  </AspectButton>
-                ))}
-              </AspectSelection>
-            </>
+          {combatPhase === 'aspect_selection' && !isProcessingTurn && (
+            <AspectSelection>
+              {(['body', 'mind', 'heart'] as PhilosophicalAspect[]).map((aspect) => (
+                <AspectButton
+                  key={aspect}
+                  selected={selectedAspect === aspect}
+                  aspect={aspect}
+                  onClick={() => handleAspectSelect(aspect)}
+                >
+                  <span className="icon">
+                    {aspect === 'body' ? '💪' : aspect === 'mind' ? '🧠' : '❤️'}
+                  </span>
+                  <span>{aspect.charAt(0).toUpperCase() + aspect.slice(1)}</span>
+                </AspectButton>
+              ))}
+            </AspectSelection>
           )}
 
-          {combatPhase === 'action_selection' && selectedAspect && (
+          {combatPhase === 'action_selection' && selectedAspect && !isProcessingTurn && (
             <>
               <div style={{ textAlign: 'center', marginBottom: theme.spacing.lg }}>
                 Selected: {selectedAspect.charAt(0).toUpperCase() + selectedAspect.slice(1)}
@@ -835,9 +734,6 @@ export const CombatScreen: React.FC = () => {
                 <ActionButton onClick={() => handleAction('defend')}>
                   🛡️ Defend
                 </ActionButton>
-                <ActionButton onClick={() => handleAction('flee')}>
-                  🏃 Flee
-                </ActionButton>
                 <ActionButton onClick={() => handleAction('back')}>
                   ⬅️ Back
                 </ActionButton>
@@ -845,64 +741,84 @@ export const CombatScreen: React.FC = () => {
             </>
           )}
 
-          {combatPhase === 'skill_selection' && selectedAspect && (
-            <>
-              <div style={{ textAlign: 'center', marginBottom: theme.spacing.lg }}>
-                Select {selectedAspect.charAt(0).toUpperCase() + selectedAspect.slice(1)} Skill
-              </div>
+           {combatPhase === 'skill_selection' && selectedAspect && !isProcessingTurn && (
+             <>
+               <div style={{ textAlign: 'center', marginBottom: theme.spacing.lg }}>
+                 Select {selectedAspect.charAt(0).toUpperCase() + selectedAspect.slice(1)} Skill
+               </div>
 
-              <SkillGrid>
-                {character.equippedSkills[selectedAspect]?.length > 0 ? (
-                  character.equippedSkills[selectedAspect].map((skill) => {
-                    const canAfford = combat && combat.player.mana >= skill.manaCost;
-                    return (
-                      <SkillCard
-                        key={skill.id}
-                        disabled={!canAfford}
-                        onClick={() => canAfford && handleEquippedSkillSelect(skill)}
-                        title={!canAfford ? `Not enough MP! Need ${skill.manaCost}, have ${combat?.player.mana}` : ''}
-                      >
-                        <div className="skill-header">
-                          <span className="skill-icon">{skill.icon}</span>
-                          <span className="skill-name">{skill.name}</span>
-                          <span className="skill-cost">{skill.manaCost} MP</span>
-                        </div>
-                        <div className="skill-description">{skill.description}</div>
-                        {skill.damage && (
-                          <div className="skill-damage">⚔️ {skill.damage} base damage</div>
-                        )}
-                      </SkillCard>
-                    );
-                  })
-                ) : (
-                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: theme.colors.text.muted, padding: theme.spacing.xl }}>
-                    No skills equipped for {selectedAspect}. Go to Skills tab to equip some!
-                  </div>
-                )}
-              </SkillGrid>
+               <div style={{ marginBottom: theme.spacing.lg }}>
+                 {character.equippedSkills[selectedAspect]?.length > 0 ? (
+                   character.equippedSkills[selectedAspect].map((skill) => {
+                     const canAfford = combatState.player.mana >= skill.manaCost;
+                     return (
+                       <ActionButton
+                         key={skill.id}
+                         disabled={!canAfford}
+                         onClick={() => canAfford && handleSkillSelect(skill)}
+                         style={{ 
+                           display: 'block', 
+                           width: '100%', 
+                           marginBottom: theme.spacing.sm,
+                           textAlign: 'left',
+                           padding: theme.spacing.md
+                         }}
+                         title={!canAfford ? `Not enough MP! Need ${skill.manaCost}, have ${combatState.player.mana}` : ''}
+                       >
+                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                           <span>{skill.icon} {skill.name}</span>
+                           <span style={{ fontSize: '0.9rem', opacity: 0.8 }}>{skill.manaCost} MP</span>
+                         </div>
+                         <div style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '4px' }}>
+                           {skill.description}
+                         </div>
+                       </ActionButton>
+                     );
+                   })
+                 ) : (
+                   <div style={{ textAlign: 'center', color: theme.colors.text.muted, padding: theme.spacing.lg }}>
+                     No skills equipped for {selectedAspect}. Go to Skills tab to equip some!
+                   </div>
+                 )}
+               </div>
 
-              <ActionButton onClick={handleSkillSelectionBack}>
-                ⬅️ Back
-              </ActionButton>
-            </>
-          )}
+               <ActionButton onClick={() => setCombatPhase('action_selection')}>
+                 ⬅️ Back
+               </ActionButton>
+             </>
+           )}
         </ActionPanel>
 
-        <CombatLog visible={showBattleLog}>
-          <h4>📜 Combat Log</h4>
-          {combatLog.slice(-8).map((entry, index) => (
-            <div key={index} className="log-entry">{entry}</div>
+        <BattleLog visible={showBattleLog}>
+          <h4>📜 Battle Chronicle</h4>
+          {combatState.battleLog.map((entry, index) => (
+            <div key={index} className="log-entry">
+              <div className="turn">Turn {entry.turn}</div>
+              <div className="decisions">{entry.decisions}</div>
+              <div>{entry.log}</div>
+              {entry.result && <div className="result">{entry.result}</div>}
+            </div>
           ))}
-        </CombatLog>
+        </BattleLog>
       </CombatArea>
+
+      {/* Resolution Overlay */}
+      <ResolutionOverlay show={!!currentResolutionStep}>
+        {currentResolutionStep && (
+          <ResolutionMessage>
+            <h3>{currentResolutionStep.type.replace('_', ' ').toUpperCase()}</h3>
+            <p>{currentResolutionStep.description}</p>
+          </ResolutionMessage>
+        )}
+      </ResolutionOverlay>
 
       {/* Skill Selection Modal */}
       <SkillSelectionModal
         isOpen={showSkillModal}
         selectedAspect={selectedAspect}
-        onSkillSelect={(skill) => handleUseSkill(skill.id)}
+        onSkillSelect={handleSkillSelect}
         onClose={() => setShowSkillModal(false)}
-        playerMana={combat?.player.mana || 0}
+        playerMana={combatState.player.mana}
         character={character}
       />
     </CombatContainer>

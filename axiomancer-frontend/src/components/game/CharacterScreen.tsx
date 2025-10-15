@@ -5,6 +5,8 @@ import { useGameStore } from '../../stores/gameStore';
 import { useAuthStore } from '../../stores/authStore';
 import { characterService } from '../../services/characterService';
 import { Button } from '../Button';
+import { BuffDebuffDisplay } from '../combat/BuffDebuffDisplay';
+import { getPersistentEffects, hasActivePersistentEffects } from '../../utils/persistentEffects';
 
 const CharacterContainer = styled.div`
   width: 100%;
@@ -333,6 +335,19 @@ export const CharacterScreen = React.memo((): JSX.Element => {
             <StatValue style={{ textTransform: 'capitalize' }}>{character.philosophicalStance.epistemology}</StatValue>
           </StatRow>
         </StatCategory>
+
+        {hasActivePersistentEffects(character) && (
+          <StatCategory>
+            <CategoryTitle>⚡ Active Effects</CategoryTitle>
+            <div style={{ padding: theme.spacing.md }}>
+              <BuffDebuffDisplay
+                buffs={getPersistentEffects(character).buffs}
+                debuffs={getPersistentEffects(character).debuffs}
+                target="player"
+              />
+            </div>
+          </StatCategory>
+        )}
       </StatsPanel>
     </CharacterContainer>
   );

@@ -9,7 +9,6 @@ import { CharacterScreen } from './CharacterScreen';
 import { InventoryScreen } from './InventoryScreen';
 import { SkillScreen } from './SkillScreen';
 import { GlobalLocalMapScreen } from './GlobalLocalMapScreen';
-import { CombatScreen } from './CombatScreen';
 
 type ActiveTab = 'character' | 'inventory' | 'skills' | 'map' | 'combat';
 type EventType = 'combat' | 'moral' | 'gathering' | 'rest';
@@ -228,10 +227,10 @@ const NavIcon = styled.button<{ active: boolean }>`
   }
 `;
 
-const DebugPanel = styled.div`
+const DebugPanel = styled.div<{ x: number; y: number }>`
   position: fixed;
-  top: ${theme.spacing.md};
-  right: ${theme.spacing.md};
+  top: ${props => props.y}px;
+  left: ${props => props.x}px;
   background: ${theme.colors.background.panel};
   border: 2px solid ${theme.colors.primary};
   border-radius: ${theme.borderRadius.md};
@@ -324,10 +323,21 @@ export const MainGameInterface: React.FC = () => {
   const setNextEventType = useDebugStore(state => state.setNextEventType);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('map');
+  const [debugPos, setDebugPos] = useState<{ x: number; y: number }>({ x: 16, y: 16 });
+  const [dragging, setDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState<{ dx: number; dy: number }>({ dx: 0, dy: 0 });
 
   // Update active tab based on current screen
   React.useEffect(() => {
-    if (currentScreen === 'combat' && combat) {
+    if (currentScreen === 'map') {
+      setActiveTab('map');
+    } else if (currentScreen === 'skills') {
+      setActiveTab('skills');
+    } else if (currentScreen === 'inventory') {
+      setActiveTab('inventory');
+    } else if (currentScreen === 'character') {
+      setActiveTab('character');
+    } else if (currentScreen === 'combat' && combat) {
       setActiveTab('combat');
     }
   }, [currentScreen, combat]);
@@ -377,8 +387,26 @@ export const MainGameInterface: React.FC = () => {
   return (
     <GameContainer>
       {/* Debug Panel - Global */}
-      <DebugPanel>
-        <div className="debug-header">
+      <DebugPanel
+        x={debugPos.x}
+        y={debugPos.y}
+        onMouseDown={(e) => {
+          // Only start drag when clicking the header area or panel body
+          const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+          setDragging(true);
+          setDragOffset({ dx: e.clientX - rect.left, dy: e.clientY - rect.top });
+        }}
+        onMouseMove={(e) => {
+          if (!dragging) return;
+          const newX = e.clientX - dragOffset.dx;
+          const newY = e.clientY - dragOffset.dy;
+          setDebugPos({ x: Math.max(0, newX), y: Math.max(0, newY) });
+        }}
+        onMouseUp={() => setDragging(false)}
+        onMouseLeave={() => setDragging(false)}
+        style={{ cursor: dragging ? 'grabbing' : 'grab' }}
+      >
+        <div className="debug-header" style={{ cursor: dragging ? 'grabbing' : 'grab' }}>
           <h3>🐛 Debug Mode</h3>
           <label>
             <input

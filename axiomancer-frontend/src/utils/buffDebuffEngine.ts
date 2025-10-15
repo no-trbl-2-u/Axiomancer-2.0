@@ -1,4 +1,4 @@
-import { BuffDebuff, BuffDebuffEffect, CombatantBuffs, Character, Enemy, DerivedStats, StatusEffectName } from '../types/game';
+import { BuffDebuff, BuffDebuffEffect, CombatantBuffs, DerivedStats, StatusEffectName } from '../types/game';
 
 /**
  * Buff/Debuff Engine - Handles all combat status effects
@@ -221,15 +221,13 @@ export function processBuffsDebuffs(
   // Process buffs
   const activeBuffs = combatantBuffs.buffs
     .map(buff => {
+      // Apply start-of-turn ticking effects
       if (isStartOfTurn) {
-        // Apply turn-based effects
         if (buff.effect.specialEffects?.fixedDamageNextTurn) {
           const damage = buff.effect.specialEffects.fixedDamageNextTurn;
           damageDealt += damage;
           turnEffects.push(`${buff.name} deals ${damage} fixed damage!`);
         }
-
-        // Decrease duration
         const updated = { ...buff, remainingTurns: buff.remainingTurns - 1 };
         return updated.remainingTurns > 0 ? updated : null;
       }
@@ -240,26 +238,28 @@ export function processBuffsDebuffs(
   // Process debuffs
   const activeDebuffs = combatantBuffs.debuffs
     .map(debuff => {
+      // Check for chance to fade at start of turn
       if (isStartOfTurn) {
-        // Check for chance to fade effects (like Heart Attack guilt with advantage)
         if (debuff.effect.specialEffects?.chanceToFadePerTurn) {
           const fadeChance = debuff.effect.specialEffects.chanceToFadePerTurn;
           if (Math.random() * 100 < fadeChance) {
             turnEffects.push(`${debuff.name} fades away due to emotional resilience.`);
-            return null; // Remove the debuff
+            return null;
           }
         }
+      }
 
-        // Process damage on attack effects (Heart Attack guilt)
-        if (actionContext?.isAttacking && debuff.effect.specialEffects?.damageOnAttack) {
-          const damage = debuff.effect.specialEffects.damageOnAttack;
-          const defense = actionContext.defender?.derivedStats.ailmentDefense || 0;
-          const finalDamage = Math.max(1, damage - defense);
-          damageDealt += finalDamage;
-          turnEffects.push(`${debuff.name} causes ${finalDamage} guilt damage for attacking!`);
-        }
+      // Process action-triggered effects (e.g., damage on attack) regardless of start-of-turn
+      if (actionContext?.isAttacking && debuff.effect.specialEffects?.damageOnAttack) {
+        const damage = debuff.effect.specialEffects.damageOnAttack;
+        const defense = actionContext.defender?.derivedStats.ailmentDefense || 0;
+        const finalDamage = Math.max(1, damage - defense);
+        damageDealt += finalDamage;
+        turnEffects.push(`${debuff.name} causes ${finalDamage} guilt damage for attacking!`);
+      }
 
-        // Decrease duration
+      // Decrease duration only at start of turn
+      if (isStartOfTurn) {
         const updated = { ...debuff, remainingTurns: debuff.remainingTurns - 1 };
         return updated.remainingTurns > 0 ? updated : null;
       }

@@ -1,0 +1,29 @@
+Current Issues:
+- CombatScreen styling -> Make less wide. Ideally one single square
+- CombatScreen styling -> Image for enemy is broken
+- CombatScreen styling -> Lessen the height of the portrait containers
+- CombatScreen styling -> Have only one panel with each portrait side-by-side (ideally black background)
+- Combat functionality -> There needs to be "turns" so status effects are applied properly
+- Combat functionality -> Skills and attacks need to properly do damage and apply status effects
+- CombatScreen styling -> Make space for a combat log
+- Character functionality -> Add "unassignedStatPoints" to Character types
+- Character functionality -> If the user does not assign all stat points at character creation, add those points to "unassignedStatPoints". 
+- CharacterScreen styling -> Add an area for the user to assign stat points
+- CharacterScreen styling -> Update all relevant stats when user assigns stat points
+- Game functionality -> Whenever a user defeats an enemy, give them 150 experience points
+- Game functionality -> Whenever a user reaches 1000 experience points, increase their level by 1, give them 5 "unassignedStatPoints" then reset experience points down to 0
+- Game functionality -> Whenever a user "Levels up" give them 5 stat points to assign (add 5 points to "unassignedStatPoints")
+- Tech Debt -> New characters should have 0 "availableSkills"
+- Testing -> Fix the debug window so that the next event is whatever is selected in the dropdown
+- Testing -> Expand the "debug" window to include:
+    - Make it collapsable so when collapsed it's nice and small.
+    - Make it exapandable so when expanded, all the options are plainly visible
+    - Make sure no matter what it renders above everything, even the EventModal
+    - (button) Heal HP
+    - (button) Heal MP
+    - (button) Give character every available skill
+    - (button) Give chracter every available item
+    - (button) Level up Character
+    - (text input) Increase experience by:
+- Testing -> Create an "admin" account which will be the only account that renders the "debug window"
+- Testing -> Iteratively create a playwright script to test every aspect of the game

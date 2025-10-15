@@ -39,6 +39,35 @@ const SkillTitle = styled.h2`
   }
 `;
 
+const TopBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: ${theme.spacing.lg};
+`;
+
+const SaveButton = styled.button`
+  background: ${theme.colors.primary};
+  color: white;
+  border: 2px solid ${theme.colors.primary};
+  border-radius: ${theme.rpg.buttonBorderRadius};
+  padding: ${theme.spacing.sm} ${theme.spacing.md};
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: ${theme.shadows.button};
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${theme.shadows.glow};
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
 const InfoPanel = styled.div`
   background: ${theme.colors.background.panel};
   border: ${theme.rpg.borderWidth} solid ${theme.colors.border.primary};
@@ -436,6 +465,8 @@ export const SkillScreen = React.memo(() => {
   const character = useGameStore(state => state.gameState.character);
   const equipSkill = useGameStore(state => state.equipSkill);
   const unequipSkill = useGameStore(state => state.unequipSkill);
+  const saveGame = useGameStore(state => state.saveGame);
+  const changeScreen = useGameStore(state => state.changeScreen);
 
   const [selectedTab, setSelectedTab] = useState<PhilosophicalAspect>('body');
 
@@ -473,7 +504,18 @@ export const SkillScreen = React.memo(() => {
 
   return (
     <SkillContainer>
-      <SkillTitle>Skills & Abilities</SkillTitle>
+      <TopBar>
+        <SkillTitle>Skills & Abilities</SkillTitle>
+        <SaveButton
+          onClick={async () => {
+            await saveGame();
+            changeScreen('map');
+          }}
+          title="Save equipped skills and return to the map"
+        >
+          Save
+        </SaveButton>
+      </TopBar>
 
       <InfoPanel>
         <p>

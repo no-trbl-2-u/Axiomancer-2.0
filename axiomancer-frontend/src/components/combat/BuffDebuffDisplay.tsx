@@ -1,10 +1,12 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { BuffDebuff } from '../../types/game';
 
 interface BuffDebuffDisplayProps {
   buffs: BuffDebuff[];
+  debuffs: BuffDebuff[];
   target: 'player' | 'enemy';
   className?: string;
 }
@@ -66,18 +68,23 @@ const EffectIcon = styled.div<{ type: 'buff' | 'debuff' }>`
 `;
 
 const Tooltip = styled.div<{ show: boolean }>`
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
+  bottom: auto;
+  top: auto;
+  left: auto;
+  right: auto;
+  transform: translateX(-50%) translateY(-100%);
   background: ${theme.colors.background.panel};
   border: 2px solid ${theme.colors.border.primary};
   border-radius: ${theme.borderRadius.md};
   padding: ${theme.spacing.sm};
-  white-space: nowrap;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: pre-line;
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   display: ${props => props.show ? 'block' : 'none'};
+  pointer-events: none;
+  max-width: 300px;
+  min-width: 200px;
 
   &::after {
     content: '';
@@ -85,8 +92,19 @@ const Tooltip = styled.div<{ show: boolean }>`
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    border: 6px solid transparent;
+    border: 8px solid transparent;
     border-top-color: ${theme.colors.border.primary};
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: ${theme.colors.background.panel};
+    z-index: 1;
   }
 
   .tooltip-name {
@@ -168,10 +186,62 @@ const getEffectIcon = (effect: BuffDebuff): string => {
 
 const formatEffectDescription = (effect: BuffDebuff): string => {
   let description = effect.description;
+  const statEffects: string[] = [];
+
+  // Add stat modifier details
+  if (effect.effect.statModifiers) {
+    Object.entries(effect.effect.statModifiers).forEach(([stat, value]) => {
+      if (value && value !== 0) {
+        const displayName = stat.replace(/([A-Z])/g, ' $1').toLowerCase().replace(/^./, c => c.toUpperCase());
+        const sign = value > 0 ? '+' : '';
+        const finalValue = value * effect.currentStacks;
+        statEffects.push(`${sign}${finalValue} ${displayName}`);
+      }
+    });
+  }
+
+  // Add percentage modifier details
+  if (effect.effect.percentageModifiers) {
+    Object.entries(effect.effect.percentageModifiers).forEach(([stat, value]) => {
+      if (value && value !== 0) {
+        const displayName = stat.replace(/([A-Z])/g, ' $1').toLowerCase().replace(/^./, c => c.toUpperCase());
+        const sign = value > 0 ? '+' : '';
+        statEffects.push(`${sign}${value}% ${displayName}`);
+      }
+    });
+  }
+
+  // Add special effects details
+  if (effect.effect.specialEffects) {
+    const special = effect.effect.specialEffects;
+    if (special.fixedDamageNextTurn) {
+      statEffects.push(`${special.fixedDamageNextTurn} fixed damage next turn`);
+    }
+    if (special.damageOnAttack) {
+      statEffects.push(`${special.damageOnAttack} damage when attacking`);
+    }
+    if (special.reflection) {
+      statEffects.push(`${special.reflection} reflection damage`);
+    }
+    if (special.foresight) {
+      statEffects.push('Can see enemy actions');
+    }
+    if (special.immuneToNextAttack) {
+      statEffects.push('Immune to next attack');
+    }
+    if (special.chanceToFadePerTurn) {
+      statEffects.push(`${special.chanceToFadePerTurn}% chance to fade per turn`);
+    }
+  }
+
+  // Combine description with stat effects
+  if (statEffects.length > 0) {
+    description += `\n\nEffects: ${statEffects.join(', ')}`;
+  }
 
   // Add stackable information
   if (effect.stackable && effect.currentStacks && effect.currentStacks > 1) {
-    description += ` | Stacks: ${effect.currentStacks}`;
+    description += `\n\nStacks: ${effect.currentStacks}`;
     if (effect.maxStacks) {
       description += `/${effect.maxStacks}`;
     }
@@ -179,7 +249,8 @@ const formatEffectDescription = (effect: BuffDebuff): string => {
 
   // Add remaining turns info
   if (effect.remainingTurns > 0) {
-    description += ` | ${effect.remainingTurns} turns left`;
+    const turnsText = effect.remainingTurns === 1 ? 'turn' : 'turns';
+    description += `\n\nDuration: ${effect.remainingTurns} ${turnsText} remaining`;
   }
 
   return description;
@@ -187,14 +258,19 @@ const formatEffectDescription = (effect: BuffDebuff): string => {
 
 export const BuffDebuffDisplay: React.FC<BuffDebuffDisplayProps> = ({
   buffs,
+  debuffs,
   target,
   className
 }) => {
   const [hoveredEffect, setHoveredEffect] = React.useState<string | null>(null);
+  const [tooltipPosition, setTooltipPosition] = React.useState({ x: 0, y: 0 });
 
-  const activeEffects = buffs.filter(buff => buff.remainingTurns > 0);
-  const buffEffects = activeEffects.filter(effect => effect.type === 'buff');
-  const debuffEffects = activeEffects.filter(effect => effect.type === 'debuff');
+  const activeBuffs = buffs.filter(buff => buff.remainingTurns > 0);
+  const activeDebuffs = debuffs.filter(debuff => debuff.remainingTurns > 0);
+  const activeEffects = [...activeBuffs, ...activeDebuffs];
+  
+  const buffEffects = activeBuffs;
+  const debuffEffects = activeDebuffs;
 
   return (
     <Container className={className}>
@@ -214,19 +290,34 @@ export const BuffDebuffDisplay: React.FC<BuffDebuffDisplayProps> = ({
               <EffectIcon
                 key={effect.id}
                 type={effect.type}
-                onMouseEnter={() => setHoveredEffect(effect.id)}
+                onMouseEnter={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setTooltipPosition({
+                    x: rect.left + rect.width / 2,
+                    y: rect.top - 10
+                  });
+                  setHoveredEffect(effect.id);
+                }}
                 onMouseLeave={() => setHoveredEffect(null)}
               >
                 {getEffectIcon(effect)}
                 <div className="duration">{effect.remainingTurns}</div>
 
-                <Tooltip show={hoveredEffect === effect.id}>
-                  <div className="tooltip-name">{effect.name}</div>
-                  <div className="tooltip-description">{effect.description}</div>
-                  <div className="tooltip-effect">
-                    {formatEffectDescription(effect)}
-                  </div>
-                </Tooltip>
+                {hoveredEffect === effect.id && createPortal(
+                  <Tooltip 
+                    show={true}
+                    style={{
+                      left: tooltipPosition.x,
+                      top: tooltipPosition.y,
+                    }}
+                  >
+                    <div className="tooltip-name">{effect.name}</div>
+                    <div className="tooltip-description" style={{ whiteSpace: 'pre-line' }}>
+                      {formatEffectDescription(effect)}
+                    </div>
+                  </Tooltip>,
+                  document.body
+                )}
               </EffectIcon>
             );
           })}

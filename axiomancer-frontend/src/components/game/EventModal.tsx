@@ -7,8 +7,8 @@ import { getAvailableSkills, applySkillEffect } from '../../utils/fallacySkills'
 import { Skill, PhilosophicalAspect, BuffDebuff } from '../../types/game';
 import { saveCharacter } from '../../utils/characterSave';
 import { SkillSelectionModal } from '../combat/SkillSelectionModal';
-import { BuffDebuffDisplay } from '../combat/BuffDebuffDisplay';
 import { CombatScreen } from './CombatScreen';
+import { processEventEffectReduction, clearAllPersistentEffects } from '../../utils/persistentEffects';
 
 type EventType = 'combat' | 'moral' | 'gathering' | 'rest';
 type SkillCategory = 'body' | 'mind' | 'heart';
@@ -232,10 +232,8 @@ const ModalHeader = styled.div`
 const ModalBody = styled.div<{ isCombat?: boolean }>`
   padding: ${props => props.isCombat ? '0' : theme.spacing.lg};
   ${props => props.isCombat && `
-    flex: 1;
-    overflow: hidden;
-  `}
-`;
+    flex: 1;`}
+    `;
 
 const CloseButton = styled.button`
   position: absolute;
@@ -653,6 +651,19 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
     setAvailableSkills(skills);
   }, [gameState.character]);
 
+  // Close the entire event modal when the enemy is defeated in combat
+  useEffect(() => {
+    if (!isOpen || eventType !== 'combat') return;
+    const combat = gameState.combat;
+    if (!combat) {
+      onClose();
+      return;
+    }
+    if (combat.enemy.health <= 0) {
+      onClose();
+    }
+  }, [isOpen, eventType, gameState.combat, onClose]);
+
   const initializeEvent = () => {
     setEventCompleted(false);
     setEventResult('');
@@ -845,6 +856,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
       updates.mana = Math.max(0, Math.min(gameState.character.maxMana, gameState.character.mana + choice.rewards.mp));
     }
 
+    // Process persistent effect duration reduction for non-combat events
+    const characterWithReducedEffects = processEventEffectReduction(gameState.character);
+    Object.assign(updates, characterWithReducedEffects);
+
     if (Object.keys(updates).length > 0) {
       updateCharacter(updates);
     }
@@ -856,34 +871,45 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
     // TODO: Check energy and update inventory
     setEventResult(`You gathered ${resource.amount} ${resource.name}!`);
     setEventCompleted(true);
+
+    // Process persistent effect duration reduction for non-combat events
+    const characterWithReducedEffects = processEventEffectReduction(gameState.character);
+    updateCharacter(characterWithReducedEffects);
   };
 
   const handleRest = () => {
     const disruptionChance = Math.random();
     
     if (disruptionChance < 0.15) {
-      // Disrupted rest
+      // Disrupted rest - only clears effects, doesn't fully restore
       const restoredHp = Math.floor(gameState.character.maxHealth * 0.5);
       const restoredMp = Math.floor(gameState.character.maxMana * 0.5);
       
+      // Clear all persistent effects (as per requirements)
+      const characterWithClearedEffects = clearAllPersistentEffects(gameState.character);
+      
       updateCharacter({
+        ...characterWithClearedEffects,
         health: Math.min(gameState.character.maxHealth, gameState.character.health + restoredHp),
         mana: Math.min(gameState.character.maxMana, gameState.character.mana + restoredMp)
       });
       
       const theftChance = Math.random();
       if (theftChance < 0.15) {
-        setEventResult('Your rest was disrupted by strange noises, and you discover some of your gold is missing! (Restored 50% HP/MP)');
+        setEventResult('Your rest was disrupted by strange noises, and you discover some of your gold is missing! All effects cleared. (Restored 50% HP/MP)');
       } else {
-        setEventResult('Your rest was disrupted by strange noises in the night. (Restored 50% HP/MP)');
+        setEventResult('Your rest was disrupted by strange noises in the night. All effects cleared. (Restored 50% HP/MP)');
       }
     } else {
-      // Full rest
+      // Full rest - clears all effects and fully restores
+      const characterWithClearedEffects = clearAllPersistentEffects(gameState.character);
+      
       updateCharacter({
+        ...characterWithClearedEffects,
         health: gameState.character.maxHealth,
         mana: gameState.character.maxMana
       });
-      setEventResult('You sleep peacefully and wake up fully refreshed! (Restored 100% HP/MP)');
+      setEventResult('You sleep peacefully and wake up fully refreshed! All effects cleared. (Restored 100% HP/MP)');
     }
     
     setEventCompleted(true);

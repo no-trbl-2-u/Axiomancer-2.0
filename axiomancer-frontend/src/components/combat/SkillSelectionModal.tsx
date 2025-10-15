@@ -2,7 +2,6 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { Skill, PhilosophicalAspect, Character } from '../../types/game';
-import { fallacySpellbook } from '../../utils/fallacySpellbook';
 
 interface SkillSelectionModalProps {
   isOpen: boolean;

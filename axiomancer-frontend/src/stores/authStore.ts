@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { AuthState, User, LoginCredentials, RegisterData, AuthResponse } from '../types';
+import { AuthState, User, LoginCredentials, RegisterData } from '../types';
 import { authService } from '../services/auth.service';
 
 /**

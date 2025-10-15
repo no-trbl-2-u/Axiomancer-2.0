@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { devtools } from 'zustand/middleware';
 import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, CharacterPortrait, BaseStats, Equipment, EquipmentSlot, Skill, PhilosophicalAspect } from '../types/game';
 import { initialQuests } from '../utils/questSystem';
 import { createEnemyByType } from '../utils/combatMechanics';
+import { fallacySpellbook } from '../utils/fallacySpellbook';
 import { loadCharacter, saveCharacter } from '../utils/characterSave';
 import { createInitialBaseStats, calculateDerivedStats, calculateMaxHP, calculateMaxMP, calculateTotalBaseStats } from '../utils/statCalculations';
 import { clearAllBuffsDebuffs } from '../utils/buffDebuffEngine';
@@ -1172,7 +1173,14 @@ export const useGameStore = create<GameStore>()(
       // Combat System
       startCombat: (enemyId: string) => {
         const state = get();
-        const enemy = createEnemyByType(enemyId);
+        const baseEnemy = createEnemyByType(enemyId);
+        // Give every enemy a default set of fallacies so they can use Special
+        const enemySkills: Skill[] = [
+          fallacySpellbook.actions_have_consequences,
+          fallacySpellbook.alphabet_soup,
+          fallacySpellbook.ableism,
+        ].filter(Boolean) as Skill[];
+        const enemy = { ...baseEnemy, skills: enemySkills };
         
         set({
           gameState: {

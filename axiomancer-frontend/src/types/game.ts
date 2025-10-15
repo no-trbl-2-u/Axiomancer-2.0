@@ -79,6 +79,7 @@ export interface Character {
   philosophicalStance: PhilosophicalStance;
   equippedItems?: EquippedItems;
   inventoryCategories?: InventoryCategories;
+  persistentEffects?: CombatantBuffs; // Buffs/debuffs that persist outside combat
 }
 
 export interface Skill {
