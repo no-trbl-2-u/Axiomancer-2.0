@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { GlobalStyles } from './styles/GlobalStyles';
+import { TooltipProvider } from './components/Tooltip';
 import { Layout } from './components/Layout';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
@@ -110,7 +111,9 @@ function App(): JSX.Element {
   return (
     <Router>
       <GlobalStyles />
-      <AppContent />
+      <TooltipProvider>
+        <AppContent />
+      </TooltipProvider>
     </Router>
   );
 }

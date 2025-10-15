@@ -115,7 +115,11 @@ const PanelTitle = styled.h2`
 `;
 
 const StatCategory = styled.div`
-  margin-bottom: ${theme.spacing.lg};
+  margin-bottom: ${theme.spacing.xl};
+  padding: ${theme.spacing.md};
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: ${theme.borderRadius.lg};
+  border: 1px solid ${theme.colors.border.dark};
 
   &:last-child {
     margin-bottom: 0;
@@ -126,11 +130,13 @@ const StatRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: ${theme.spacing.md} ${theme.spacing.sm};
+  padding: ${theme.spacing.md} ${theme.spacing.lg};
   border-bottom: 2px solid ${theme.colors.border.dark};
   background: ${theme.colors.background.secondary};
   border-radius: ${theme.rpg.buttonBorderRadius};
-  margin-bottom: ${theme.spacing.xs};
+  margin-bottom: ${theme.spacing.sm};
+  min-height: 48px;
+  transition: all 0.2s ease;
 
   &:last-child {
     margin-bottom: 0;
@@ -139,6 +145,7 @@ const StatRow = styled.div`
   &:hover {
     background: ${theme.colors.background.panel};
     border-color: ${theme.colors.border.primary};
+    transform: translateX(4px);
   }
 `;
 
@@ -158,10 +165,11 @@ const StatValue = styled.span`
 
 const CategoryTitle = styled.h3`
   color: ${theme.colors.text.accent};
-  margin: 0 0 ${theme.spacing.sm} 0;
-  font-size: 1.1rem;
+  margin: 0 0 ${theme.spacing.md} 0;
+  font-size: 1.2rem;
   font-weight: bold;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 `;
 
 export const CharacterScreen = React.memo((): JSX.Element => {

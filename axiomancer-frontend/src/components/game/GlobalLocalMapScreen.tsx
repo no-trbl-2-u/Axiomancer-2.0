@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
 import { EventModal } from './EventModal';
+import { LockedNodeModal } from './LockedNodeModal';
 import { saveCharacter } from '../../utils/characterSave';
 
 interface GlobalArea {
@@ -198,8 +199,8 @@ const ConnectionLine = styled.line<{ isActive: boolean }>`
 
 const LocalNodeElement = styled.div<{ nodeType: string; completed: boolean; visited: boolean; unlocked: boolean }>`
   position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   background: ${props => {
     if (props.completed) return theme.colors.success;
@@ -228,25 +229,25 @@ const LocalNodeElement = styled.div<{ nodeType: string; completed: boolean; visi
   transform: translate(-50%, -50%);
   box-shadow: ${props => {
     if (props.unlocked && props.nodeType !== 'person' && props.nodeType !== 'start') {
-      return '0 0 8px rgba(16, 185, 129, 0.6)';
+      return '0 0 10px rgba(16, 185, 129, 0.7)';
     }
     return 'none';
   }};
 
   &:hover {
-    transform: translate(-50%, -50%) scale(1.2);
+    transform: translate(-50%, -50%) scale(1.3);
     z-index: 10;
     box-shadow: ${props => {
       if (props.unlocked && props.nodeType !== 'person' && props.nodeType !== 'start') {
-        return '0 0 12px rgba(16, 185, 129, 0.8)';
+        return '0 0 20px rgba(16, 185, 129, 0.9)';
       }
-      return '0 0 8px rgba(255, 255, 255, 0.4)';
+      return '0 0 12px rgba(255, 255, 255, 0.6)';
     }};
   }
 
   .icon {
     color: white;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
   }
 `;
@@ -299,11 +300,14 @@ export const GlobalLocalMapScreen: React.FC = () => {
   
   const [selectedArea, setSelectedArea] = useState<string>('fishing_town');
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-  
+
   // Event modal state
   const [showEventModal, setShowEventModal] = useState(false);
   const [currentEventType, setCurrentEventType] = useState<'combat' | 'moral' | 'gathering' | 'rest'>('combat');
   const [currentNodeId, setCurrentNodeId] = useState<string>('');
+
+  // Locked node modal state
+  const [showLockedModal, setShowLockedModal] = useState(false);
   
   // Get nodes from game context
   const currentLocation = gameState.locations[selectedArea];
@@ -324,7 +328,7 @@ export const GlobalLocalMapScreen: React.FC = () => {
   const handleNodeClick = async (node: LocalNode) => {
     // Check if node is accessible
     if (!node.unlocked && node.type !== 'person' && node.type !== 'start') {
-      alert('This path is not yet accessible.');
+      setShowLockedModal(true);
       return;
     }
     
@@ -535,6 +539,11 @@ export const GlobalLocalMapScreen: React.FC = () => {
             });
           }
         }}
+      />
+
+      <LockedNodeModal
+        isOpen={showLockedModal}
+        onClose={() => setShowLockedModal(false)}
       />
     </Container>
   );

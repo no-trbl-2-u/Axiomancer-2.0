@@ -56,12 +56,12 @@ export const theme = {
     },
   },
   spacing: {
-    xs: '0.25rem',
-    sm: '0.5rem',
-    md: '1rem',
-    lg: '1.5rem',
-    xl: '2rem',
-    xxl: '3rem',
+    xs: '0.3125rem',    // 0.25 * 1.25 = 0.3125rem (5px)
+    sm: '0.625rem',     // 0.5 * 1.25 = 0.625rem (10px)
+    md: '1.25rem',      // 1 * 1.25 = 1.25rem (20px)
+    lg: '1.875rem',     // 1.5 * 1.25 = 1.875rem (30px)
+    xl: '2.5rem',       // 2 * 1.25 = 2.5rem (40px)
+    xxl: '3.75rem',     // 3 * 1.25 = 3.75rem (60px)
   },
   breakpoints: {
     mobile: '576px',

@@ -10,9 +10,10 @@ const SkillContainer = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 40px ${theme.spacing.xl} 40px;
+  padding: ${theme.spacing.xl} ${theme.spacing.xl} ${theme.spacing.xl};
   background: ${theme.colors.background.primary};
   position: relative;
+  gap: ${theme.spacing.md};
 
   @media (max-width: 768px) {
     padding: 100px ${theme.spacing.md} 80px;
@@ -143,14 +144,27 @@ const SkillTab = styled.button<{ active: boolean }>`
 
 const SkillGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: ${theme.spacing.lg};
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: ${theme.spacing.xl};
   flex: 1;
   overflow-y: auto;
+  padding: ${theme.spacing.sm};
+
+  /* Scroll indicator shadow */
+  &::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to top, ${theme.colors.background.primary}, transparent);
+    pointer-events: none;
+  }
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: ${theme.spacing.md};
+    gap: ${theme.spacing.lg};
   }
 `;
 
@@ -161,24 +175,25 @@ const SkillCard = styled.div<{ isEquipped: boolean }>`
   };
   border: 3px solid ${props => props.isEquipped ? '#3b82f6' : '#6b7280'};
   border-radius: ${theme.rpg.panelBorderRadius};
-  padding: ${theme.spacing.lg};
+  padding: ${theme.spacing.xl};
   position: relative;
   box-shadow: ${theme.shadows.panel};
   transition: all 0.3s ease;
   cursor: pointer;
+  min-height: 200px;
 
   &:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px) scale(1.02);
     box-shadow: ${theme.shadows.glow};
-    border-color: ${props => props.isEquipped ? '#60a5fa' : '#9ca3af'};
+    border-color: ${props => props.isEquipped ? '#60a5fa' : `${theme.colors.primary};`}
   }
 
   @media (max-width: 768px) {
-    padding: ${theme.spacing.md};
+    padding: ${theme.spacing.lg};
   }
 
   @media (max-width: 480px) {
-    padding: ${theme.spacing.sm};
+    padding: ${theme.spacing.md};
   }
 `;
 
@@ -341,13 +356,17 @@ const SkillType = styled.div<{ skillType: string }>`
 
 const EquipmentSlots = styled.div`
   display: flex;
-  gap: ${theme.spacing.md};
+  gap: ${theme.spacing.lg};
   margin-bottom: ${theme.spacing.xl};
   justify-content: center;
   flex-wrap: wrap;
+  padding: ${theme.spacing.md};
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: ${theme.borderRadius.lg};
+  border: 2px solid ${theme.colors.border.dark};
 
   @media (max-width: 768px) {
-    gap: ${theme.spacing.sm};
+    gap: ${theme.spacing.md};
     margin-bottom: ${theme.spacing.lg};
   }
 `;
@@ -539,7 +558,7 @@ export const SkillScreen = React.memo(() => {
               {equippedSkill ? (
                 <>
                   <SkillIcon>{equippedSkill.icon}</SkillIcon>
-                  <SkillName>{equippedSkill.name}</SkillName>
+                  {/* <SkillName>{equippedSkill.name}</SkillName> */}
                   <SkillCost>{equippedSkill.manaCost} MP</SkillCost>
                 </>
               ) : (

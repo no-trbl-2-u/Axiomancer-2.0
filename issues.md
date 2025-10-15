@@ -5,7 +5,10 @@ Current Issues:
 - CombatScreen styling -> Have only one panel with each portrait side-by-side (ideally black background)
 - Combat functionality -> There needs to be "turns" so status effects are applied properly
 - Combat functionality -> Skills and attacks need to properly do damage and apply status effects
+- Combat functionality -> Create an "easy-to-use" "enemySelector" that can be used as a tool to select a specific enemy. This way, enemies can just be a giant collection within several JSON files (one file for each map).
+- Combat functionality -> Create Type for "enemy" to better standardize enemies.
 - CombatScreen styling -> Make space for a combat log
+- CombatScreen styling -> Create "Victory" pop-up to let user know they were victorious in combat. Include battle log for them to click on, include experience points gained, and any items that may have been dropped.
 - Character functionality -> Add "unassignedStatPoints" to Character types
 - Character functionality -> If the user does not assign all stat points at character creation, add those points to "unassignedStatPoints". 
 - CharacterScreen styling -> Add an area for the user to assign stat points
@@ -13,6 +16,8 @@ Current Issues:
 - Game functionality -> Whenever a user defeats an enemy, give them 150 experience points
 - Game functionality -> Whenever a user reaches 1000 experience points, increase their level by 1, give them 5 "unassignedStatPoints" then reset experience points down to 0
 - Game functionality -> Whenever a user "Levels up" give them 5 stat points to assign (add 5 points to "unassignedStatPoints")
+- Game functionality -> Fix the map selection. The player STARTS in the fishing village. So it doesn't matter if we click "Small Fishing Village", because that's where the user is. Eventually, after the player unlocks all the nodes in the Small Fishing Village, the player will unlock the next map.
+- Game functionality -> Make completed nodes unclickable
 - Tech Debt -> New characters should have 0 "availableSkills"
 - Testing -> Fix the debug window so that the next event is whatever is selected in the dropdown
 - Testing -> Expand the "debug" window to include:

@@ -11,19 +11,20 @@ const InventoryContainer = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
-  padding: ${theme.spacing.lg};
+  padding: ${theme.spacing.xl};
   background: ${theme.colors.background.primary};
-  gap: ${theme.spacing.lg};
+  gap: ${theme.spacing.xl};
   position: relative;
 
   @media (max-width: 768px) {
     flex-direction: column;
-    padding: ${theme.spacing.md};
-    gap: ${theme.spacing.md};
+    padding: ${theme.spacing.lg};
+    gap: ${theme.spacing.lg};
   }
 
   @media (max-width: 480px) {
-    padding: ${theme.spacing.sm};
+    padding: ${theme.spacing.md};
+    gap: ${theme.spacing.md};
   }
 `;
 
@@ -67,16 +68,17 @@ const PanelTitle = styled.h2`
 const EquipmentGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: ${theme.spacing.sm};
+  gap: ${theme.spacing.md};
   flex: 1;
 
   @media (max-width: 768px) {
     grid-template-columns: repeat(3, 1fr);
+    gap: ${theme.spacing.sm};
   }
 
   @media (max-width: 480px) {
     grid-template-columns: repeat(2, 1fr);
-    gap: ${theme.spacing.xs};
+    gap: ${theme.spacing.sm};
   }
 `;
 
@@ -85,24 +87,25 @@ const EquipmentSlotBox = styled.div<{ isEmpty: boolean; gridArea?: string }>`
     ? theme.colors.background.secondary
     : 'linear-gradient(45deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2))'
   };
-  border: 2px solid ${props => props.isEmpty
+  border: 3px solid ${props => props.isEmpty
     ? theme.colors.border.dark
     : theme.colors.success
   };
-  border-radius: ${theme.borderRadius.md};
-  padding: ${theme.spacing.sm};
+  border-radius: ${theme.borderRadius.lg};
+  padding: ${theme.spacing.md};
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 80px;
+  min-height: 100px;
   ${props => props.gridArea ? `grid-area: ${props.gridArea};` : ''}
 
   &:hover {
     border-color: ${theme.colors.primary};
-    transform: translateY(-2px);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: ${theme.shadows.glow};
   }
 
   .slot-label {

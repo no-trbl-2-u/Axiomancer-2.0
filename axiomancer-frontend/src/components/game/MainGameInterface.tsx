@@ -3,12 +3,14 @@ import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
 import { useDebugStore } from '../../stores/debugStore';
+import DebugPanel from './DebugPanel';
 
 // Import all our game screens
 import { CharacterScreen } from './CharacterScreen';
 import { InventoryScreen } from './InventoryScreen';
 import { SkillScreen } from './SkillScreen';
 import { GlobalLocalMapScreen } from './GlobalLocalMapScreen';
+import { featureFlags } from '../../config/featureFlags';
 
 type ActiveTab = 'character' | 'inventory' | 'skills' | 'map' | 'combat';
 type EventType = 'combat' | 'moral' | 'gathering' | 'rest';
@@ -227,87 +229,7 @@ const NavIcon = styled.button<{ active: boolean }>`
   }
 `;
 
-const DebugPanel = styled.div<{ x: number; y: number }>`
-  position: fixed;
-  top: ${props => props.y}px;
-  left: ${props => props.x}px;
-  background: ${theme.colors.background.panel};
-  border: 2px solid ${theme.colors.primary};
-  border-radius: ${theme.borderRadius.md};
-  padding: ${theme.spacing.md};
-  z-index: 1000;
-  min-width: 250px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-
-  .debug-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: ${theme.spacing.md};
-    padding-bottom: ${theme.spacing.sm};
-    border-bottom: 1px solid ${theme.colors.border.primary};
-
-    h3 {
-      margin: 0;
-      color: ${theme.colors.primary};
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-
-    label {
-      display: flex;
-      align-items: center;
-      gap: ${theme.spacing.sm};
-      color: ${theme.colors.text.primary};
-      font-size: 0.85rem;
-      cursor: pointer;
-
-      input[type="checkbox"] {
-        cursor: pointer;
-      }
-    }
-  }
-
-  .debug-control {
-    margin-bottom: ${theme.spacing.sm};
-
-    label {
-      display: block;
-      color: ${theme.colors.text.secondary};
-      font-size: 0.8rem;
-      margin-bottom: ${theme.spacing.xs};
-    }
-
-    select {
-      width: 100%;
-      background: ${theme.colors.background.secondary};
-      color: ${theme.colors.text.primary};
-      border: 1px solid ${theme.colors.border.primary};
-      border-radius: ${theme.borderRadius.sm};
-      padding: ${theme.spacing.sm};
-      font-size: 0.85rem;
-      cursor: pointer;
-
-      &:focus {
-        outline: none;
-        border-color: ${theme.colors.primary};
-      }
-
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-    }
-  }
-
-  .debug-info {
-    margin-top: ${theme.spacing.sm};
-    padding-top: ${theme.spacing.sm};
-    border-top: 1px solid ${theme.colors.border.secondary};
-    font-size: 0.75rem;
-    color: ${theme.colors.text.muted};
-  }
-`;
+// DebugPanel styled component moved to its own file
 
 export const MainGameInterface: React.FC = () => {
   // Zustand store - selective subscriptions
@@ -367,19 +289,16 @@ export const MainGameInterface: React.FC = () => {
         return <SkillScreen />;
       case 'map':
         return <GlobalLocalMapScreen />;
-        // TODO: Get THIS to render inside an EventModal
-      // case 'combat':
-      //   return <CombatScreen />;
       default:
         return <GlobalLocalMapScreen />;
     }
   };
 
-  const getPortraitUrl = () => {    
+  const getPortraitUrl = () => {
     if (character?.portrait?.imageUrl) {
       return character.portrait.imageUrl;
     }
-    
+
     // TODO: Create backup system for fallback portrait
     return '/portraits/c-begger.jpg';
   };
@@ -387,59 +306,31 @@ export const MainGameInterface: React.FC = () => {
   return (
     <GameContainer>
       {/* Debug Panel - Global */}
-      <DebugPanel
-        x={debugPos.x}
-        y={debugPos.y}
-        onMouseDown={(e) => {
-          // Only start drag when clicking the header area or panel body
-          const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
-          setDragging(true);
-          setDragOffset({ dx: e.clientX - rect.left, dy: e.clientY - rect.top });
-        }}
-        onMouseMove={(e) => {
-          if (!dragging) return;
-          const newX = e.clientX - dragOffset.dx;
-          const newY = e.clientY - dragOffset.dy;
-          setDebugPos({ x: Math.max(0, newX), y: Math.max(0, newY) });
-        }}
-        onMouseUp={() => setDragging(false)}
-        onMouseLeave={() => setDragging(false)}
-        style={{ cursor: dragging ? 'grabbing' : 'grab' }}
-      >
-        <div className="debug-header" style={{ cursor: dragging ? 'grabbing' : 'grab' }}>
-          <h3>🐛 Debug Mode</h3>
-          <label>
-            <input
-              type="checkbox"
-              checked={debugMode}
-              onChange={(e) => setDebugMode(e.target.checked)}
-            />
-            Enable
-          </label>
-        </div>
-
-        <div className="debug-control">
-          <label>Next Event Type:</label>
-          <select
-            value={nextEventType}
-            onChange={(e) => setNextEventType(e.target.value as EventType)}
-            disabled={!debugMode}
-          >
-            <option value="combat">Combat</option>
-            <option value="moral">Moral Dilemma</option>
-            <option value="gathering">Resource Gathering</option>
-            <option value="rest">Rest</option>
-          </select>
-        </div>
-
-        <div className="debug-info">
-          {debugMode ? (
-            <>Next event will be: <strong>{nextEventType}</strong></>
-          ) : (
-            <>Events are random</>
-          )}
-        </div>
-      </DebugPanel>
+      {
+        featureFlags.ENABLE_DEBUG_MODE &&
+          <DebugPanel
+            x={debugPos.x}
+            y={debugPos.y}
+            dragging={dragging}
+            onMouseDown={(e) => {
+              const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+              setDragging(true);
+              setDragOffset({ dx: e.clientX - rect.left, dy: e.clientY - rect.top });
+            }}
+            onMouseMove={(e) => {
+              if (!dragging) return;
+              const newX = e.clientX - dragOffset.dx;
+              const newY = e.clientY - dragOffset.dy;
+              setDebugPos({ x: Math.max(0, newX), y: Math.max(0, newY) });
+            }}
+            onMouseUp={() => setDragging(false)}
+            onMouseLeave={() => setDragging(false)}
+            debugMode={debugMode}
+            setDebugMode={setDebugMode}
+            nextEventType={nextEventType as EventType}
+            setNextEventType={(val) => setNextEventType(val as EventType)}
+          />
+      }
 
       {/* Top Bar with Player Info */}
       <TopBar>

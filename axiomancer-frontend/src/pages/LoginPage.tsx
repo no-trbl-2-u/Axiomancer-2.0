@@ -10,11 +10,23 @@ import { LoginCredentials } from '../types';
 const LoginContainer = styled.div`
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  border-radius: ${theme.borderRadius.lg};
+  border-radius: ${theme.borderRadius.xl};
   padding: ${theme.spacing.xxl};
   box-shadow: ${theme.shadows.xl};
-  width: 100%;
-  max-width: 400px;
+  width: 90%;
+  max-width: 500px;
+
+  @media (max-width: 768px) {
+    width: 85%;
+    max-width: 450px;
+    padding: ${theme.spacing.xl};
+  }
+
+  @media (max-width: 480px) {
+    width: 90%;
+    max-width: 380px;
+    padding: ${theme.spacing.lg};
+  }
 `;
 
 const Title = styled.h1`
