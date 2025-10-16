@@ -33,7 +33,7 @@ interface LocalNode {
 
 const GLOBAL_AREAS: GlobalArea[] = [
   {
-    id: 'fishing_village',
+    id: 'fishing_town',
     name: 'Small Fishing Village',
     description: 'Your peaceful hometown where the philosophical journey begins.',
     imageUrl: '/maps/map01.jpeg',
@@ -49,7 +49,7 @@ const GLOBAL_AREAS: GlobalArea[] = [
     backgroundImage: '/maps/map02.jpg',
     unlocked: false,
     completed: false,
-    requiredAreas: ['fishing_village']
+    requiredAreas: ['fishing_town']
   },
   {
     id: 'crystal_caverns',
@@ -221,12 +221,17 @@ const LocalNodeElement = styled.div<{ nodeType: string; completed: boolean; visi
     }
     return theme.colors.gray[500];
   }};
-  cursor: pointer;
+  cursor: ${props => {
+    if (props.completed) return 'default';
+    if (!props.unlocked && props.nodeType !== 'person' && props.nodeType !== 'start') return 'not-allowed';
+    return 'pointer';
+  }};
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
   transform: translate(-50%, -50%);
+  z-index: 5;
   box-shadow: ${props => {
     if (props.unlocked && props.nodeType !== 'person' && props.nodeType !== 'start') {
       return '0 0 10px rgba(16, 185, 129, 0.7)';
@@ -235,9 +240,15 @@ const LocalNodeElement = styled.div<{ nodeType: string; completed: boolean; visi
   }};
 
   &:hover {
-    transform: translate(-50%, -50%) scale(1.3);
-    z-index: 10;
+    transform: ${props => {
+      if (props.completed) return 'translate(-50%, -50%)';
+      if (!props.unlocked && props.nodeType !== 'person' && props.nodeType !== 'start') return 'translate(-50%, -50%)';
+      return 'translate(-50%, -50%) scale(1.3)';
+    }};
+    z-index: 20;
     box-shadow: ${props => {
+      if (props.completed) return 'none';
+      if (!props.unlocked && props.nodeType !== 'person' && props.nodeType !== 'start') return 'none';
       if (props.unlocked && props.nodeType !== 'person' && props.nodeType !== 'start') {
         return '0 0 20px rgba(16, 185, 129, 0.9)';
       }
@@ -267,7 +278,7 @@ const NodeTooltip = styled.div<{ show: boolean }>`
   opacity: ${props => props.show ? 1 : 0};
   pointer-events: none;
   transition: opacity 0.3s ease;
-  z-index: 20;
+  z-index: 25;
 `;
 
 const MapTitle = styled.div`
@@ -297,7 +308,8 @@ export const GlobalLocalMapScreen: React.FC = () => {
   const updateStory = useGameStore(state => state.updateStory);
   const unlockNode = useGameStore(state => state.unlockNode);
   const unlockGuardianProgression = useGameStore(state => state.unlockGuardianProgression);
-  
+
+  // Always start in fishing village
   const [selectedArea, setSelectedArea] = useState<string>('fishing_town');
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
 
@@ -325,13 +337,42 @@ export const GlobalLocalMapScreen: React.FC = () => {
     }
   };
 
-  const handleNodeClick = async (node: LocalNode) => {
-    // Check if node is accessible
-    if (!node.unlocked && node.type !== 'person' && node.type !== 'start') {
-      setShowLockedModal(true);
-      return;
+  // Check if all nodes in current area are completed
+  const checkAllNodesCompleted = (areaId: string) => {
+    const area = GLOBAL_AREAS.find(a => a.id === areaId);
+    const location = gameState.locations[areaId];
+    if (!area || !location?.nodes) return false;
+
+    // Count completed nodes (excluding start and person nodes that can be revisited)
+    const completableNodes = location.nodes.filter(node =>
+      node.type !== 'start' && node.type !== 'person'
+    );
+
+    return completableNodes.every(node => node.visited);
+  };
+
+  // Unlock next area when current area is fully completed
+  const tryUnlockNextArea = (currentAreaId: string) => {
+    if (!checkAllNodesCompleted(currentAreaId)) return;
+
+    const currentArea = GLOBAL_AREAS.find(a => a.id === currentAreaId);
+    if (!currentArea?.requiredAreas) return; // No next area to unlock
+
+    // For now, we'll unlock the first required area
+    // In the future, this could be expanded to unlock all required areas
+    const nextAreaId = currentArea.requiredAreas[0];
+    if (nextAreaId) {
+      console.log(`🔓 Unlocking next area: ${nextAreaId}`);
+      // Update the global area to be unlocked
+      const updatedAreas = GLOBAL_AREAS.map(area =>
+        area.id === nextAreaId ? { ...area, unlocked: true } : area
+      );
+      // Note: In a real implementation, this would update a persistent store
+      // For now, we'll just log it
     }
-    
+  };
+
+  const handleNodeClick = async (node: LocalNode) => {
     // Handle guardian/person nodes
     if (node.type === 'person') {
       if (node.id === 'guardian') {
@@ -344,25 +385,17 @@ export const GlobalLocalMapScreen: React.FC = () => {
       return;
     }
     
-    // Check if player has Basic Reasoning skill for other events
-    const talkedToGuardian = gameState.story.talkedToGuardian;
-    console.log('🔍 Story check - talkedToGuardian:', talkedToGuardian);
-    console.log('🔍 Character availableSkills:', gameState.character.availableSkills);
-    
-    if (!talkedToGuardian) {
-      // Show modal instead of alert
-      setCurrentEventType('moral');
-      setCurrentNodeId('need_guardian');
-      setShowEventModal(true);
-      return;
+    // Handle start nodes
+    if (node.type === 'start') {
+      return; // Start nodes are just visual markers
     }
-    
-    // Handle revisiting completed nodes
+
+    // Prevent clicking on completed nodes
     if (node.completed) {
       const revisitChance = Math.random();
       if (revisitChance < 0.75) {
-        // Show "nothing here" modal instead of alert
-        setCurrentEventType('rest'); // Use rest type for "nothing here" message
+        // Show "nothing here" modal
+        setCurrentEventType('rest');
         setCurrentNodeId(node.id + '_empty');
         setShowEventModal(true);
         return;
@@ -373,6 +406,25 @@ export const GlobalLocalMapScreen: React.FC = () => {
         setShowEventModal(true);
         return;
       }
+    }
+
+    // Check if node is accessible
+    if (!node.unlocked) {
+      setShowLockedModal(true);
+      return;
+    }
+    
+    // Check if player has talked to guardian for other events
+    const talkedToGuardian = gameState.story.talkedToGuardian;
+    console.log('🔍 Story check - talkedToGuardian:', talkedToGuardian);
+    console.log('🔍 Character availableSkills:', gameState.character.availableSkills);
+    
+    if (!talkedToGuardian) {
+      // Show modal instead of alert
+      setCurrentEventType('moral');
+      setCurrentNodeId('need_guardian');
+      setShowEventModal(true);
+      return;
     }
     
     // First time visiting - assign random event type if not already assigned
@@ -398,12 +450,17 @@ export const GlobalLocalMapScreen: React.FC = () => {
       }
     });
 
+    // Check if all nodes in current area are completed and try to unlock next area
+    if (node.type !== 'event') {
+      tryUnlockNextArea(selectedArea);
+    }
+
     // Auto-save after node completion
     console.log('💾 Auto-saving after node interaction:', node.id);
     await saveCharacter(gameState);
   };
 
-  const getNodeIcon = (node: LocalNode) => {
+  const getNodeIconDisplay = (node: LocalNode): string => {
     // Guardian/starting nodes show their actual icon
     if (node.type === 'person' || node.type === 'start') {
       return node.icon || '👨‍🏫';
@@ -471,15 +528,14 @@ export const GlobalLocalMapScreen: React.FC = () => {
                 unlocked={node.unlocked}
                 style={{
                   left: `${node.position.x}%`,
-                  top: `${node.position.y}%`,
-                  zIndex: 2
+                  top: `${node.position.y}%`
                 }}
                 onClick={() => handleNodeClick(node)}
                 onMouseEnter={() => setHoveredNode(node.id)}
                 onMouseLeave={() => setHoveredNode(null)}
               >
                 <div className="icon">
-                  {getNodeIcon(node)}
+                  {getNodeIconDisplay(node)}
                 </div>
                 <NodeTooltip show={hoveredNode === node.id}>
                   {node.visited || node.type === 'person' || node.type === 'start' ? node.name : 'Unknown Location'}
@@ -504,7 +560,7 @@ export const GlobalLocalMapScreen: React.FC = () => {
       <MapSelectorSection>
         <div className="selector-title">Select Map</div>
         <MapSelectorGrid>
-          {GLOBAL_AREAS.map((area) => (
+          {GLOBAL_AREAS.filter(area => area.unlocked).map((area) => (
             <MapSelector
               key={area.id}
               unlocked={area.unlocked}
@@ -512,7 +568,7 @@ export const GlobalLocalMapScreen: React.FC = () => {
               onClick={() => handleAreaSelect(area.id)}
             >
               <div className="map-name">
-                {area.unlocked ? area.name : '???'}
+                {area.name}
               </div>
             </MapSelector>
           ))}

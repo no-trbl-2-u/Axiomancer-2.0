@@ -613,7 +613,7 @@ export class MasterCombatStateManager {
     }
     
     if (this.combatState.enemy.health <= 0) {
-      const xpGained = Math.floor(this.combatState.originalEnemy.level * 50 + Math.random() * 100);
+      const xpGained = 150; // Fixed 150 XP as per requirements
       return {
         ended: true,
         winner: 'player',

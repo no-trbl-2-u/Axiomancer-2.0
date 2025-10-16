@@ -5,7 +5,7 @@ import { initialQuests } from '../utils/questSystem';
 import { createEnemyByType } from '../utils/combatMechanics';
 import { fallacySpellbook } from '../utils/fallacySpellbook';
 import { loadCharacter, saveCharacter } from '../utils/characterSave';
-import { createInitialBaseStats, calculateDerivedStats, calculateMaxHP, calculateMaxMP, calculateTotalBaseStats } from '../utils/statCalculations';
+import { createInitialBaseStats, calculateDerivedStats, calculateMaxHP, calculateMaxMP, calculateTotalBaseStats, getTotalInvestedPoints, getCharacterCreationPoints } from '../utils/statCalculations';
 import { clearAllBuffsDebuffs } from '../utils/buffDebuffEngine';
 
 /**
@@ -31,6 +31,9 @@ interface GameStore {
   createCharacter: (characterData: CreateCharacterData) => void;
   loadSavedCharacter: () => Promise<boolean>;
   updateCharacter: (updates: Partial<Character>) => void;
+  assignStatPoint: (statName: keyof BaseStats) => void;
+  unassignStatPoint: (statName: keyof BaseStats) => void;
+  gainExperience: (amount: number) => void;
   
   // Location & Navigation
   moveToLocation: (locationId: string) => void;
@@ -794,6 +797,8 @@ function createInitialGameState(): GameState {
       id: '',
       name: '', // Empty name triggers character creation
       level: 1,
+      experience: 0,
+      experienceToNextLevel: 1000,
       health: initialMaxHP,
       maxHealth: initialMaxHP,
       mana: initialMaxMP,
@@ -801,6 +806,7 @@ function createInitialGameState(): GameState {
       baseStats: initialBaseStats,
       derivedStats: initialDerivedStats,
       availableStatPoints: 0,
+      unassignedStatPoints: 0,
       availableSkills: [],
       equippedSkills: {
         heart: [],
@@ -868,6 +874,11 @@ export const useGameStore = create<GameStore>()(
         const finalDerivedStats = calculateDerivedStats(finalBaseStats);
         const finalMaxHP = calculateMaxHP(finalBaseStats);
         const finalMaxMP = calculateMaxMP(finalBaseStats);
+
+        // Calculate unassigned stat points - any points not used during character creation
+        const totalInvestedPoints = getTotalInvestedPoints(finalBaseStats);
+        const maxAvailablePoints = getCharacterCreationPoints();
+        const unassignedStatPoints = Math.max(0, maxAvailablePoints - totalInvestedPoints);
 
         // Add default equipment for new characters
         const defaultEquipment = {
@@ -963,6 +974,7 @@ export const useGameStore = create<GameStore>()(
               mana: finalMaxMP,
               maxMana: finalMaxMP,
               availableStatPoints: 0,
+              unassignedStatPoints: unassignedStatPoints,
               equippedItems: defaultEquipment,
             },
           },
@@ -1021,6 +1033,139 @@ export const useGameStore = create<GameStore>()(
         }));
 
         // Auto-save after character update
+        setTimeout(() => {
+          get().saveGame();
+        }, 500);
+      },
+
+      assignStatPoint: (statName: keyof BaseStats) => {
+        set((state) => {
+          const currentCharacter = state.gameState.character;
+
+          // Check if there are unassigned stat points available
+          if (currentCharacter.unassignedStatPoints <= 0) {
+            return state; // No points to assign
+          }
+
+          // Update base stats and unassigned points
+          const newBaseStats = {
+            ...currentCharacter.baseStats,
+            [statName]: currentCharacter.baseStats[statName] + 1
+          };
+
+          // Recalculate derived stats
+          const newDerivedStats = calculateDerivedStats(newBaseStats);
+          const newMaxHP = calculateMaxHP(newBaseStats);
+          const newMaxMP = calculateMaxMP(newBaseStats);
+
+          console.log(`📈 Assigned stat point to ${statName}. New value: ${newBaseStats[statName]}`);
+
+          return {
+            gameState: {
+              ...state.gameState,
+              character: {
+                ...currentCharacter,
+                baseStats: newBaseStats,
+                derivedStats: newDerivedStats,
+                maxHealth: newMaxHP,
+                maxMana: newMaxMP,
+                unassignedStatPoints: currentCharacter.unassignedStatPoints - 1,
+                // Ensure current HP/MP don't exceed new maximums
+                health: Math.min(currentCharacter.health, newMaxHP),
+                mana: Math.min(currentCharacter.mana, newMaxMP),
+              },
+            },
+          };
+        });
+
+        // Auto-save after stat assignment
+        setTimeout(() => {
+          get().saveGame();
+        }, 500);
+      },
+
+      unassignStatPoint: (statName: keyof BaseStats) => {
+        set((state) => {
+          const currentCharacter = state.gameState.character;
+
+          // Check if stat can be decreased (can't go below 1)
+          if (currentCharacter.baseStats[statName] <= 1) {
+            return state; // Can't unassign below 1
+          }
+
+          // Update base stats and unassigned points
+          const newBaseStats = {
+            ...currentCharacter.baseStats,
+            [statName]: currentCharacter.baseStats[statName] - 1
+          };
+
+          // Recalculate derived stats
+          const newDerivedStats = calculateDerivedStats(newBaseStats);
+          const newMaxHP = calculateMaxHP(newBaseStats);
+          const newMaxMP = calculateMaxMP(newBaseStats);
+
+          console.log(`📉 Unassigned stat point from ${statName}. New value: ${newBaseStats[statName]}`);
+
+          return {
+            gameState: {
+              ...state.gameState,
+              character: {
+                ...currentCharacter,
+                baseStats: newBaseStats,
+                derivedStats: newDerivedStats,
+                maxHealth: newMaxHP,
+                maxMana: newMaxMP,
+                unassignedStatPoints: currentCharacter.unassignedStatPoints + 1,
+                // Ensure current HP/MP don't exceed new maximums
+                health: Math.min(currentCharacter.health, newMaxHP),
+                mana: Math.min(currentCharacter.mana, newMaxMP),
+              },
+            },
+          };
+        });
+
+        // Auto-save after stat unassignment
+        setTimeout(() => {
+          get().saveGame();
+        }, 500);
+      },
+
+      gainExperience: (amount: number) => {
+        set((state) => {
+          const currentCharacter = state.gameState.character;
+          const newExperience = currentCharacter.experience + amount;
+          const newExperienceToNextLevel = currentCharacter.experienceToNextLevel;
+          let leveledUp = false;
+          let newLevel = currentCharacter.level;
+          let newUnassignedStatPoints = currentCharacter.unassignedStatPoints;
+
+          // Check if character leveled up
+          if (newExperience >= newExperienceToNextLevel) {
+            newLevel = currentCharacter.level + 1;
+            newUnassignedStatPoints = currentCharacter.unassignedStatPoints + 5;
+            leveledUp = true;
+
+            console.log(`🎉 Level up! ${currentCharacter.name} reached level ${newLevel}`);
+
+            // Set new experience requirement for next level
+            const newExpRequirement = 1000; // Always 1000 XP per level
+          }
+
+          return {
+            gameState: {
+              ...state.gameState,
+              character: {
+                ...currentCharacter,
+                level: newLevel,
+                experience: leveledUp ? newExperience - newExperienceToNextLevel : newExperience,
+                experienceToNextLevel: leveledUp ? 1000 : newExperienceToNextLevel,
+                unassignedStatPoints: newUnassignedStatPoints,
+              },
+            },
+          };
+        });
+
+        // Auto-save after gaining experience
         setTimeout(() => {
           get().saveGame();
         }, 500);
@@ -1128,7 +1273,11 @@ export const useGameStore = create<GameStore>()(
         console.log('🌟 unlockGuardianProgression() called!');
         console.log('📍 Current Location:', state.gameState.currentLocation);
 
-        // Unlock Basic Reasoning skill
+        // Update story to mark guardian as talked to
+        get().updateStory({ talkedToGuardian: true });
+        console.log('✅ Set talkedToGuardian to true');
+
+        // Unlock Basic Reasoning skill for the player
         const basicReasoningSkill: Skill = {
           id: 'basic_reasoning',
           name: 'Basic Reasoning',
@@ -1143,18 +1292,9 @@ export const useGameStore = create<GameStore>()(
 
         console.log('✅ Adding Basic Reasoning skill:', basicReasoningSkill);
 
-        // Update story to mark guardian as talked to
-        get().updateStory({ talkedToGuardian: true });
-        console.log('✅ Set talkedToGuardian to true');
-
-        // Add the Basic Reasoning skill
+        // Add the Basic Reasoning skill to availableSkills
         get().updateCharacter({
           availableSkills: [basicReasoningSkill],
-          equippedSkills: {
-            heart: [],
-            body: [],
-            mind: [basicReasoningSkill]
-          }
         });
 
         // Unlock all nodes connected to the guardian

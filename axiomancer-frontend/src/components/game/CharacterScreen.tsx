@@ -7,6 +7,7 @@ import { characterService } from '../../services/characterService';
 import { Button } from '../Button';
 import { BuffDebuffDisplay } from '../combat/BuffDebuffDisplay';
 import { getPersistentEffects, hasActivePersistentEffects } from '../../utils/persistentEffects';
+import { BaseStats } from '../../types/game';
 
 const CharacterContainer = styled.div`
   width: 100%;
@@ -172,10 +173,106 @@ const CategoryTitle = styled.h3`
   letter-spacing: 0.5px;
 `;
 
+const StatAssignmentContainer = styled.div`
+  background: ${theme.colors.background.secondary};
+  border-radius: ${theme.borderRadius.lg};
+  padding: ${theme.spacing.lg};
+  margin-bottom: ${theme.spacing.xl};
+  border: 1px solid ${theme.colors.border.dark};
+`;
+
+const AssignmentTitle = styled.h3`
+  color: ${theme.colors.text.accent};
+  margin: 0 0 ${theme.spacing.md} 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+`;
+
+const StatAssignmentRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: ${theme.spacing.sm} ${theme.spacing.md};
+  margin-bottom: ${theme.spacing.sm};
+  background: ${theme.colors.background.panel};
+  border-radius: ${theme.borderRadius.md};
+  border: 1px solid ${theme.colors.border.secondary};
+`;
+
+const StatAssignmentName = styled.span`
+  font-weight: bold;
+  color: ${theme.colors.text.secondary};
+  font-size: 0.9rem;
+`;
+
+const StatAssignmentValue = styled.span`
+  color: ${theme.colors.text.accent};
+  font-weight: bold;
+  font-family: monospace;
+`;
+
+const StatAssignmentControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing.sm};
+`;
+
+const StatButton = styled.button`
+  background: ${theme.colors.primary};
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover:not(:disabled) {
+    background: ${theme.colors.accent};
+    transform: scale(1.1);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
+const UnassignedPointsDisplay = styled.div`
+  background: ${theme.colors.warning};
+  color: ${theme.colors.dark};
+  padding: ${theme.spacing.sm} ${theme.spacing.md};
+  border-radius: ${theme.borderRadius.md};
+  text-align: center;
+  margin-bottom: ${theme.spacing.md};
+
+  .points-count {
+    font-size: 1.3rem;
+    font-weight: bold;
+    font-family: monospace;
+  }
+
+  .points-label {
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
+`;
+
 export const CharacterScreen = React.memo((): JSX.Element => {
   // Zustand stores - selective subscriptions
   const character = useGameStore(state => state.gameState.character);
   const logout = useAuthStore(state => state.logout);
+  const assignStatPoint = useGameStore(state => state.assignStatPoint);
+  const unassignStatPoint = useGameStore(state => state.unassignStatPoint);
   const [portraitUrl, setPortraitUrl] = useState<string>(character.portrait?.imageUrl || '');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -243,6 +340,79 @@ export const CharacterScreen = React.memo((): JSX.Element => {
             <StatValue>{character.availableStatPoints}</StatValue>
           </StatRow>
         </StatCategory>
+
+        {character.unassignedStatPoints > 0 && (
+          <StatAssignmentContainer>
+            <AssignmentTitle>📈 Stat Point Assignment</AssignmentTitle>
+            <UnassignedPointsDisplay>
+              <div className="points-count">{character.unassignedStatPoints}</div>
+              <div className="points-label">Unassigned Points</div>
+            </UnassignedPointsDisplay>
+
+            <StatAssignmentRow>
+              <StatAssignmentName>Heart</StatAssignmentName>
+              <StatAssignmentValue>{character.baseStats.heart}</StatAssignmentValue>
+              <StatAssignmentControls>
+                <StatButton
+                  onClick={() => unassignStatPoint('heart')}
+                  disabled={character.baseStats.heart <= 1}
+                  title="Remove point from Heart"
+                >
+                  −
+                </StatButton>
+                <StatButton
+                  onClick={() => assignStatPoint('heart')}
+                  disabled={character.unassignedStatPoints <= 0}
+                  title="Add point to Heart"
+                >
+                  +
+                </StatButton>
+              </StatAssignmentControls>
+            </StatAssignmentRow>
+
+            <StatAssignmentRow>
+              <StatAssignmentName>Body</StatAssignmentName>
+              <StatAssignmentValue>{character.baseStats.body}</StatAssignmentValue>
+              <StatAssignmentControls>
+                <StatButton
+                  onClick={() => unassignStatPoint('body')}
+                  disabled={character.baseStats.body <= 1}
+                  title="Remove point from Body"
+                >
+                  −
+                </StatButton>
+                <StatButton
+                  onClick={() => assignStatPoint('body')}
+                  disabled={character.unassignedStatPoints <= 0}
+                  title="Add point to Body"
+                >
+                  +
+                </StatButton>
+              </StatAssignmentControls>
+            </StatAssignmentRow>
+
+            <StatAssignmentRow>
+              <StatAssignmentName>Mind</StatAssignmentName>
+              <StatAssignmentValue>{character.baseStats.mind}</StatAssignmentValue>
+              <StatAssignmentControls>
+                <StatButton
+                  onClick={() => unassignStatPoint('mind')}
+                  disabled={character.baseStats.mind <= 1}
+                  title="Remove point from Mind"
+                >
+                  −
+                </StatButton>
+                <StatButton
+                  onClick={() => assignStatPoint('mind')}
+                  disabled={character.unassignedStatPoints <= 0}
+                  title="Add point to Mind"
+                >
+                  +
+                </StatButton>
+              </StatAssignmentControls>
+            </StatAssignmentRow>
+          </StatAssignmentContainer>
+        )}
 
         <StatCategory>
           <CategoryTitle>⭐ Base Stats</CategoryTitle>

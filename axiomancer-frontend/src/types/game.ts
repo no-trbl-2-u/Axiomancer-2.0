@@ -60,6 +60,8 @@ export interface Character {
   id: string;
   name: string;
   level: number;
+  experience: number;
+  experienceToNextLevel: number;
   health: number;
   maxHealth: number;
   mana: number;
@@ -68,6 +70,7 @@ export interface Character {
   baseStats: BaseStats;
   derivedStats: DerivedStats;
   availableStatPoints: number;
+  unassignedStatPoints: number;
   availableSkills: Skill[];
   equippedSkills: {
     heart: Skill[];
@@ -157,7 +160,7 @@ export interface GameNode {
   id: string;
   name: string;
   description: string;
-  type: 'start' | 'resource' | 'encounter' | 'person' | 'event' | 'boss' | 'exit' | 'explore';
+  type: 'start' | 'resource' | 'encounter' | 'person' | 'event' | 'boss' | 'exit' | 'explore' | 'building';
   position: { x: number; y: number };
   connections: string[];
   unlocked: boolean;

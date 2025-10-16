@@ -8,14 +8,16 @@ import { SkillSelectionModal } from '../combat/SkillSelectionModal';
 import { MasterCombatStateManager } from '../../utils/combatStateManager';
 import { CombatState, CombatResolutionStep, BattleLogEntry } from '../../types/combatState';
 import { addPersistentEffects } from '../../utils/persistentEffects';
+import { getFallbackPortraits } from '../../utils/portraitLoader';
 
 const CombatContainer = styled.div`
-  width: 100%;
-  height: 100%;
+  width: 500px;
+  height: 600px;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  background: #000000;
   position: relative;
+  margin: 0 auto;
 
   &::before {
     content: '';
@@ -24,7 +26,7 @@ const CombatContainer = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at center, rgba(75, 0, 130, 0.2) 0%, rgba(0, 0, 0, 0.8) 70%);
+    background: radial-gradient(circle at center, rgba(75, 0, 130, 0.1) 0%, rgba(0, 0, 0, 0.9) 70%);
     pointer-events: none;
   }
 `;
@@ -113,14 +115,10 @@ const PhaseIndicator = styled.div<{ phase: string }>`
 const CombatMainArea = styled.div`
   flex: 1;
   display: flex;
-  padding: ${theme.spacing.xl};
-  gap: ${theme.spacing.xl};
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    padding: ${theme.spacing.md};
-    gap: ${theme.spacing.md};
-  }
+  flex-direction: column;
+  padding: ${theme.spacing.lg};
+  gap: ${theme.spacing.lg};
+  justify-content: center;
 `;
 
 const CombatantPanel = styled.div<{ side: 'left' | 'right' }>`
@@ -134,30 +132,27 @@ const CombatantPanel = styled.div<{ side: 'left' | 'right' }>`
   flex-direction: column;
   align-items: center;
   gap: ${theme.spacing.md};
-
-  @media (max-width: 768px) {
-    padding: ${theme.spacing.md};
-  }
+  min-height: 200px;
 `;
 
 const PortraitContainer = styled.div`
-  width: 250px;
-  height: 350px;
+  width: 150px;
+  height: 180px;
   border-radius: ${theme.borderRadius.lg};
   overflow: hidden;
-  border: 4px solid ${theme.colors.border.primary};
+  border: 3px solid ${theme.colors.border.primary};
   position: relative;
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(29, 78, 216, 0.2));
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 
   @media (max-width: 768px) {
-    width: 180px;
-    height: 250px;
+    width: 120px;
+    height: 150px;
   }
 
   @media (max-width: 480px) {
-    width: 150px;
-    height: 210px;
+    width: 100px;
+    height: 120px;
   }
 `;
 
@@ -355,7 +350,7 @@ const ResolutionOverlay = styled.div<{ show: boolean }>`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.9);
   display: ${props => props.show ? 'flex' : 'none'};
   align-items: center;
   justify-content: center;
@@ -368,18 +363,70 @@ const ResolutionMessage = styled.div`
   border-radius: ${theme.borderRadius.lg};
   padding: ${theme.spacing.xl};
   text-align: center;
-  max-width: 500px;
-  
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+
   h3 {
     color: ${theme.colors.text.accent};
     margin: 0 0 ${theme.spacing.md} 0;
     font-size: 1.5rem;
   }
-  
+
   p {
     color: ${theme.colors.text.primary};
-    margin: 0;
+    margin: 0 0 ${theme.spacing.sm} 0;
     font-size: 1.1rem;
+  }
+
+  .victory-details {
+    margin-top: ${theme.spacing.lg};
+    padding: ${theme.spacing.md};
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: ${theme.borderRadius.md};
+    text-align: left;
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: ${theme.spacing.xs};
+      font-size: 0.9rem;
+
+      .label {
+        color: ${theme.colors.text.secondary};
+      }
+
+      .value {
+        color: ${theme.colors.text.accent};
+        font-weight: bold;
+      }
+    }
+  }
+
+  .battle-log-preview {
+    margin-top: ${theme.spacing.md};
+    padding: ${theme.spacing.md};
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: ${theme.borderRadius.md};
+    max-height: 200px;
+    overflow-y: auto;
+    text-align: left;
+
+    .log-title {
+      color: ${theme.colors.text.accent};
+      font-size: 1rem;
+      margin-bottom: ${theme.spacing.sm};
+      text-align: center;
+    }
+
+    .log-entry {
+      font-size: 0.8rem;
+      color: ${theme.colors.text.secondary};
+      margin-bottom: ${theme.spacing.xs};
+      padding: ${theme.spacing.xs};
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: ${theme.borderRadius.sm};
+    }
   }
 `;
 
@@ -440,6 +487,7 @@ export const CombatScreen: React.FC = () => {
   const character = useGameStore(state => state.gameState.character);
   const endCombat = useGameStore(state => state.endCombat);
   const updateCharacter = useGameStore(state => state.updateCharacter);
+  const gainExperience = useGameStore(state => state.gainExperience);
   
   // Master Combat State Manager
   const combatManagerRef = useRef<MasterCombatStateManager | null>(null);
@@ -612,6 +660,11 @@ export const CombatScreen: React.FC = () => {
       finalState.persistentEffects
     );
 
+    // Give experience if player won
+    if (_winner === 'player') {
+      gainExperience(150); // Give 150 XP as per requirements
+    }
+
     updateCharacter(updatedCharacter);
 
     // End combat
@@ -624,7 +677,10 @@ export const CombatScreen: React.FC = () => {
     if (entity.portrait?.imageUrl) {
       return entity.portrait.imageUrl;
     }
-    return '/portraits/c-begger.png'; // Default portrait
+    // Use a proper fallback portrait from available portraits
+    const fallbackPortraits = getFallbackPortraits();
+    const defaultPortrait = fallbackPortraits.male[0] || fallbackPortraits.female[0];
+    return defaultPortrait?.imageUrl || '/portraits/Baramon.jpg'; // Ultimate fallback
   };
 
   return (
@@ -648,51 +704,65 @@ export const CombatScreen: React.FC = () => {
         </CombatTopBar>
 
         <CombatMainArea>
-          {/* Player Panel */}
-          <CombatantPanel side="left">
-            <PortraitContainer>
-              <PortraitImage src={getPortraitUrl(combatState.originalPlayer)} alt={combatState.originalPlayer.name} />
-            </PortraitContainer>
-            <CombatantName>{combatState.originalPlayer.name}</CombatantName>
+          {/* Single Panel with Side-by-Side Portraits */}
+          <div style={{
+            background: theme.colors.background.panel,
+            border: `${theme.rpg.borderWidth} solid ${theme.colors.border.primary}`,
+            borderRadius: theme.rpg.panelBorderRadius,
+            padding: theme.spacing.lg,
+            boxShadow: theme.shadows.panel,
+            display: 'flex',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            width: '100%',
+            gap: theme.spacing.lg
+          }}>
+            {/* Player Side */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: theme.spacing.md }}>
+              <PortraitContainer>
+                <PortraitImage src={getPortraitUrl(combatState.originalPlayer)} alt={combatState.originalPlayer.name} />
+              </PortraitContainer>
+              <CombatantName>{combatState.originalPlayer.name}</CombatantName>
 
-            <HPBar>
-              <HPFill percentage={(combatState.player.health / combatState.player.maxHealth) * 100} />
-              <HPText>{combatState.player.health} / {combatState.player.maxHealth}</HPText>
-            </HPBar>
+              <HPBar>
+                <HPFill percentage={(combatState.player.health / combatState.player.maxHealth) * 100} />
+                <HPText>{combatState.player.health} / {combatState.player.maxHealth}</HPText>
+              </HPBar>
 
-            <MPBar>
-              <MPFill percentage={(combatState.player.mana / combatState.player.maxMana) * 100} />
-            </MPBar>
+              <MPBar>
+                <MPFill percentage={(combatState.player.mana / combatState.player.maxMana) * 100} />
+              </MPBar>
 
-            <BuffDebuffDisplay
-              buffs={combatState.player.buffs}
-              debuffs={combatState.player.debuffs}
-              target="player"
-            />
-          </CombatantPanel>
+              <BuffDebuffDisplay
+                buffs={combatState.player.buffs}
+                debuffs={combatState.player.debuffs}
+                target="player"
+              />
+            </div>
 
-          {/* Enemy Panel */}
-          <CombatantPanel side="right">
-            <PortraitContainer>
-              <PortraitImage src={getPortraitUrl(combatState.originalEnemy)} alt={combatState.originalEnemy.name} />
-            </PortraitContainer>
-            <CombatantName>{combatState.originalEnemy.name}</CombatantName>
+            {/* Enemy Side */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: theme.spacing.md }}>
+              <PortraitContainer>
+                <PortraitImage src={getPortraitUrl(combatState.originalEnemy)} alt={combatState.originalEnemy.name} />
+              </PortraitContainer>
+              <CombatantName>{combatState.originalEnemy.name}</CombatantName>
 
-            <HPBar>
-              <HPFill percentage={(combatState.enemy.health / combatState.enemy.maxHealth) * 100} />
-              <HPText>{combatState.enemy.health} / {combatState.enemy.maxHealth}</HPText>
-            </HPBar>
+              <HPBar>
+                <HPFill percentage={(combatState.enemy.health / combatState.enemy.maxHealth) * 100} />
+                <HPText>{combatState.enemy.health} / {combatState.enemy.maxHealth}</HPText>
+              </HPBar>
 
-            <MPBar>
-              <MPFill percentage={(combatState.enemy.mana / combatState.enemy.maxMana) * 100} />
-            </MPBar>
+              <MPBar>
+                <MPFill percentage={(combatState.enemy.mana / combatState.enemy.maxMana) * 100} />
+              </MPBar>
 
-            <BuffDebuffDisplay
-              buffs={combatState.enemy.buffs}
-              debuffs={combatState.enemy.debuffs}
-              target="enemy"
-            />
-          </CombatantPanel>
+              <BuffDebuffDisplay
+                buffs={combatState.enemy.buffs}
+                debuffs={combatState.enemy.debuffs}
+                target="enemy"
+              />
+            </div>
+          </div>
         </CombatMainArea>
 
         <ActionPanel>
@@ -803,11 +873,48 @@ export const CombatScreen: React.FC = () => {
       </CombatArea>
 
       {/* Resolution Overlay */}
-      <ResolutionOverlay show={!!currentResolutionStep}>
+      <ResolutionOverlay show={!!currentResolutionStep || combatState?.phase === 'ended'}>
         {currentResolutionStep && (
           <ResolutionMessage>
             <h3>{currentResolutionStep.type.replace('_', ' ').toUpperCase()}</h3>
             <p>{currentResolutionStep.description}</p>
+          </ResolutionMessage>
+        )}
+
+        {combatState?.phase === 'ended' && combatState.battleLog.length > 0 && (
+          <ResolutionMessage>
+            <h3>🏆 VICTORY!</h3>
+            <p>You have triumphed in philosophical combat!</p>
+
+            <div className="victory-details">
+              <div className="detail-row">
+                <span className="label">Experience Gained:</span>
+                <span className="value">150 XP</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Combat Turns:</span>
+                <span className="value">{combatState.turnNumber}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Enemy Defeated:</span>
+                <span className="value">{combatState.originalEnemy.name}</span>
+              </div>
+            </div>
+
+            <div className="battle-log-preview">
+              <div className="log-title">📜 Battle Summary</div>
+              {combatState.battleLog.slice(-3).map((entry, index) => (
+                <div key={index} className="log-entry">
+                  <strong>Turn {entry.turn}:</strong> {entry.log}
+                  {entry.result && <div><em>{entry.result}</em></div>}
+                </div>
+              ))}
+              {combatState.battleLog.length > 3 && (
+                <div className="log-entry" style={{ textAlign: 'center', opacity: 0.7 }}>
+                  ... and {combatState.battleLog.length - 3} more turns
+                </div>
+              )}
+            </div>
           </ResolutionMessage>
         )}
       </ResolutionOverlay>
