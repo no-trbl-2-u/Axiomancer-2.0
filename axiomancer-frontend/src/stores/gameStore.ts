@@ -437,7 +437,6 @@ function getInitialLocations(): Record<string, GameLocation> {
                 {
                   id: 'learn_reasoning',
                   text: 'Please teach me, Guardian. I am ready to learn.',
-                  philosophicalAlignment: { ethics: 'virtue' },
                   outcome: {
                     type: 'unlock_progression',
                     description: 'Your guardian teaches you Basic Reasoning and encourages you to explore the village.'
@@ -446,7 +445,6 @@ function getInitialLocations(): Record<string, GameLocation> {
                 {
                   id: 'learn_reasoning_eager',
                   text: 'I\'m eager to begin! What should I know?',
-                  philosophicalAlignment: { epistemology: 'empiricist' },
                   outcome: {
                     type: 'unlock_progression',
                     description: 'Your guardian smiles and teaches you Basic Reasoning, opening new paths for exploration.'
@@ -499,13 +497,11 @@ function getInitialLocations(): Record<string, GameLocation> {
                 id: 'intuition',
                 text: 'Trust your intuition and follow your heart.',
                 outcome: { type: 'stat_change', key: 'wisdom', value: 1 },
-                philosophicalAlignment: { epistemology: 'mystical' }
               },
               {
                 id: 'logical',
                 text: 'Analyze the paths logically and choose the safest route.',
                 outcome: { type: 'stat_change', key: 'intelligence', value: 1 },
-                philosophicalAlignment: { epistemology: 'rationalist' }
               }
             ]
           },
@@ -546,13 +542,11 @@ function getInitialLocations(): Record<string, GameLocation> {
                 id: 'physical',
                 text: 'Growth is physical expansion and accumulation.',
                 outcome: { type: 'stat_change', key: 'strength', value: 1 },
-                philosophicalAlignment: { metaphysics: 'materialist' }
               },
               {
                 id: 'spiritual',
                 text: 'Growth is spiritual development and understanding.',
                 outcome: { type: 'stat_change', key: 'wisdom', value: 2 },
-                philosophicalAlignment: { metaphysics: 'idealist' }
               }
             ]
           },
@@ -662,13 +656,11 @@ function getInitialLocations(): Record<string, GameLocation> {
                 {
                   id: 'accept_uncertainty',
                   text: 'I embrace the uncertainty of knowledge.',
-                  philosophicalAlignment: { epistemology: 'skeptical' },
                   outcome: { type: 'stat_change', key: 'wisdom', value: 2 },
                 },
                 {
                   id: 'seek_certainty',
                   text: 'There must be certain truths we can discover.',
-                  philosophicalAlignment: { epistemology: 'rationalist' },
                   outcome: { type: 'stat_change', key: 'intelligence', value: 2 },
                 },
               ],
@@ -715,13 +707,11 @@ function getInitialLocations(): Record<string, GameLocation> {
                 {
                   id: 'mystical_path',
                   text: 'Through intuition and spiritual insight.',
-                  philosophicalAlignment: { epistemology: 'mystical' },
                   outcome: { type: 'stat_change', key: 'wisdom', value: 3 },
                 },
                 {
                   id: 'rational_path',
                   text: 'Through careful reasoning and logic.',
-                  philosophicalAlignment: { epistemology: 'rationalist' },
                   outcome: { type: 'stat_change', key: 'intelligence', value: 3 },
                 },
               ],
@@ -815,11 +805,7 @@ function createInitialGameState(): GameState {
       },
       equipment: [],
       inventory: [],
-      philosophicalStance: {
-        ethics: 'virtue',
-        metaphysics: 'materialist',
-        epistemology: 'empiricist',
-      },
+
     },
     currentLocation: 'fishing_town',
     currentNode: 'home',

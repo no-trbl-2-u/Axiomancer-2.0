@@ -498,22 +498,6 @@ export const CharacterScreen = React.memo((): JSX.Element => {
           </StatRow>
         </StatCategory>
 
-        <StatCategory>
-          <CategoryTitle>🧘 Philosophical Stance</CategoryTitle>
-          <StatRow>
-            <StatName>Ethics</StatName>
-            <StatValue style={{ textTransform: 'capitalize' }}>{character.philosophicalStance.ethics}</StatValue>
-          </StatRow>
-          <StatRow>
-            <StatName>Metaphysics</StatName>
-            <StatValue style={{ textTransform: 'capitalize' }}>{character.philosophicalStance.metaphysics}</StatValue>
-          </StatRow>
-          <StatRow>
-            <StatName>Epistemology</StatName>
-            <StatValue style={{ textTransform: 'capitalize' }}>{character.philosophicalStance.epistemology}</StatValue>
-          </StatRow>
-        </StatCategory>
-
         {hasActivePersistentEffects(character) && (
           <StatCategory>
             <CategoryTitle>⚡ Active Effects</CategoryTitle>

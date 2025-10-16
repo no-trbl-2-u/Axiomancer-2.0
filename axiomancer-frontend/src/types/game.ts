@@ -79,7 +79,6 @@ export interface Character {
   };
   equipment: Equipment[];
   inventory: Item[];
-  philosophicalStance: PhilosophicalStance;
   equippedItems?: EquippedItems;
   inventoryCategories?: InventoryCategories;
   persistentEffects?: CombatantBuffs; // Buffs/debuffs that persist outside combat
@@ -100,7 +99,6 @@ export interface Skill {
   learningRequirement?: {
     level: number;
     stats?: Partial<Character['baseStats']>;
-    philosophicalAlignment?: Partial<PhilosophicalStance>;
   };
 
   // Combat.md required fields
@@ -133,12 +131,6 @@ export interface Item {
   stackable: boolean;
   quantity: number;
   icon: string;
-}
-
-export interface PhilosophicalStance {
-  ethics: 'virtue' | 'deontological' | 'consequentialist' | 'nihilistic';
-  metaphysics: 'materialist' | 'idealist' | 'dualist' | 'pragmatist';
-  epistemology: 'empiricist' | 'rationalist' | 'skeptical' | 'mystical';
 }
 
 export interface GameLocation {
@@ -229,7 +221,6 @@ export interface NodeChoice {
   text: string;
   cost?: NodeCost;
   outcome?: ChoiceOutcome;
-  philosophicalAlignment?: Partial<PhilosophicalStance>;
 }
 
 export interface NodeCost {
@@ -259,7 +250,6 @@ export interface DialogueChoice {
   id: string;
   text: string;
   nextNodeId?: string;
-  philosophicalAlignment?: Partial<PhilosophicalStance>;
   requirements?: ChoiceRequirement[];
   outcome?: ChoiceOutcome;
 }
@@ -299,7 +289,6 @@ export interface Enemy {
   skills: Skill[];
   equipment?: Equipment[];
   loot: Item[];
-  philosophicalAlignment?: PhilosophicalStance;
   type: 'fallacy' | 'sophist' | 'skeptic' | 'nihilist' | 'beast' | 'guardian';
   enemyTier?: 'normal' | 'elite' | 'boss';
   image?: string;

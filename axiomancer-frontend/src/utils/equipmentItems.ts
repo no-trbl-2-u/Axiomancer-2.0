@@ -365,17 +365,6 @@ export function getAvailableEquipment(character: any): Equipment[] {
     if (equipment.id.includes('advanced') && character.level < 5) return false;
     if (equipment.id.includes('master') && character.level < 8) return false;
 
-    // Philosophical alignment bonuses
-    if (equipment.stats.mind && character.philosophicalStance.epistemology === 'rationalist') {
-      return true; // Mind equipment favored by rationalists
-    }
-    if (equipment.stats.heart && character.philosophicalStance.ethics === 'virtue') {
-      return true; // Heart equipment favored by virtue ethicists
-    }
-    if (equipment.stats.body && character.philosophicalStance.metaphysics === 'materialist') {
-      return true; // Body equipment favored by materialists
-    }
-
     return true; // Basic availability
   });
 }

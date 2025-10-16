@@ -91,7 +91,6 @@ export const fallacySkills: Record<string, Skill> = {
     learningRequirement: {
       level: 4,
       stats: { heart: 16 },
-      philosophicalAlignment: { ethics: 'consequentialist' }
     }
   },
 
@@ -147,7 +146,6 @@ export const fallacySkills: Record<string, Skill> = {
     learningRequirement: {
       level: 2,
       stats: { mind: 14 },
-      philosophicalAlignment: { epistemology: 'rationalist' }
     }
   },
 
@@ -165,7 +163,6 @@ export const fallacySkills: Record<string, Skill> = {
     learningRequirement: {
       level: 3,
       stats: { mind: 16 },
-      philosophicalAlignment: { epistemology: 'skeptical' }
     }
   },
 
@@ -184,7 +181,6 @@ export const fallacySkills: Record<string, Skill> = {
     learningRequirement: {
       level: 2,
       stats: { mind: 12, heart: 12 },
-      philosophicalAlignment: { ethics: 'virtue' }
     }
   },
 
@@ -202,7 +198,6 @@ export const fallacySkills: Record<string, Skill> = {
     learningRequirement: {
       level: 4,
       stats: { body: 15, heart: 14 },
-      philosophicalAlignment: { ethics: 'deontological' }
     }
   },
 
@@ -221,7 +216,6 @@ export const fallacySkills: Record<string, Skill> = {
     learningRequirement: {
       level: 3,
       stats: { mind: 15 },
-      philosophicalAlignment: { epistemology: 'mystical' }
     }
   },
 
@@ -240,7 +234,6 @@ export const fallacySkills: Record<string, Skill> = {
     learningRequirement: {
       level: 5,
       stats: { mind: 18, heart: 16 },
-      philosophicalAlignment: { epistemology: 'rationalist' }
     }
   },
 
@@ -326,7 +319,7 @@ export function getAvailableSkills(character: any): Skill[] {
   return Object.values(fallacySkills).filter(skill => {
     if (!skill.learningRequirement) return true;
     
-    const {stats, level, philosophicalAlignment} = skill.learningRequirement;
+    const {stats, level} = skill.learningRequirement;
     
     // Check level requirement
     if (character.level < level) return false;
@@ -337,13 +330,6 @@ export function getAvailableSkills(character: any): Skill[] {
       /* Check if character meets stat requirement */
       for (const [stat, value] of Object.entries(stats)) {
         if (!character.baseStats || character.baseStats[stat] < value) return false;
-      }
-    }
-    
-    // Check philosophical alignment requirements
-    if (philosophicalAlignment) {
-      for (const [aspect, value] of Object.entries(philosophicalAlignment)) {
-        if (character.philosophicalStance[aspect] !== value) return false;
       }
     }
     
