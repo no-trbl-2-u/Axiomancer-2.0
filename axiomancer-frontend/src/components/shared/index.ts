@@ -9,3 +9,4 @@ export * from './StatDisplay';
 export * from './Slot';
 export * from './Form';
 export * from './ActionButton';
+export * from './Link';

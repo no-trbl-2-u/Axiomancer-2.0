@@ -1,58 +1,13 @@
 import React, { useState } from 'react';
-import styled from '@emotion/styled';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
-import { Button } from '../components/Button';
 import { Input } from '../components/Input';
-import { theme } from '../styles/theme';
+import { FormContainer, Form, FormError } from '../components/shared/Form';
+import { Title } from '../components/shared/Text';
+import { ActionButton } from '../components/shared/ActionButton';
+import { StyledLink } from '../components/shared/Link';
 import { RegisterData } from '../types';
 import { hasExistingCharacter } from '../utils/characterSave';
-
-const RegisterContainer = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: ${theme.borderRadius.lg};
-  padding: ${theme.spacing.xxl};
-  box-shadow: ${theme.shadows.xl};
-  width: 100%;
-  max-width: 400px;
-`;
-
-const Title = styled.h1`
-  text-align: center;
-  margin-bottom: ${theme.spacing.xl};
-  color: ${theme.colors.gray[800]};
-  font-size: 2rem;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing.lg};
-`;
-
-const ErrorMessage = styled.div`
-  background-color: ${theme.colors.danger};
-  color: ${theme.colors.white};
-  padding: ${theme.spacing.md};
-  border-radius: ${theme.borderRadius.md};
-  text-align: center;
-  font-size: 0.875rem;
-`;
-
-const StyledLink = styled(Link)`
-  background: none;
-  color: ${theme.colors.primary};
-  text-decoration: underline;
-  font-size: 0.875rem;
-  text-align: center;
-  margin-top: ${theme.spacing.md};
-  display: block;
-  
-  &:hover {
-    color: ${theme.colors.secondary};
-  }
-`;
 
 export const RegisterPage = React.memo(() => {
   // Zustand store
@@ -92,10 +47,10 @@ export const RegisterPage = React.memo(() => {
   };
 
   return (
-    <RegisterContainer>
-      <Title>Create Account</Title>
-      {error && <ErrorMessage>{error}</ErrorMessage>}
-      <Form onSubmit={handleSubmit}>
+    <FormContainer variant="auth" maxWidth="400px">
+      <Title variant="page" size="lg">Create Account</Title>
+      {error && <FormError>{error}</FormError>}
+      <Form variant="default" gap="lg" onSubmit={handleSubmit}>
         <Input
           type="text"
           name="firstName"
@@ -136,17 +91,19 @@ export const RegisterPage = React.memo(() => {
           required
           fullWidth
         />
-        <Button
+        <ActionButton
           type="submit"
+          variant="primary"
+          size="md"
           fullWidth
           disabled={isLoading}
         >
           {isLoading ? 'Creating Account...' : 'Create Account'}
-        </Button>
-        <StyledLink to="/login">
+        </ActionButton>
+        <StyledLink to="/login" variant="underline">
           Already have an account? Sign in
         </StyledLink>
       </Form>
-    </RegisterContainer>
+    </FormContainer>
   );
 });

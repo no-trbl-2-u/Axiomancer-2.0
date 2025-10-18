@@ -6,262 +6,10 @@ import { EquipmentSlot, Item, Equipment, EquipmentType, ItemType } from '../../t
 import { equipmentItems } from '../../utils/equipmentItems';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-
-const InventoryContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  padding: ${theme.spacing.xl};
-  background: ${theme.colors.background.primary};
-  gap: ${theme.spacing.xl};
-  position: relative;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    padding: ${theme.spacing.lg};
-    gap: ${theme.spacing.lg};
-  }
-
-  @media (max-width: 480px) {
-    padding: ${theme.spacing.md};
-    gap: ${theme.spacing.md};
-  }
-`;
-
-const EquipmentPanel = styled.div`
-  width: 400px;
-  background: ${theme.colors.background.panel};
-  border: ${theme.rpg.borderWidth} solid ${theme.colors.border.primary};
-  border-radius: ${theme.rpg.panelBorderRadius};
-  padding: ${theme.spacing.lg};
-  box-shadow: ${theme.shadows.panel};
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing.md};
-
-  @media (max-width: 768px) {
-    width: 100%;
-    padding: ${theme.spacing.md};
-  }
-
-  @media (max-width: 480px) {
-    padding: ${theme.spacing.sm};
-  }
-`;
-
-const PanelTitle = styled.h2`
-  color: ${theme.colors.text.accent};
-  margin: 0 0 ${theme.spacing.md} 0;
-  font-size: 1.3rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-  border-bottom: 2px solid ${theme.colors.border.primary};
-  padding-bottom: ${theme.spacing.sm};
-  text-align: center;
-
-  @media (max-width: 480px) {
-    font-size: 1.1rem;
-  }
-`;
-
-const EquipmentGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: ${theme.spacing.md};
-  flex: 1;
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(3, 1fr);
-    gap: ${theme.spacing.sm};
-  }
-
-  @media (max-width: 480px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: ${theme.spacing.sm};
-  }
-`;
-
-const EquipmentSlotBox = styled.div<{ isEmpty: boolean; gridArea?: string }>`
-  background: ${props => props.isEmpty
-    ? theme.colors.background.secondary
-    : 'linear-gradient(45deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2))'
-  };
-  border: 3px solid ${props => props.isEmpty
-    ? theme.colors.border.dark
-    : theme.colors.success
-  };
-  border-radius: ${theme.borderRadius.lg};
-  padding: ${theme.spacing.md};
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-height: 100px;
-  ${props => props.gridArea ? `grid-area: ${props.gridArea};` : ''}
-
-  &:hover {
-    border-color: ${theme.colors.primary};
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: ${theme.shadows.glow};
-  }
-
-  .slot-label {
-    color: ${theme.colors.text.secondary};
-    font-size: 0.7rem;
-    text-align: center;
-    text-transform: uppercase;
-    margin-bottom: ${theme.spacing.xs};
-
-    @media (max-width: 480px) {
-      font-size: 0.6rem;
-    }
-  }
-
-  .slot-icon {
-    font-size: 1.5rem;
-
-    @media (max-width: 480px) {
-      font-size: 1.2rem;
-    }
-  }
-
-  .item-name {
-    color: ${theme.colors.text.accent};
-    font-size: 0.75rem;
-    text-align: center;
-    margin-top: ${theme.spacing.xs};
-
-    @media (max-width: 480px) {
-      font-size: 0.65rem;
-    }
-  }
-
-  @media (max-width: 768px) {
-    min-height: 70px;
-  }
-
-  @media (max-width: 480px) {
-    min-height: 60px;
-  }
-`;
-
-const InventoryPanel = styled.div`
-  flex: 1;
-  background: ${theme.colors.background.panel};
-  border: ${theme.rpg.borderWidth} solid ${theme.colors.border.primary};
-  border-radius: ${theme.rpg.panelBorderRadius};
-  padding: ${theme.spacing.lg};
-  box-shadow: ${theme.shadows.panel};
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-
-  @media (max-width: 768px) {
-    padding: ${theme.spacing.md};
-  }
-
-  @media (max-width: 480px) {
-    padding: ${theme.spacing.sm};
-  }
-`;
-
-const CategoryTabs = styled.div`
-  display: flex;
-  gap: ${theme.spacing.sm};
-  margin-bottom: ${theme.spacing.md};
-  flex-wrap: wrap;
-
-  @media (max-width: 768px) {
-    justify-content: center;
-  }
-`;
-
-const CategoryTab = styled.button<{ active: boolean }>`
-  background: ${props => props.active ? theme.colors.primary : theme.colors.background.secondary};
-  border: 2px solid ${props => props.active ? theme.colors.primary : theme.colors.border.dark};
-  color: ${props => props.active ? 'white' : theme.colors.text.secondary};
-  padding: ${theme.spacing.sm} ${theme.spacing.md};
-  border-radius: ${theme.rpg.buttonBorderRadius};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: bold;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-
-  &:hover {
-    border-color: ${theme.colors.primary};
-    color: ${props => props.active ? 'white' : theme.colors.text.accent};
-  }
-`;
-
-const ItemGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-  gap: ${theme.spacing.sm};
-  flex: 1;
-  align-content: start;
-`;
-
-const ItemCard = styled.div<{ selected?: boolean }>`
-  background: ${props => props.selected
-    ? 'linear-gradient(45deg, rgba(59, 130, 246, 0.3), rgba(29, 78, 216, 0.3))'
-    : theme.colors.background.secondary
-  };
-  border: 2px solid ${props => props.selected ? theme.colors.primary : theme.colors.border.primary};
-  border-radius: ${theme.borderRadius.lg};
-  padding: ${theme.spacing.sm};
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: ${theme.spacing.xs};
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 70px;
-  height: 70px;
-  position: relative;
-
-  &:hover {
-    border-color: ${theme.colors.primary};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  .item-icon {
-    font-size: 2rem;
-  }
-
-  .item-name {
-    display: none; // Hide name in grid view
-  }
-
-  .item-quantity {
-    position: absolute;
-    bottom: 2px;
-    right: 4px;
-    background: ${theme.colors.background.primary};
-    color: ${theme.colors.text.accent};
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 2px 4px;
-    border-radius: ${theme.borderRadius.sm};
-    border: 1px solid ${theme.colors.border.primary};
-  }
-`;
-
-const EmptyState = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  color: ${theme.colors.text.secondary};
-  font-style: italic;
-  text-align: center;
-  padding: ${theme.spacing.xl};
-`;
+import { Container, Grid, EmptyState } from '../shared/Grid';
+import { Panel } from '../shared/Panel';
+import { Card } from '../shared/Card';
+import { TabsContainer, Tab } from '../shared/Tab';
 
 const TooltipOverlay = styled.div<{ show: boolean }>`
   position: fixed;
@@ -398,6 +146,23 @@ const TooltipSpecial = styled.div`
   border-left: 3px solid ${theme.colors.info};
 `;
 
+const EquipmentGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: ${theme.spacing.md};
+  flex: 1;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: ${theme.spacing.sm};
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: ${theme.spacing.sm};
+  }
+`;
+
 export const InventoryScreen = React.memo(() => {
   // Zustand store - selective subscriptions
   const character = useGameStore(state => state.gameState.character);
@@ -458,7 +223,6 @@ export const InventoryScreen = React.memo(() => {
     return inventoryCategories[selectedCategory as keyof typeof inventoryCategories] || [];
   };
 
-  // Equipment slot compatibility mapping
   const getCompatibleSlots = (item: Item): EquipmentSlot[] => {
     switch (item.type) {
       case 'weapon':
@@ -466,37 +230,26 @@ export const InventoryScreen = React.memo(() => {
       case 'armor':
         return ['helmet', 'bodyArmor', 'gloves', 'boots'];
       case 'misc':
-        // For misc items, check the name to determine what type of accessory it is
         const lowerName = item.name.toLowerCase();
-        if (lowerName.includes('ring')) {
-          return ['leftRing', 'rightRing'];
-        } else if (lowerName.includes('amulet')) {
-          return ['amulet'];
-        } else if (lowerName.includes('bracelet')) {
-          return ['bracelet'];
-        } else if (lowerName.includes('cloak')) {
-          return ['cloak'];
-        }
-        return []; // Unknown misc items can't be equipped
-      case 'consumable':
-        return []; // Consumables can't be equipped
+        if (lowerName.includes('ring')) return ['leftRing', 'rightRing'];
+        else if (lowerName.includes('amulet')) return ['amulet'];
+        else if (lowerName.includes('bracelet')) return ['bracelet'];
+        else if (lowerName.includes('cloak')) return ['cloak'];
+        return [];
       default:
         return [];
     }
   };
 
   const canEquipToSlot = (item: Item, slot: EquipmentSlot): boolean => {
-    const compatibleSlots = getCompatibleSlots(item);
-    return compatibleSlots.includes(slot);
+    return getCompatibleSlots(item).includes(slot);
   };
 
   const equipItem = (item: Item, slot: EquipmentSlot) => {
     if (!canEquipToSlot(item, slot)) return;
 
-    // If there's already an item in the slot, move it back to inventory (handled by unequip)
     const existingItem = equippedItems[slot];
     if (existingItem) {
-      // Convert Equipment to Item format for inventory
       const itemForInventory: Item = {
         id: existingItem.id,
         name: existingItem.name,
@@ -516,21 +269,17 @@ export const InventoryScreen = React.memo(() => {
       }
     }
 
-    // Look up the actual equipment from the equipment database
     const equipmentFromDb = equipmentItems[item.id];
-
-    // Convert Item to Equipment format for equipping, using stats from database
     const equipmentItem: Equipment = equipmentFromDb || {
       id: item.id,
       name: item.name,
       type: item.type === 'misc' ? 'accessory' : item.type as EquipmentType,
-      stats: {}, // Fallback to empty stats if not found in database
+      stats: {},
       icon: item.icon
     };
 
     console.log(`⚔️ Equipping ${equipmentItem.name} with stats:`, equipmentItem.stats);
 
-    // Remove item from inventory
     const category = item.type === 'weapon' ? 'equipment' :
       item.type === 'armor' ? 'equipment' : 'consumables';
     const categoryItems = inventoryCategories[category as keyof typeof inventoryCategories] as Item[];
@@ -539,10 +288,7 @@ export const InventoryScreen = React.memo(() => {
       categoryItems.splice(itemIndex, 1);
     }
 
-    // Use GameContext's equipItem to properly recalculate stats
     equipItemToSlot(slot, equipmentItem);
-
-    // Update inventory categories
     updateCharacter({ inventoryCategories });
   };
 
@@ -550,7 +296,6 @@ export const InventoryScreen = React.memo(() => {
     const item = equippedItems[slot];
     if (!item) return;
 
-    // Convert Equipment to Item format for inventory
     const itemForInventory: Item = {
       id: item.id,
       name: item.name,
@@ -562,7 +307,6 @@ export const InventoryScreen = React.memo(() => {
       icon: item.icon
     };
 
-    // Add item back to inventory
     const category = item.type === 'weapon' ? 'equipment' :
       item.type === 'armor' ? 'equipment' : 'consumables';
 
@@ -570,10 +314,7 @@ export const InventoryScreen = React.memo(() => {
       (inventoryCategories[category as keyof typeof inventoryCategories] as Item[]).push(itemForInventory);
     }
 
-    // Use GameContext's unequipItem to properly recalculate stats
     unequipItemFromSlot(slot);
-
-    // Update inventory categories
     updateCharacter({ inventoryCategories });
   };
 
@@ -629,36 +370,6 @@ export const InventoryScreen = React.memo(() => {
             )}
           </TooltipSection>
 
-          {'learningRequirement' in item && item.learningRequirement && typeof item.learningRequirement === 'object' ? (
-            <TooltipSection>
-              <TooltipSectionTitle>Requirements</TooltipSectionTitle>
-              {'level' in item.learningRequirement && item.learningRequirement.level ? (
-                <TooltipStat>
-                  <span className="stat-name">Level</span>
-                  <span className="stat-value">{item.learningRequirement.level as number}</span>
-                </TooltipStat>
-              ) : null}
-              {'stats' in item.learningRequirement && item.learningRequirement.stats && typeof item.learningRequirement.stats === 'object' && 'heart' in item.learningRequirement.stats && item.learningRequirement.stats.heart ? (
-                <TooltipStat>
-                  <span className="stat-name">Heart</span>
-                  <span className="stat-value">{item.learningRequirement.stats.heart as number}</span>
-                </TooltipStat>
-              ) : null}
-              {'stats' in item.learningRequirement && item.learningRequirement.stats && typeof item.learningRequirement.stats === 'object' && 'body' in item.learningRequirement.stats && item.learningRequirement.stats.body ? (
-                <TooltipStat>
-                  <span className="stat-name">Body</span>
-                  <span className="stat-value">{item.learningRequirement.stats.body as number}</span>
-                </TooltipStat>
-              ) : null}
-              {'stats' in item.learningRequirement && item.learningRequirement.stats && typeof item.learningRequirement.stats === 'object' && 'mind' in item.learningRequirement.stats && item.learningRequirement.stats.mind ? (
-                <TooltipStat>
-                  <span className="stat-name">Mind</span>
-                  <span className="stat-value">{item.learningRequirement.stats.mind as number}</span>
-                </TooltipStat>
-              ) : null}
-            </TooltipSection>
-          ) : null}
-
           {equipment.special && (
             <TooltipSpecial>
               ✨ {equipment.special}
@@ -671,17 +382,17 @@ export const InventoryScreen = React.memo(() => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <InventoryContainer>
-        <EquipmentPanel>
-          <PanelTitle>Equipment</PanelTitle>
+      <Container variant="game" padding="xl">
+        <Panel variant="equipment" title="Equipment">
           <EquipmentGrid>
             {equipmentSlots.map(({ slot, label, icon, gridArea }) => {
               const equippedItem = equippedItems[slot];
               return (
-                <EquipmentSlotBox
+                <Card
                   key={slot}
+                  variant="equipment"
                   isEmpty={!equippedItem}
-                  {...(gridArea ? { gridArea } : {})}
+                  gridArea={gridArea}
                   onDoubleClick={() => {
                     if (equippedItem) {
                       unequipItem(slot);
@@ -708,99 +419,105 @@ export const InventoryScreen = React.memo(() => {
                   onMouseLeave={() => setHoveredItem(null)}
                   title={equippedItem ? `Double-click to unequip ${equippedItem.name}` : 'Drag equipment here or double-click equipment to equip'}
                 >
-                  <div className="slot-label">{label}</div>
-                  <div className="slot-icon">{equippedItem ? equippedItem.icon : icon}</div>
+                  <div className="slot-label" style={{ color: theme.colors.text.secondary, fontSize: '0.7rem', textAlign: 'center', textTransform: 'uppercase', marginBottom: theme.spacing.xs }}>{label}</div>
+                  <div className="slot-icon" style={{ fontSize: '1.5rem' }}>{equippedItem ? equippedItem.icon : icon}</div>
                   {equippedItem && (
                     <>
-                      <div className="item-name">{equippedItem.name}</div>
+                      <div className="item-name" style={{ color: theme.colors.text.accent, fontSize: '0.75rem', textAlign: 'center', marginTop: theme.spacing.xs }}>{equippedItem.name}</div>
                       <div style={{ fontSize: '0.6rem', color: theme.colors.text.muted }}>
                         Double-click to unequip
                       </div>
                     </>
                   )}
-                </EquipmentSlotBox>
+                </Card>
               );
             })}
           </EquipmentGrid>
-        </EquipmentPanel>
+        </Panel>
 
-      <InventoryPanel>
-        <PanelTitle>Inventory</PanelTitle>
+        <Panel variant="inventory" title="Inventory" fullHeight scrollable>
+          <TabsContainer variant="category" gap="sm" wrap>
+            {categories.map(({ id, label, icon }) => (
+              <Tab
+                key={id}
+                active={selectedCategory === id}
+                onClick={() => setSelectedCategory(id)}
+                variant="category"
+              >
+                {icon} {label}
+              </Tab>
+            ))}
+          </TabsContainer>
 
-        <CategoryTabs>
-          {categories.map(({ id, label, icon }) => (
-            <CategoryTab
-              key={id}
-              active={selectedCategory === id}
-              onClick={() => setSelectedCategory(id)}
-            >
-              {icon} {label}
-            </CategoryTab>
-          ))}
-        </CategoryTabs>
+          {getCurrentItems().length > 0 ? (
+            <Grid variant="item" gap="sm">
+              {getCurrentItems().map((item) => {
+                const compatibleSlots = getCompatibleSlots(item);
+                const canEquip = compatibleSlots.length > 0;
 
-        {getCurrentItems().length > 0 ? (
-          <ItemGrid>
-            {getCurrentItems().map((item) => {
-              const compatibleSlots = getCompatibleSlots(item);
-              const canEquip = compatibleSlots.length > 0;
-
-              return (
-                <ItemCard
-                  key={item.id}
-                  selected={selectedItem?.id === item.id}
-                  onClick={() => canEquip ? setSelectedItem(item) : null}
-                  onDoubleClick={() => {
-                    if (canEquip && compatibleSlots.length > 0) {
-                      // Find first compatible empty slot
-                      const firstAvailableSlot = compatibleSlots.find(slot => !equippedItems[slot]);
-                      if (firstAvailableSlot) {
-                        equipItem(item, firstAvailableSlot);
-                        setSelectedItem(null);
-                      } else {
-                        // If no empty slot, equip to first compatible slot (will swap)
-                        equipItem(item, compatibleSlots[0]!);
-                        setSelectedItem(null);
+                return (
+                  <Card
+                    key={item.id}
+                    variant="item"
+                    isSelected={selectedItem?.id === item.id}
+                    onClick={() => canEquip ? setSelectedItem(item) : null}
+                    onDoubleClick={() => {
+                      if (canEquip && compatibleSlots.length > 0) {
+                        const firstAvailableSlot = compatibleSlots.find(slot => !equippedItems[slot]);
+                        if (firstAvailableSlot) {
+                          equipItem(item, firstAvailableSlot);
+                          setSelectedItem(null);
+                        } else {
+                          equipItem(item, compatibleSlots[0]!);
+                          setSelectedItem(null);
+                        }
                       }
-                    }
-                  }}
-                  onMouseEnter={(e) => {
-                    setHoveredItem({
-                      item,
-                      x: e.clientX,
-                      y: e.clientY
-                    });
-                  }}
-                  onMouseMove={(e) => {
-                    setHoveredItem({
-                      item,
-                      x: e.clientX,
-                      y: e.clientY
-                    });
-                  }}
-                  onMouseLeave={() => setHoveredItem(null)}
-                  style={{
-                    cursor: canEquip ? 'pointer' : 'default',
-                    opacity: canEquip ? 1 : 0.5
-                  }}
-                  title={canEquip ? `Double-click to equip to ${compatibleSlots[0]}` : 'Cannot be equipped'}
-                >
-                  <div className="item-icon">{item.icon}</div>
-                  {item.stackable && item.quantity > 1 && (
-                    <div className="item-quantity">x{item.quantity}</div>
-                  )}
-                </ItemCard>
-              );
-            })}
-          </ItemGrid>
-        ) : (
-          <EmptyState>
-            No items in this category
-          </EmptyState>
-        )}
-      </InventoryPanel>
-    </InventoryContainer>
-    {renderTooltip()}
-  </DndProvider>
+                    }}
+                    onMouseEnter={(e) => {
+                      setHoveredItem({
+                        item,
+                        x: e.clientX,
+                        y: e.clientY
+                      });
+                    }}
+                    onMouseMove={(e) => {
+                      setHoveredItem({
+                        item,
+                        x: e.clientX,
+                        y: e.clientY
+                      });
+                    }}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    disabled={!canEquip}
+                    title={canEquip ? `Double-click to equip to ${compatibleSlots[0]}` : 'Cannot be equipped'}
+                  >
+                    <div className="item-icon" style={{ fontSize: '2rem' }}>{item.icon}</div>
+                    {item.stackable && item.quantity > 1 && (
+                      <div className="item-quantity" style={{
+                        position: 'absolute',
+                        bottom: '2px',
+                        right: '4px',
+                        background: theme.colors.background.primary,
+                        color: theme.colors.text.accent,
+                        fontSize: '0.7rem',
+                        fontWeight: 600,
+                        padding: '2px 4px',
+                        borderRadius: theme.borderRadius.sm,
+                        border: `1px solid ${theme.colors.border.primary}`
+                      }}>x{item.quantity}</div>
+                    )}
+                  </Card>
+                );
+              })}
+            </Grid>
+          ) : (
+            <EmptyState variant="inventory">
+              No items in this category
+            </EmptyState>
+          )}
+        </Panel>
+      </Container>
+      {renderTooltip()}
+    </DndProvider>
   );
 });
