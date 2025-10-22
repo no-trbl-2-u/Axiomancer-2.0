@@ -169,14 +169,15 @@ export const InventoryScreen = React.memo(() => {
   const updateCharacter = useGameStore(state => state.updateCharacter);
   const equipItemToSlot = useGameStore(state => state.equipItem);
   const unequipItemFromSlot = useGameStore(state => state.unequipItem);
-  
+
   const [selectedCategory, setSelectedCategory] = useState<string>('equipment');
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-  const [hoveredItem, setHoveredItem] = useState<{item: Item | Equipment, x: number, y: number} | null>(null);
+  const [hoveredItem, setHoveredItem] = useState<{ item: Item | Equipment, x: number, y: number } | null>(null);
 
   // Initialize equipment slots and inventory categories with test data
   const equippedItems = character.equippedItems || {};
   const inventoryCategories = character.inventoryCategories || {
+    // REMOVE: These are hard-coded test items for the inventory
     equipment: [
       { id: 'broken_compass', name: 'Broken Compass of Lost Direction', description: 'A compass that has lost its way', type: 'weapon' as const, value: 10, stackable: false, quantity: 1, icon: '🧭' },
       { id: 'mirror_of_self_reflection', name: 'Mirror of Self-Reflection', description: 'Forces self-examination', type: 'weapon' as const, value: 15, stackable: false, quantity: 1, icon: '🪞' },
@@ -392,7 +393,7 @@ export const InventoryScreen = React.memo(() => {
                   key={slot}
                   variant="equipment"
                   isEmpty={!equippedItem}
-                  gridArea={gridArea}
+                  {...(gridArea && { gridArea })}
                   onDoubleClick={() => {
                     if (equippedItem) {
                       unequipItem(slot);
@@ -420,15 +421,9 @@ export const InventoryScreen = React.memo(() => {
                   title={equippedItem ? `Double-click to unequip ${equippedItem.name}` : 'Drag equipment here or double-click equipment to equip'}
                 >
                   <div className="slot-label" style={{ color: theme.colors.text.secondary, fontSize: '0.7rem', textAlign: 'center', textTransform: 'uppercase', marginBottom: theme.spacing.xs }}>{label}</div>
-                  <div className="slot-icon" style={{ fontSize: '1.5rem' }}>{equippedItem ? equippedItem.icon : icon}</div>
-                  {equippedItem && (
-                    <>
-                      <div className="item-name" style={{ color: theme.colors.text.accent, fontSize: '0.75rem', textAlign: 'center', marginTop: theme.spacing.xs }}>{equippedItem.name}</div>
-                      <div style={{ fontSize: '0.6rem', color: theme.colors.text.muted }}>
-                        Double-click to unequip
-                      </div>
-                    </>
-                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+                    <div className="slot-icon" style={{ fontSize: '1.5rem' }}>{equippedItem ? equippedItem.icon : icon}</div>
+                  </div>
                 </Card>
               );
             })}

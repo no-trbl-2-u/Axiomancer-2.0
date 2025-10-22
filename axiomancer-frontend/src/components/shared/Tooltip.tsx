@@ -1,7 +1,7 @@
 import React from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import styled from '@emotion/styled';
-import { theme } from '../styles/theme';
+import { theme } from '../../styles/theme';
 
 interface TooltipProps {
   content: string | React.ReactNode;

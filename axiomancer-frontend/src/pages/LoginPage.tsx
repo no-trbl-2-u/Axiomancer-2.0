@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
-import { Input } from '../components/Input';
+import { Input } from '../components/shared/Input';
 import { FormContainer, Form, FormError } from '../components/shared/Form';
 import { Title } from '../components/shared/Text';
 import { ActionButton } from '../components/shared/ActionButton';

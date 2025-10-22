@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { useGameStore } from '../stores/gameStore';
-import { CharacterCreationScreen } from '../components/character/CharacterCreationScreen';
+import { CharacterCreationScreen } from '../components/game/CharacterCreationScreen';
 import { MainGameInterface } from '../components/game/MainGameInterface';
 
 const GameContainer = styled.div`

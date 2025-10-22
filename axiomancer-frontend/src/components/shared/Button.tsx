@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { theme } from '../styles/theme';
+import { theme } from '../../styles/theme';
 
 interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'danger' | 'outline';

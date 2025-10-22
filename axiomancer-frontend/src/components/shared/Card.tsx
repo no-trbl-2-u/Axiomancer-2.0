@@ -219,7 +219,7 @@ export const Card: React.FC<CardProps> = ({
       onMouseLeave={onMouseLeave}
       className={className}
       disabled={disabled}
-      gridArea={gridArea}
+      gridArea={gridArea || ''}
       title={title}
     >
       {children}
