@@ -113,6 +113,16 @@ const UnassignedPointsDisplay = styled.div`
   }
 `;
 
+const StyledPanel = styled(Panel)`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: ${theme.spacing.lg};
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
 export const CharacterScreen = React.memo((): JSX.Element => {
   // Zustand stores - selective subscriptions
   const character = useGameStore(state => state.gameState.character);
@@ -169,7 +179,7 @@ export const CharacterScreen = React.memo((): JSX.Element => {
         </ActionButton>
       </Panel>
 
-      <Panel variant="stats" title="Character Statistics" fullHeight scrollable>
+      <StyledPanel variant="stats" fullHeight scrollable>
         <StatCategory title="🏥 Core Stats">
           <StatRow label="Health" value={`${character.health} / ${character.maxHealth}`} />
           <StatRow label="Mana" value={`${character.mana} / ${character.maxMana}`} />
@@ -293,7 +303,7 @@ export const CharacterScreen = React.memo((): JSX.Element => {
             </div>
           </StatCategory>
         )}
-      </Panel>
+      </StyledPanel>
     </Container>
   );
 });

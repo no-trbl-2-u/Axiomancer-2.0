@@ -85,7 +85,6 @@ const StatValue = styled.span<{ variant?: string }>`
 `;
 
 const StyledStatCategory = styled.div<{ variant?: string }>`
-  margin-bottom: ${theme.spacing.xl};
   padding: ${theme.spacing.md};
   background: rgba(0, 0, 0, 0.2);
   border-radius: ${theme.borderRadius.lg};

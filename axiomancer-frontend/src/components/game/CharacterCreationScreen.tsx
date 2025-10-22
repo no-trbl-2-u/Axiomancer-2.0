@@ -140,6 +140,10 @@ const PortraitDisplay = styled.div`
 `;
 
 const StatsContainer = styled.div`
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
   width: 100%;
   color: ${theme.colors.text.primary};
 
@@ -200,9 +204,10 @@ const CreateButton = styled.button`
   transition: all 0.3s ease;
   margin-top: 30px;
 
-  &:hover {
+  &:hover, &:focus {
     background: ${theme.colors.accent};
     transform: translateY(-2px);
+
   }
 
   &:disabled {
@@ -235,7 +240,8 @@ const StatButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover:not(:disabled) {
+  &:hover:not(:disabled),
+  &:focus:not(:disabled) {
     background: ${theme.colors.accent};
     transform: scale(1.1);
   }
