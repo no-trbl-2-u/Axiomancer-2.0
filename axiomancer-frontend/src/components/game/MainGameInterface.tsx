@@ -407,16 +407,6 @@ export const MainGameInterface: React.FC = () => {
           <span className="label">Inventory</span>
         </NavIcon>
       </BottomNavigation>
-
-      {/* Combat Modal */}
-      <CombatModal
-        open={gameState.combat !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            endCombat();
-          }
-        }}
-      />
     </GameContainer>
   );
 };
