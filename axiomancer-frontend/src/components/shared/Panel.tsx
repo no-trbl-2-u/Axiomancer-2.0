@@ -16,12 +16,12 @@ interface PanelProps {
 }
 
 const StyledPanel = styled.div<{
-  variant?: string;
-  width?: string | number;
-  maxWidth?: string;
-  padding?: string;
-  fullHeight?: boolean;
-  scrollable?: boolean;
+  variant?: string | undefined;
+  width?: string | number | undefined;
+  maxWidth?: string | undefined;
+  padding?: string | undefined;
+  fullHeight?: boolean | undefined;
+  scrollable?: boolean | undefined;
 }>`
   background: ${theme.colors.background.panel};
   border: ${theme.rpg.borderWidth} solid ${theme.colors.border.primary};
