@@ -10,6 +10,7 @@ import { CharacterScreen } from './CharacterScreen';
 import { InventoryScreen } from './InventoryScreen';
 import { SkillScreen } from './SkillScreen';
 import { GlobalLocalMapScreen } from './GlobalLocalMapScreen';
+import { CombatModal } from '../../figma/CombatModal';
 import { featureFlags } from '../../config/featureFlags';
 
 type ActiveTab = 'character' | 'inventory' | 'skills' | 'map' | 'combat';
@@ -237,6 +238,8 @@ export const MainGameInterface: React.FC = () => {
   const combat = useGameStore(state => state.gameState.combat);
   const currentScreen = useGameStore(state => state.currentScreen);
   const changeScreen = useGameStore(state => state.changeScreen);
+  const gameState = useGameStore(state => state.gameState);
+  const endCombat = useGameStore(state => state.endCombat);
 
   // Debug store
   const debugMode = useDebugStore(state => state.debugMode);
@@ -404,6 +407,16 @@ export const MainGameInterface: React.FC = () => {
           <span className="label">Inventory</span>
         </NavIcon>
       </BottomNavigation>
+
+      {/* Combat Modal */}
+      <CombatModal
+        open={gameState.combat !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            endCombat();
+          }
+        }}
+      />
     </GameContainer>
   );
 };

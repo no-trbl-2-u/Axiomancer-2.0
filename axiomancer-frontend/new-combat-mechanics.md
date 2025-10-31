@@ -1,0 +1,128 @@
+# Old Mechanics we're keeping
+Heart > Body > Mind > Heart
+
+Combat is Rock-Paper-Scissors meets Dungeons and Dragons
+
+# Removal Before We Start:
+- Remove all mention of:
+    - All mention of status effects
+    - Everything about the original combat mechanics
+    - The ENTIRE CombatScreen
+    - All mention of Physical Attack
+    - All mention of Mental Attack
+    - All mention of Ailment Attack
+
+# New Combat Mechanics:
+- Combat begins
+- Render:
+  - Details
+    - Combat Round
+    - Friendship Counter (number, starting at 0)
+    - Battle Log (Round, decisions, rolls, results, damage done, remaining HP)
+        - Example:
+            - "Round 1 Decisions: Body Attack vs. Mind Attack! Player has advantage!" (Player decision always comes first in the text)
+            - "Round 1 Attack Rolls: Player (15), Enemy (17). Enemy is dealing damage this turn!"
+            - "Round 1 Damage: Enemy 
+    - Player's HP
+    - Player's MP
+    - Player's Portrait
+    - Enemy's Name
+    - Enemy's HP
+    - Enemy's MP
+    - Enemy's Portrait
+  - Type Decision
+    - Heart
+    - Body
+    - Mind
+    - Item (Not a Type, Does Nothing)
+    - Flee (Not a Type, Closes Combat modal)
+  - (After first type decision is made)
+    - Attack
+    - Defend
+    - Back
+
+- Attack vs. Attack Results:
+    - Attack Rolls
+        - Determine Advantage:
+            - With Advantage: rolls 2d20 and takes the higher roll (+ decision stat)
+            - With no Advantage: roll 1d20 (+ decision stat)
+        - Player and enemy roll simultaneously
+        - Winner rolls for damage
+            - Example: 
+                - Player picks Body Attack
+                - Enemy picks Mind Attack
+                - Player rolls 2d20 (takes the higher roll) then adds their decision stat
+                - Enemy rolls 1d20 and then adds their decision stat
+                - Whoever has the higher roll result then rolls for damage
+    - Damage roll
+        - If player has advantage:
+            - 2d20 (take the higher roll) + Type Decision stat vs. Enemy's matching type defense
+            - Example:
+                - Player chose Body, so {Damage} - Physical Defense
+            - Example-2:
+                - Enemy has 10 Physical Defense
+                - Player rolls an 8 and a 14
+                - The 14 is kept, now add Type Decision (in this example, let's say 5)
+                - Player has 19 Damage coming the Enemy's way
+                - 19 Damage minus 10 means the player did 9 damage
+        - If player does not have advantage, but still wins the combat roll
+            - Same thing, except 1d20
+            - Example:
+                - Enemy has 10 Physical Defense
+                - Player rolls a 2
+                - 2 + Type Decision Stat (in this example, let's say 5)
+                - Player has 7 Damage coming the enemy's way
+                - 7 - 10 = -3 (all negative numbers are rounded to 0)
+                - Player did 0 damage
+        - If player has disadvantage, but still wins the combat roll
+            - Same thing, except 2d20 and take the worst results
+            - Example:
+                - Enemy has 10 Physical Defense
+                - Player rolls 2d20 (20 and 15 and so the 15 is used)
+                - 15 + Type Decision Stat (in this example, let's say 5)
+                - Player has 20 damage coming the enemy's way
+                - 20 - 10 = 10
+                - Player did 10 damage
+
+- Attack (player) vs. Defense (Enemy) Results Examples
+    - Disadvantage
+        - Player chooses Body Attack
+        - Enemy chooses Heart Defense
+        - Advantage is determined
+        - Enemy has advantage
+            - Causes player to roll 2d20 and take the worse result
+        - Player rolls 2d20 (16 and a 12, the 12 is chosen)
+        - 12 + Body stat (in this case 5)
+        - Player has 17 attack coming to the enemy
+        - Enemy has 20 Heart Defense (When defending, use the Type Decision defense stat)
+        - (17 - 20) = -3 (rounded to 0)
+        - Player deals 0 damage
+    - Advantage
+        - Player Chooses Body Attack
+        - Enemy Chooses Mind Defense
+        - Advantage is determined
+        - Player has advantage
+            - Player rolls 2d20 and keeps higher result. Furthermore, halves the enemy's type defense for the combat rolls
+        - Player rolls 2d20 (7 and a 12, the 12 is chosen)
+        - 12 + Body stat (in this case 5)
+        - Player has 17 damage coming their way
+        - Enemy has (20/2) Mind defense (10)
+        - (17 - 10) = 7
+        - Player deals 7 damage
+    - Neutral
+        - Player Chooses Body Attack
+        - Enemy Chooses Body Defense
+        - Neutral Effect:
+            - Player automatically hits
+            - Enemy doubles the relevant defense
+        - Player Rolls for damage, 1d20 (7)
+        - Enemy has 6(*2) Physical Defense, so 12
+        - 7 - 12 = -5 (rounded up to 0)
+        - Player does 0 damage
+
+- Defense vs. Defense Results
+    - Increment the "Friendly Counter"
+    - If the friendly counter reaches 3:
+        - Change the modal from a Combat modal to a "New Friends" Modal
+        - Just render both portaits side to side and a big smiley face in the middle and a "Continue" button underneath
+                                          

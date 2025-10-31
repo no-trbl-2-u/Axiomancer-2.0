@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
-import { useDebugStore } from '../../stores/debugStore';
 import { getAvailableSkills, applySkillEffect } from '../../utils/fallacySkills';
 import { Skill, PhilosophicalAspect, BuffDebuff } from '../../types/game';
 import { saveCharacter } from '../../utils/characterSave';
 import { SkillSelectionModal } from '../combat/SkillSelectionModal';
 import { CombatScreen } from './CombatScreen';
 import { processEventEffectReduction, clearAllPersistentEffects } from '../../utils/persistentEffects';
+import { CombatModal } from '../../figma/CombatModal';
 
 type EventType = 'combat' | 'moral' | 'gathering' | 'rest';
 type SkillCategory = 'body' | 'mind' | 'heart';
@@ -617,10 +617,6 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
   const unlockGuardianProgression = useGameStore(state => state.unlockGuardianProgression);
   const startCombat = useGameStore(state => state.startCombat);
 
-  // Debug store - global debug state
-  const debugMode = useDebugStore(state => state.debugMode);
-  const nextEventType = useDebugStore(state => state.nextEventType);
-
   // Combat state
   const [enemy, setEnemy] = useState<Enemy | null>(null);
   const [enemyHealth, setEnemyHealth] = useState(0);
@@ -644,7 +640,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
       initializeEvent();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, eventType, debugMode, nextEventType]);
+  }, [isOpen, eventType]);
 
   useEffect(() => {
     const skills = getAvailableSkills(gameState.character);
@@ -654,12 +650,12 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
   // Close the entire event modal when the enemy is defeated in combat
   useEffect(() => {
     if (!isOpen || eventType !== 'combat') return;
+    
     const combat = gameState.combat;
-    if (!combat) {
-      onClose();
-      return;
-    }
-    if (combat.enemy.health <= 0) {
+    
+    // Only close if combat exists and enemy is defeated
+    // Don't close if combat is null during initialization
+    if (combat && combat.enemy && combat.enemy.health <= 0) {
       onClose();
     }
   }, [isOpen, eventType, gameState.combat, onClose]);
@@ -668,10 +664,9 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
     setEventCompleted(false);
     setEventResult('');
 
-    // Use debug event type if debug mode is on, otherwise use the passed eventType
-    const actualEventType = debugMode ? nextEventType : eventType;
-
-    switch (actualEventType) {
+    // EventType is already determined by GlobalLocalMapScreen (respecting debug mode)
+    // This just initializes the appropriate event content
+    switch (eventType) {
       case 'combat':
         // Initialize combat in the global store with forest monsters
         const forestMonsters = ['elder_tree', 'tree_guardian_1', 'tree_guardian_2'];
@@ -944,7 +939,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
 
     switch (eventType) {
       case 'combat':
-        return <CombatScreen />;
+        return <CombatModal open={true} onOpenChange={() => {}} />;
         
       case 'moral':
         if (!currentScenario) return null;
@@ -1030,20 +1025,6 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
           {renderEventContent()}
         </ModalBody>
       </ModalContent>
-
-      {eventType !== 'combat' && (
-        <SkillSelectionModal
-          isOpen={showSkillModal}
-          selectedAspect={selectedCategory as PhilosophicalAspect}
-          onSkillSelect={(skill) => {
-            handleSkillUse(skill);
-            setShowSkillModal(false);
-          }}
-          onClose={() => setShowSkillModal(false)}
-          playerMana={gameState.character.mana}
-          character={gameState.character}
-        />
-      )}
     </ModalOverlay>
   );
 };

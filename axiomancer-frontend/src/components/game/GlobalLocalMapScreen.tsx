@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
+import { useDebugStore } from '../../stores/debugStore';
 import { EventModal } from './EventModal';
 import { LockedNodeModal } from './LockedNodeModal';
 import { saveCharacter } from '../../utils/characterSave';
@@ -309,6 +310,10 @@ export const GlobalLocalMapScreen: React.FC = () => {
   const unlockNode = useGameStore(state => state.unlockNode);
   const unlockGuardianProgression = useGameStore(state => state.unlockGuardianProgression);
 
+  // Debug store - for forcing specific event types
+  const debugMode = useDebugStore(state => state.debugMode);
+  const nextEventType = useDebugStore(state => state.nextEventType);
+
   // Always start in fishing village
   const [selectedArea, setSelectedArea] = useState<string>('fishing_town');
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
@@ -390,22 +395,26 @@ export const GlobalLocalMapScreen: React.FC = () => {
       return; // Start nodes are just visual markers
     }
 
-    // Prevent clicking on completed nodes
+    // Prevent clicking on completed nodes (allow revisit with debug mode or random chance)
     if (node.completed) {
-      const revisitChance = Math.random();
-      if (revisitChance < 0.75) {
-        // Show "nothing here" modal
-        setCurrentEventType('rest');
-        setCurrentNodeId(node.id + '_empty');
-        setShowEventModal(true);
-        return;
+      if (debugMode) {
+        // Debug mode - use selected event type
+        setCurrentEventType(nextEventType as 'combat' | 'moral' | 'gathering' | 'rest');
+        console.log('🐛 DEBUG MODE: Revisiting completed node with event type', nextEventType);
       } else {
-        // 25% chance of combat when revisiting
-        setCurrentEventType('combat');
-        setCurrentNodeId(node.id);
-        setShowEventModal(true);
-        return;
+        // Normal mode - random chance
+        const revisitChance = Math.random();
+        if (revisitChance < 0.75) {
+          // Show "nothing here" modal
+          setCurrentEventType('rest');
+        } else {
+          // 25% chance of combat when revisiting
+          setCurrentEventType('combat');
+        }
       }
+      setCurrentNodeId(node.id + '_empty');
+      setShowEventModal(true);
+      return;
     }
 
     // Check if node is accessible
@@ -427,11 +436,20 @@ export const GlobalLocalMapScreen: React.FC = () => {
       return;
     }
     
-    // First time visiting - assign random event type if not already assigned
-    let eventType = (node as any).eventType;
-    if (!eventType) {
-      eventType = assignRandomEventType();
-      // TODO: Update the node in game state with this event type
+    // Determine event type - use debug mode if enabled, otherwise random/assigned
+    let eventType: 'combat' | 'moral' | 'gathering' | 'rest';
+    
+    if (debugMode) {
+      // Debug mode is enabled - use the selected event type
+      eventType = nextEventType as 'combat' | 'moral' | 'gathering' | 'rest';
+      console.log('🐛 DEBUG MODE: Forcing event type to', eventType);
+    } else {
+      // Normal mode - use assigned event type or generate random one
+      eventType = (node as any).eventType;
+      if (!eventType) {
+        eventType = assignRandomEventType();
+        // TODO: Update the node in game state with this event type
+      }
     }
     
     // Handle different event types in modal

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, CharacterPortrait, BaseStats, Equipment, EquipmentSlot, Skill, PhilosophicalAspect } from '../types/game';
+import { NewCombatState } from '../types/newCombat';
 import { initialQuests } from '../utils/questSystem';
 import { createEnemyByType } from '../utils/combatMechanics';
 import { fallacySpellbook } from '../utils/fallacySpellbook';
@@ -1299,37 +1300,25 @@ export const useGameStore = create<GameStore>()(
       // Combat System
       startCombat: (enemyId: string) => {
         const state = get();
-        const baseEnemy = createEnemyByType(enemyId);
-        // Give every enemy a default set of fallacies so they can use Special
-        const enemySkills: Skill[] = [
-          fallacySpellbook.actions_have_consequences,
-          fallacySpellbook.alphabet_soup,
-          fallacySpellbook.ableism,
-        ].filter(Boolean) as Skill[];
-        const enemy = { ...baseEnemy, skills: enemySkills };
-        
+        const enemy = createEnemyByType(enemyId);
+
+        // Initialize new combat state
+        const newCombatState: any = {
+          active: true,
+          phase: 'choosing_type',
+          round: 1,
+          friendshipCounter: 0,
+          player: state.gameState.character,
+          enemy,
+          playerChoice: {},
+          enemyChoice: {},
+          battleLog: [],
+        };
+
         set({
           gameState: {
             ...state.gameState,
-            combat: {
-              active: true,
-              turn: 'player',
-              phase: 'choosing_aspect',
-              round: 1,
-              player: state.gameState.character,
-              enemy,
-              playerChoice: {},
-              enemyChoice: {},
-              roundResult: null,
-              advantages: { player: 0, enemy: 0 },
-              playerBuffs: clearAllBuffsDebuffs(),
-              enemyBuffs: clearAllBuffsDebuffs(),
-              agreeToDisagreeCounter: 0,
-              log: [
-                { id: '1', timestamp: Date.now(), actor: 'System', action: 'start', target: 'combat' },
-                { id: '2', timestamp: Date.now(), actor: enemy.name, action: 'appears', target: 'battlefield' }
-              ]
-            }
+            combat: newCombatState,
           },
           currentScreen: 'combat',
         });
@@ -1345,7 +1334,7 @@ export const useGameStore = create<GameStore>()(
         }));
       },
 
-      updateCombat: (updates: Partial<CombatState>) => {
+      updateCombat: (updates: Partial<any>) => {
         set((state) => ({
           gameState: {
             ...state.gameState,
