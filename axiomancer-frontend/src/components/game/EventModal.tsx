@@ -939,7 +939,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
 
     switch (eventType) {
       case 'combat':
-        return <CombatModal open={true} onOpenChange={() => {}} />;
+        // CombatModal renders its own Dialog which conflicts with EventModal's structure
+        // We need to render it but the Dialog should manage its own visibility
+        // Pass open=true to make the Dialog visible (it has its own portal)
+        return <CombatModal open={true} onOpenChange={onClose} />;
         
       case 'moral':
         if (!currentScenario) return null;
