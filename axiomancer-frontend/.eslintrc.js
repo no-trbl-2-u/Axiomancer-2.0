@@ -8,12 +8,7 @@ module.exports = {
     },
   },
   plugins: ['@typescript-eslint', 'react', 'react-hooks'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:react/recommended',
-    'plugin:react-hooks/recommended',
-  ],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:react/recommended', 'plugin:react-hooks/recommended', 'plugin:storybook/recommended'],
   rules: {
     // React specific
     'react/react-in-jsx-scope': 'off', // Not needed with React 17+

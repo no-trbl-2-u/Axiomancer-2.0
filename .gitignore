@@ -52,3 +52,5 @@ nginx/ssl/
 *.temp
 
 .claude
+*storybook.log
+storybook-static

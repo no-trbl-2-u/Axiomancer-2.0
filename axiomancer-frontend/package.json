@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Axiomancer 2.0 Frontend",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
@@ -29,21 +30,36 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "^4.1.2",
     "@playwright/test": "^1.55.1",
+    "@storybook/addon-a11y": "^10.0.2",
+    "@storybook/addon-docs": "^10.0.2",
+    "@storybook/addon-mcp": "^0.1.3",
+    "@storybook/addon-onboarding": "^10.0.2",
+    "@storybook/addon-vitest": "^10.0.2",
+    "@storybook/react-vite": "^10.0.2",
     "@types/bcryptjs": "^3.0.0",
     "@types/node": "^24.5.2",
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^6.4.0",
-    "@vitejs/plugin-react": "^4.0.4",
+    "@vitejs/plugin-react": "^4.7.0",
+    "@vitest/browser-playwright": "^4.0.6",
+    "@vitest/coverage-v8": "^4.0.6",
+    "autoprefixer": "^10.4.21",
     "eslint": "^8.47.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-storybook": "^10.0.2",
     "playwright": "^1.40.0",
+    "postcss": "^8.5.6",
     "prettier": "^3.0.2",
+    "storybook": "^10.0.2",
+    "tailwindcss": "^3.4.18",
     "typescript": "^5.1.6",
-    "vite": "^4.4.9"
+    "vite": "^5.4.21",
+    "vitest": "^4.0.6"
   },
   "scripts": {
     "dev": "vite",
@@ -56,11 +72,14 @@
     "test": "node tests/test-axiomancer.js",
     "test:headless": "HEADLESS=true node tests/test-axiomancer.js",
     "install-playwright": "npx playwright install",
-    "dev-tools": "npx -y @agentdeskai/browser-tools-server"
+    "dev-tools": "npx -y @agentdeskai/browser-tools-server",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "eslintConfig": {
     "extends": [
-      "react-app"
+      "react-app",
+      "plugin:storybook/recommended"
     ]
   },
   "browserslist": {
