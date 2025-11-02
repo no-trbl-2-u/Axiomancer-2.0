@@ -326,7 +326,7 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
           {isLogOpen && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-8">
               <div className="bg-black border-2 border-white w-full max-w-lg max-h-[500px] flex flex-col">
-                <div className="flex items-center justify-between p-3 border-b border-gray-700">
+                <div className="flex items-center justify-between p-3 border-b border-gray-700 flex-shrink-0">
                   <span>Combat Log</span>
                   <button
                     onClick={() => setIsLogOpen(false)}
@@ -335,7 +335,7 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
                     <X className="w-4 h-4 text-white" />
                   </button>
                 </div>
-                <ScrollArea className="flex-1 p-3">
+                <ScrollArea className="flex-1 overflow-y-auto p-3">
                   <div className="space-y-4">
                     {battleLog.length === 0 ? (
                       <div className="text-gray-500 text-sm text-center">No combat rounds yet</div>
@@ -365,12 +365,12 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
 
                           {/* Rolls */}
                           {entry.playerRoll && (
-                            <div className="text-xs text-gray-400">
+                            <div className="text-xs text-gray-400 break-words">
                               Player Roll: {entry.playerRoll} ({entry.playerRollDetails})
                             </div>
                           )}
                           {entry.enemyRoll && (
-                            <div className="text-xs text-gray-400">
+                            <div className="text-xs text-gray-400 break-words">
                               Enemy Roll: {entry.enemyRoll} ({entry.enemyRollDetails})
                             </div>
                           )}
@@ -393,7 +393,7 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
                           </div>
 
                           {/* Result */}
-                          <div className="text-xs text-gray-400 italic mt-2">{entry.result}</div>
+                          <div className="text-xs text-gray-400 italic mt-2 break-words">{entry.result}</div>
                         </div>
                       ))
                     )}
