@@ -2,11 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
-import { getAvailableSkills, applySkillEffect } from '../../utils/fallacySkills';
-import { Skill, PhilosophicalAspect, BuffDebuff } from '../../types/game';
 import { saveCharacter } from '../../utils/characterSave';
-import { SkillSelectionModal } from '../combat/SkillSelectionModal';
-import { CombatScreen } from './CombatScreen';
 import { processEventEffectReduction, clearAllPersistentEffects } from '../../utils/persistentEffects';
 import { CombatModal } from '../figma/CombatModal';
 
@@ -50,33 +46,6 @@ interface GatheringResource {
   amount: number;
   energyCost: number;
 }
-
-const FOREST_ENEMIES: Enemy[] = [
-  {
-    id: 'elder_tree',
-    name: 'Ancient Elder Tree',
-    health: 80,
-    maxHealth: 80,
-    imageUrl: '/forest-monsters/Elder Tree.png',
-    description: 'A wise but corrupted tree that has seen too much suffering in the world.'
-  },
-  {
-    id: 'tree_guardian_1',
-    name: 'Forest Guardian',
-    health: 60,
-    maxHealth: 60,
-    imageUrl: '/forest-monsters/Tree1.jpg',
-    description: 'A protective spirit of the forest, testing your philosophical resolve.'
-  },
-  {
-    id: 'tree_guardian_2',
-    name: 'Twisted Tree Spirit',
-    health: 70,
-    maxHealth: 70,
-    imageUrl: '/forest-monsters/Tree2.jpg',
-    description: 'A once-peaceful tree spirit, now filled with existential doubt.'
-  }
-];
 
 const MORAL_SCENARIOS: MoralScenario[] = [
   {
@@ -256,243 +225,6 @@ const CloseButton = styled.button`
   }
 `;
 
-// Combat styles
-const CombatArea = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing.lg};
-`;
-
-const MonsterDisplay = styled.div`
-  text-align: center;
-  background: ${theme.colors.background.panel};
-  border: 2px solid ${theme.colors.border.primary};
-  border-radius: ${theme.borderRadius.lg};
-  padding: ${theme.spacing.lg};
-  margin-bottom: ${theme.spacing.lg};
-
-  .monster-image {
-    max-width: 400px;
-    max-height: 300px;
-    width: 100%;
-    object-fit: contain;
-    border-radius: ${theme.borderRadius.md};
-    margin-bottom: ${theme.spacing.md};
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
-
-  .monster-stats {
-    display: flex;
-    justify-content: center;
-    gap: ${theme.spacing.xl};
-    margin-top: ${theme.spacing.md};
-
-    .stat-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-
-      .stat-label {
-        color: ${theme.colors.text.secondary};
-        font-size: 0.9rem;
-        margin-bottom: ${theme.spacing.xs};
-      }
-
-      .stat-value {
-        color: ${theme.colors.text.accent};
-        font-size: 1.1rem;
-        font-weight: 600;
-      }
-
-      .stat-bar {
-        width: 100px;
-        height: 8px;
-        background: ${theme.colors.background.primary};
-        border-radius: 4px;
-        overflow: hidden;
-        margin-top: ${theme.spacing.xs};
-
-        .stat-fill {
-          height: 100%;
-          transition: width 0.5s ease;
-        }
-
-        &.health .stat-fill { background: ${theme.colors.danger}; }
-        &.mana .stat-fill { background: ${theme.colors.info}; }
-      }
-    }
-  }
-
-  .monster-name {
-    color: ${theme.colors.text.accent};
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin-bottom: ${theme.spacing.md};
-  }
-`;
-
-const CombatInterface = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  gap: ${theme.spacing.lg};
-  height: 200px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-`;
-
-const BattleLog = styled.div`
-  background: ${theme.colors.background.secondary};
-  border: 2px solid ${theme.colors.border.primary};
-  border-radius: ${theme.borderRadius.md};
-  padding: ${theme.spacing.md};
-  height: 100%;
-  overflow-y: auto;
-
-  h4 {
-    color: ${theme.colors.text.accent};
-    margin: 0 0 ${theme.spacing.sm} 0;
-    font-size: 1rem;
-    border-bottom: 1px solid ${theme.colors.border.secondary};
-    padding-bottom: ${theme.spacing.xs};
-  }
-
-  .log-entry {
-    color: ${theme.colors.text.secondary};
-    margin-bottom: ${theme.spacing.xs};
-    font-size: 0.85rem;
-    line-height: 1.3;
-    padding: ${theme.spacing.xs};
-    border-radius: ${theme.borderRadius.sm};
-
-    &.damage {
-      background: rgba(239, 68, 68, 0.1);
-      color: ${theme.colors.danger};
-      font-weight: 600;
-    }
-
-    &.heal {
-      background: rgba(34, 197, 94, 0.1);
-      color: ${theme.colors.success};
-      font-weight: 600;
-    }
-
-    &.system {
-      background: rgba(59, 130, 246, 0.1);
-      color: ${theme.colors.info};
-      font-style: italic;
-    }
-  }
-`;
-
-const ActionPanel = styled.div`
-  background: ${theme.colors.background.secondary};
-  border: 2px solid ${theme.colors.border.primary};
-  border-radius: ${theme.borderRadius.md};
-  padding: ${theme.spacing.md};
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-
-  h4 {
-    color: ${theme.colors.text.accent};
-    margin: 0 0 ${theme.spacing.sm} 0;
-    font-size: 1rem;
-    text-align: center;
-    border-bottom: 1px solid ${theme.colors.border.secondary};
-    padding-bottom: ${theme.spacing.xs};
-  }
-
-  .action-grid {
-    display: grid;
-    grid-template-rows: repeat(4, 1fr);
-    gap: ${theme.spacing.sm};
-    flex: 1;
-  }
-`;
-
-const CategorySelection = styled.div`
-  background: ${theme.colors.background.secondary};
-  border: 2px solid ${theme.colors.border.primary};
-  border-radius: ${theme.borderRadius.md};
-  padding: ${theme.spacing.md};
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-
-  h4 {
-    color: ${theme.colors.text.accent};
-    margin: 0 0 ${theme.spacing.sm} 0;
-    font-size: 1rem;
-    text-align: center;
-    border-bottom: 1px solid ${theme.colors.border.secondary};
-    padding-bottom: ${theme.spacing.xs};
-  }
-
-  .category-buttons {
-    display: grid;
-    grid-template-rows: repeat(3, 1fr);
-    gap: ${theme.spacing.sm};
-    flex: 1;
-  }
-`;
-
-const CategoryButton = styled.button<{ category: SkillCategory; selected: boolean }>`
-  background: ${props => {
-    if (!props.selected) return theme.colors.background.primary;
-    switch (props.category) {
-      case 'body': return '#DC143C';
-      case 'mind': return '#4169E1';
-      case 'heart': return '#FF6B35';
-      default: return theme.colors.primary;
-    }
-  }};
-  color: ${props => props.selected ? 'white' : theme.colors.text.primary};
-  border: 2px solid ${props => {
-    switch (props.category) {
-      case 'body': return '#DC143C';
-      case 'mind': return '#4169E1';
-      case 'heart': return '#FF6B35';
-      default: return theme.colors.border.primary;
-    }
-  }};
-  border-radius: ${theme.borderRadius.md};
-  padding: ${theme.spacing.md};
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: ${theme.spacing.sm};
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-const ActionButtons = styled.div`
-  h4 {
-    color: ${theme.colors.text.accent};
-    margin: 0 0 ${theme.spacing.sm} 0;
-  }
-
-  .action-grid {
-    display: grid;
-    grid-template-rows: repeat(4, 1fr);
-    gap: ${theme.spacing.sm};
-    flex: 1;
-  }
-`;
-
 const ActionButton = styled.button<{ disabled?: boolean }>`
   background: ${props => props.disabled ? theme.colors.background.primary : theme.colors.primary};
   color: ${props => props.disabled ? theme.colors.text.muted : 'white'};
@@ -613,27 +345,13 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
   // Zustand store - selective subscriptions
   const gameState = useGameStore(state => state.gameState);
   const updateCharacter = useGameStore(state => state.updateCharacter);
-  const updateStory = useGameStore(state => state.updateStory);
   const unlockGuardianProgression = useGameStore(state => state.unlockGuardianProgression);
   const startCombat = useGameStore(state => state.startCombat);
-
-  // Combat state
-  const [enemy, setEnemy] = useState<Enemy | null>(null);
-  const [enemyHealth, setEnemyHealth] = useState(0);
-  const [battleLog, setBattleLog] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<SkillCategory | null>(null);
-  const [isPlayerTurn, setIsPlayerTurn] = useState(true);
-  const [combatEnded, setCombatEnded] = useState(false);
-  const [showSkillModal, setShowSkillModal] = useState(false);
-  const [playerBuffs, setPlayerBuffs] = useState<BuffDebuff[]>([]);
-  const [enemyBuffs, setEnemyBuffs] = useState<BuffDebuff[]>([]);
 
   // Event state
   const [currentScenario, setCurrentScenario] = useState<MoralScenario | null>(null);
   const [eventCompleted, setEventCompleted] = useState(false);
   const [eventResult, setEventResult] = useState<string>('');
-
-  const [availableSkills, setAvailableSkills] = useState<Skill[]>([]);
 
   useEffect(() => {
     if (isOpen) {
@@ -641,11 +359,6 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, eventType]);
-
-  useEffect(() => {
-    const skills = getAvailableSkills(gameState.character);
-    setAvailableSkills(skills);
-  }, [gameState.character]);
 
   // Close the entire event modal when the enemy is defeated in combat
   useEffect(() => {
@@ -703,126 +416,6 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
       default:
         break;
     }
-  };
-
-  const addToLog = (message: string, type: 'normal' | 'damage' | 'heal' = 'normal') => {
-    setBattleLog(prev => [...prev, message]);
-  };
-
-  const handleSkillUse = (skill: Skill) => {
-    if (!enemy || !isPlayerTurn || combatEnded || !selectedCategory) return;
-
-    // Check if player has enough mana
-    if (gameState.character.mana < skill.manaCost) {
-      addToLog('Not enough mana to use this skill!');
-      return;
-    }
-
-    // Deduct mana cost
-    updateCharacter({ mana: Math.max(0, gameState.character.mana - skill.manaCost) });
-
-    // Apply skill effect using the existing system
-    const skillResult = applySkillEffect(skill, gameState.character, enemy);
-
-    // Calculate damage and apply to enemy
-    const finalDamage = Math.max(0, skillResult.damage);
-
-    setEnemyHealth(prev => {
-      const newHealth = Math.max(0, prev - finalDamage);
-      addToLog(`You use ${skill.name} for ${finalDamage} damage!`, 'damage');
-
-      // Add skill-specific effects to log
-      skillResult.effects.forEach(effect => addToLog(effect));
-
-      if (newHealth <= 0) {
-        addToLog(`${enemy.name} is defeated!`, 'heal');
-        setCombatEnded(true);
-        setEventCompleted(true);
-        setEventResult('Victory! You gain experience and wisdom from this encounter.');
-        return 0;
-      }
-
-      return newHealth;
-    });
-
-    setIsPlayerTurn(false);
-
-    // Enemy turn after skill use
-    setTimeout(() => {
-      const enemyDamage = 15 + Math.floor(Math.random() * 10);
-      updateCharacter({ health: Math.max(0, gameState.character.health - enemyDamage) });
-      addToLog(`${enemy.name} attacks for ${enemyDamage} damage!`, 'damage');
-      setIsPlayerTurn(true);
-    }, 1500);
-  };
-
-  const handleCombatAction = (actionType: 'attack' | 'special' | 'defend' | 'flee') => {
-    if (!enemy || !isPlayerTurn || combatEnded) return;
-
-    if (actionType === 'defend') {
-      addToLog('You take a defensive stance.');
-      setIsPlayerTurn(false);
-      
-      setTimeout(() => {
-        const damage = Math.floor((15 + Math.random() * 10) * 0.5);
-        updateCharacter({ health: Math.max(0, gameState.character.health - damage) });
-        addToLog(`${enemy.name} attacks, but your defense reduces damage to ${damage}!`);
-        setIsPlayerTurn(true);
-      }, 1000);
-      return;
-    }
-
-    if (actionType === 'flee') {
-      addToLog('You attempt to flee...');
-      if (Math.random() > 0.3) {
-        addToLog('You successfully escaped!', 'heal');
-        onClose();
-      } else {
-        addToLog('You could not escape!');
-        setIsPlayerTurn(false);
-        setTimeout(() => {
-          const damage = 15 + Math.floor(Math.random() * 10);
-          updateCharacter({ health: Math.max(0, gameState.character.health - damage) });
-          addToLog(`${enemy.name} attacks while you're distracted for ${damage} damage!`, 'damage');
-          setIsPlayerTurn(true);
-        }, 1000);
-      }
-      return;
-    }
-
-    // For attack/special, need category and skill selection
-    if (!selectedCategory) {
-      addToLog('Please select a philosophical approach first!');
-      return;
-    }
-
-    // For now, use basic attack
-    const baseDamage = actionType === 'attack' ? 20 : 15;
-    const damage = baseDamage + Math.floor(Math.random() * 10);
-    
-    setEnemyHealth(prev => {
-      const newHealth = Math.max(0, prev - damage);
-      addToLog(`You use ${selectedCategory} ${actionType} for ${damage} damage!`, 'damage');
-      
-      if (newHealth <= 0) {
-        addToLog(`${enemy.name} is defeated!`, 'heal');
-        setCombatEnded(true);
-        setEventCompleted(true);
-        setEventResult('Victory! You gain experience and wisdom from this encounter.');
-        return 0;
-      }
-      
-      return newHealth;
-    });
-
-    setIsPlayerTurn(false);
-    
-    setTimeout(() => {
-      const enemyDamage = 15 + Math.floor(Math.random() * 10);
-      updateCharacter({ health: Math.max(0, gameState.character.health - enemyDamage) });
-      addToLog(`${enemy.name} attacks for ${enemyDamage} damage!`, 'damage');
-      setIsPlayerTurn(true);
-    }, 1500);
   };
 
   const handleMoralChoice = (choice: any) => {

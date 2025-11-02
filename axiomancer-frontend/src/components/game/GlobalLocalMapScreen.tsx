@@ -304,11 +304,8 @@ const MapTitle = styled.div`
 export const GlobalLocalMapScreen: React.FC = () => {
   // Zustand store - selective subscriptions
   const gameState = useGameStore(state => state.gameState);
-  const changeScreen = useGameStore(state => state.changeScreen);
   const moveToNode = useGameStore(state => state.moveToNode);
-  const updateStory = useGameStore(state => state.updateStory);
   const unlockNode = useGameStore(state => state.unlockNode);
-  const unlockGuardianProgression = useGameStore(state => state.unlockGuardianProgression);
 
   // Debug store - for forcing specific event types
   const debugMode = useDebugStore(state => state.debugMode);
@@ -369,9 +366,6 @@ export const GlobalLocalMapScreen: React.FC = () => {
     if (nextAreaId) {
       console.log(`🔓 Unlocking next area: ${nextAreaId}`);
       // Update the global area to be unlocked
-      const updatedAreas = GLOBAL_AREAS.map(area =>
-        area.id === nextAreaId ? { ...area, unlocked: true } : area
-      );
       // Note: In a real implementation, this would update a persistent store
       // For now, we'll just log it
     }

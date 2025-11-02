@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import styled from '@emotion/styled';
 import { Dialog, DialogContent } from './Dialog';
 import { X, BookOpen } from 'lucide-react';
 import { ScrollArea } from './ScrollArea';
 import { useGameStore } from '../../stores/gameStore';
 import { NewFriendsModal } from './NewFriendsModal';
+import { theme } from '../../styles/theme';
 import {
   resolveCombatRound,
   generateEnemyDecision,
@@ -23,12 +25,298 @@ interface CombatModalProps {
 }
 
 const actionColors: Record<PrimaryAction, string> = {
-  Body: 'border-red-400',
-  Mind: 'border-cyan-500',
-  Heart: 'border-green-400',
-  Item: 'border-white',
-  Flee: 'border-white',
+  Body: '#f87171', // red-400
+  Mind: '#06b6d4', // cyan-500
+  Heart: '#4ade80', // green-400
+  Item: '#ffffff',
+  Flee: '#ffffff',
 };
+
+// Styled Components
+const CombatContainer = styled.div`
+  position: relative;
+  min-height: 600px;
+  background: #000;
+  color: #fff;
+`;
+
+const RoundIndicator = styled.div`
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+`;
+
+const RoundInfo = styled.div`
+  font-size: 0.75rem;
+  color: ${theme.colors.text.muted};
+  text-align: center;
+  border-top: 1px solid ${theme.colors.border.secondary};
+  border-bottom: 1px solid ${theme.colors.border.secondary};
+  padding: 0.25rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+`;
+
+const FriendshipInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+`;
+
+const FriendshipCount = styled.span`
+  color: #4ade80; // green-400
+`;
+
+const LogButton = styled.button`
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 1px solid ${theme.colors.border.secondary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: ${theme.colors.background.secondary};
+  }
+`;
+
+const CombatantCard = styled.div<{ position: 'enemy' | 'player' }>`
+  position: absolute;
+  width: 13rem;
+  background: #000;
+  border: 2px solid ${props => props.position === 'enemy' ? '#fff' : '#dc2626'};
+  padding: 0.75rem;
+
+  ${props => props.position === 'enemy' ? `
+    top: 5rem;
+    left: 1rem;
+  ` : `
+    bottom: 8rem;
+    right: 1rem;
+  `}
+`;
+
+const CombatantName = styled.div`
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+`;
+
+const StatBar = styled.div`
+  position: relative;
+  height: 0.75rem;
+  background: ${theme.colors.background.secondary};
+  border: 1px solid ${theme.colors.border.secondary};
+  margin-bottom: 0.25rem;
+`;
+
+const StatBarFill = styled.div<{ percent: number; color: string }>`
+  position: absolute;
+  inset: 0;
+  background: ${props => props.color};
+  width: ${props => props.percent}%;
+`;
+
+const StatBarText = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+`;
+
+const CurrentValue = styled.span<{ color: string }>`
+  color: ${props => props.color};
+`;
+
+const MaxValue = styled.span`
+  color: #fff;
+  margin-left: 0.25rem;
+`;
+
+const LevelDisplay = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+
+  div {
+    text-align: center;
+  }
+`;
+
+const CharacterImage = styled.div<{ position: 'enemy' | 'player' }>`
+  position: absolute;
+
+  ${props => props.position === 'enemy' ? `
+    top: 6rem;
+    right: 2rem;
+    font-size: 6rem;
+  ` : `
+    bottom: 11rem;
+    left: 2rem;
+  `}
+`;
+
+const PlayerPortrait = styled.img`
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  border: 2px solid #22d3ee; // cyan-400
+  object-fit: cover;
+`;
+
+const PlayerEmoji = styled.div`
+  font-size: 4.5rem;
+`;
+
+const ActionButtonsContainer = styled.div`
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+`;
+
+const ActionGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+`;
+
+const StyledActionButton = styled.button<{ borderColor: string }>`
+  background: linear-gradient(to bottom, ${theme.colors.background.secondary}, #111);
+  border: 2px solid ${props => props.borderColor};
+  border-radius: ${theme.borderRadius.md};
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  &:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const ActionIconContainer = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+`;
+
+const ActionLabel = styled.div`
+  font-size: 0.75rem;
+  color: #22d3ee; // cyan-400
+`;
+
+const BattleLogOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+`;
+
+const BattleLogModal = styled.div`
+  background: #000;
+  border: 2px solid #fff;
+  width: 100%;
+  max-width: 32rem;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const BattleLogHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-bottom: 1px solid ${theme.colors.border.secondary};
+  flex-shrink: 0;
+`;
+
+const CloseLogButton = styled.button`
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: ${theme.borderRadius.sm};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: ${theme.colors.background.secondary};
+  }
+`;
+
+const BattleLogContent = styled(ScrollArea)`
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem;
+`;
+
+const BattleLogEntries = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const BattleLogEntry = styled.div`
+  border: 1px solid ${theme.colors.border.secondary};
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;
+
+const RoundTitle = styled.div`
+  color: #22d3ee; // cyan-400
+  font-weight: bold;
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+`;
+
+const LogText = styled.div<{ color?: string }>`
+  font-size: 0.75rem;
+  color: ${props => props.color || theme.colors.text.secondary};
+  word-wrap: break-word;
+`;
+
+const CapitalizeText = styled.span`
+  text-transform: capitalize;
+`;
+
+const EmptyLogMessage = styled.div`
+  color: ${theme.colors.text.muted};
+  font-size: 0.875rem;
+  text-align: center;
+`;
 
 export function CombatModal({ open, onOpenChange, bare = false }: CombatModalProps) {
   const gameState = useGameStore((state) => state.gameState);
@@ -131,10 +419,10 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
       enemy: updatedEnemy,
       round: round + 1,
       friendshipCounter: newFriendshipCounter,
-      battleLog: [...battleLog, logEntry],
+      battleLog,
       playerChoice: {},
       enemyChoice: {},
-      phase: 'choosing_type',
+      phase: 'choosing_aspect',
     });
 
     // Reset UI
@@ -156,7 +444,7 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
     }
   };
 
-  const secondaryBorderColor = selectedPrimaryAction ? actionColors[selectedPrimaryAction] : 'border-cyan-500';
+  const secondaryBorderColor = selectedPrimaryAction ? actionColors[selectedPrimaryAction] : actionColors.Mind;
 
   // If no combat state, don't render
   if (!combatState || !player || !enemy) {
@@ -170,239 +458,234 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
 
   // The main combat UI content
   const combatContent = (
-    <div className="relative min-h-[600px] bg-black">
-            {/* Round indicator and Battle Log */}
-            <div className="absolute top-4 left-4 right-4">
-              <div className="text-xs text-gray-400 text-center border-t border-b border-gray-700 py-1 flex items-center justify-center gap-4">
-                <span>Round {round}</span>
-                <div className="flex items-center gap-1">
-                  <span>Friendship:</span>
-                  <span className="text-green-400">{friendshipCounter}/3</span>
-                  <span>{'❤️'.repeat(friendshipCounter)}</span>
-                </div>
-                <button
-                  onClick={() => setIsLogOpen(true)}
-                  className="w-6 h-6 rounded-full border border-gray-500 flex items-center justify-center hover:bg-gray-800 transition-colors"
-                >
-                  <BookOpen className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
+    <CombatContainer>
+      {/* Round indicator and Battle Log */}
+      <RoundIndicator>
+        <RoundInfo>
+          <span>Round {round}</span>
+          <FriendshipInfo>
+            <span>Friendship:</span>
+            <FriendshipCount>{friendshipCounter}/3</FriendshipCount>
+            <span>{'❤️'.repeat(friendshipCounter)}</span>
+          </FriendshipInfo>
+          <LogButton onClick={() => setIsLogOpen(true)}>
+            <BookOpen className="w-3 h-3" />
+          </LogButton>
+        </RoundInfo>
+      </RoundIndicator>
 
-            {/* Enemy Card */}
-            <div className="absolute top-20 left-4 w-52 bg-black border-2 border-white p-3">
-              <div className="mb-2">{enemy.name}</div>
-              {/* HP bar */}
-              <div className="relative h-3 bg-gray-800 border border-gray-600 mb-1">
-                <div className="absolute inset-0 bg-red-600" style={{ width: `${enemyHPPercent}%` }}></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-yellow-500 text-xs">{enemy.health}</span>
-                  <span className="text-white text-xs ml-1">/ {enemy.maxHealth}</span>
-                </div>
-              </div>
-              {/* MP bar */}
-              <div className="relative h-3 bg-gray-800 border border-gray-600 mb-1">
-                <div className="absolute inset-0 bg-blue-600" style={{ width: `${enemyMPPercent}%` }}></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-cyan-300 text-xs">{enemy.mana}</span>
-                  <span className="text-white text-xs ml-1">/ {enemy.maxMana}</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-end">
-                <div className="text-xs">
-                  <div>Lv</div>
-                  <div>{enemy.level}</div>
-                </div>
-              </div>
-            </div>
-
-          {/* Enemy Image */}
-          <div className="absolute top-24 right-8">
-            <div className="text-8xl">{enemy.image || '👹'}</div>
+      {/* Enemy Card */}
+      <CombatantCard position="enemy">
+        <CombatantName>{enemy.name}</CombatantName>
+        {/* HP bar */}
+        <StatBar>
+          <StatBarFill percent={enemyHPPercent} color="#dc2626" />
+          <StatBarText>
+            <CurrentValue color="#eab308">{enemy.health}</CurrentValue>
+            <MaxValue>/ {enemy.maxHealth}</MaxValue>
+          </StatBarText>
+        </StatBar>
+        {/* MP bar */}
+        <StatBar>
+          <StatBarFill percent={enemyMPPercent} color="#2563eb" />
+          <StatBarText>
+            <CurrentValue color="#67e8f9">{enemy.mana}</CurrentValue>
+            <MaxValue>/ {enemy.maxMana}</MaxValue>
+          </StatBarText>
+        </StatBar>
+        <LevelDisplay>
+          <div>
+            <div>Lv</div>
+            <div>{enemy.level}</div>
           </div>
+        </LevelDisplay>
+      </CombatantCard>
 
-          {/* Player Card */}
-          <div className="absolute bottom-32 right-4 w-52 bg-black border-2 border-red-600 p-3">
-            <div className="mb-2">{player.name}</div>
-            {/* Health bar (red) */}
-            <div className="relative h-3 bg-gray-800 border border-gray-600 mb-1">
-              <div className="absolute inset-0 bg-red-600" style={{ width: `${playerHPPercent}%` }}></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-yellow-500 text-xs">{player.health}</span>
-                <span className="text-white text-xs ml-1">/ {player.maxHealth}</span>
-              </div>
-            </div>
-            {/* Mana/Energy bar (blue) */}
-            <div className="relative h-3 bg-gray-800 border border-gray-600 mb-1">
-              <div className="absolute inset-0 bg-blue-600" style={{ width: `${playerMPPercent}%` }}></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-cyan-300 text-xs">{player.mana}</span>
-                <span className="text-white text-xs ml-1">/ {player.maxMana}</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-end">
-              <div className="text-xs">
-                <div>Lv</div>
-                <div>{player.level}</div>
-              </div>
-            </div>
+      {/* Enemy Image */}
+      <CharacterImage position="enemy">
+        <div>{enemy.image || '👹'}</div>
+      </CharacterImage>
+
+      {/* Player Card */}
+      <CombatantCard position="player">
+        <CombatantName>{player.name}</CombatantName>
+        {/* Health bar (red) */}
+        <StatBar>
+          <StatBarFill percent={playerHPPercent} color="#dc2626" />
+          <StatBarText>
+            <CurrentValue color="#eab308">{player.health}</CurrentValue>
+            <MaxValue>/ {player.maxHealth}</MaxValue>
+          </StatBarText>
+        </StatBar>
+        {/* Mana/Energy bar (blue) */}
+        <StatBar>
+          <StatBarFill percent={playerMPPercent} color="#2563eb" />
+          <StatBarText>
+            <CurrentValue color="#67e8f9">{player.mana}</CurrentValue>
+            <MaxValue>/ {player.maxMana}</MaxValue>
+          </StatBarText>
+        </StatBar>
+        <LevelDisplay>
+          <div>
+            <div>Lv</div>
+            <div>{player.level}</div>
           </div>
+        </LevelDisplay>
+      </CombatantCard>
 
-          {/* Player Character */}
-          <div className="absolute bottom-44 left-8">
-            {player.portrait?.imageUrl ? (
-              <img
-                src={player.portrait.imageUrl}
-                alt={player.name}
-                className="w-24 h-24 rounded-full border-2 border-cyan-400 object-cover"
-              />
-            ) : (
-              <div className="text-7xl">🧝</div>
-            )}
-          </div>
+      {/* Player Character */}
+      <CharacterImage position="player">
+        {player.portrait?.imageUrl ? (
+          <PlayerPortrait
+            src={player.portrait.imageUrl}
+            alt={player.name}
+          />
+        ) : (
+          <PlayerEmoji>🧝</PlayerEmoji>
+        )}
+      </CharacterImage>
 
-          {/* Action Buttons */}
-          <div className="absolute bottom-4 left-4 right-4">
-            {actionView === 'primary' ? (
-              <div className="grid grid-cols-5 gap-3">
-                <ActionButton
-                  onClick={() => handlePrimaryAction('Body')}
-                  label="Body"
-                  icon={<BodyIcon />}
-                  borderColor="border-red-400"
-                />
-                <ActionButton
-                  onClick={() => handlePrimaryAction('Mind')}
-                  label="Mind"
-                  icon={<MindIcon />}
-                  borderColor="border-cyan-500"
-                />
-                <ActionButton
-                  onClick={() => handlePrimaryAction('Heart')}
-                  label="Heart"
-                  icon={<HeartIcon />}
-                  borderColor="border-green-400"
-                />
-                <ActionButton
-                  onClick={() => handlePrimaryAction('Item')}
-                  label="Item"
-                  icon={<ItemIcon />}
-                  borderColor="border-white"
-                />
-                <ActionButton
-                  onClick={() => handlePrimaryAction('Flee')}
-                  label="Flee"
-                  icon={<FleeIcon />}
-                  borderColor="border-white"
-                />
-              </div>
-            ) : (
-              <div className="grid grid-cols-5 gap-3">
-                <div></div>
-                <ActionButton
-                  onClick={() => handleSecondaryAction('Attack')}
-                  label="Attack"
-                  icon={<AttackIcon />}
-                  borderColor={secondaryBorderColor}
-                />
-                <ActionButton
-                  onClick={() => handleSecondaryAction('Defense')}
-                  label="Defense"
-                  icon={<DefenseIcon />}
-                  borderColor={secondaryBorderColor}
-                />
-                <ActionButton
-                  onClick={handleBack}
-                  label="Back"
-                  icon={<BackIcon />}
-                  borderColor="border-white"
-                />
-                <div></div>
-              </div>
-            )}
-          </div>
+      {/* Action Buttons */}
+      <ActionButtonsContainer>
+        {actionView === 'primary' ? (
+          <ActionGrid>
+            <ActionButton
+              onClick={() => handlePrimaryAction('Body')}
+              label="Body"
+              icon={<BodyIcon />}
+              borderColor={actionColors.Body}
+            />
+            <ActionButton
+              onClick={() => handlePrimaryAction('Mind')}
+              label="Mind"
+              icon={<MindIcon />}
+              borderColor={actionColors.Mind}
+            />
+            <ActionButton
+              onClick={() => handlePrimaryAction('Heart')}
+              label="Heart"
+              icon={<HeartIcon />}
+              borderColor={actionColors.Heart}
+            />
+            <ActionButton
+              onClick={() => handlePrimaryAction('Item')}
+              label="Item"
+              icon={<ItemIcon />}
+              borderColor={actionColors.Item}
+            />
+            <ActionButton
+              onClick={() => handlePrimaryAction('Flee')}
+              label="Flee"
+              icon={<FleeIcon />}
+              borderColor={actionColors.Flee}
+            />
+          </ActionGrid>
+        ) : (
+          <ActionGrid>
+            <div></div>
+            <ActionButton
+              onClick={() => handleSecondaryAction('Attack')}
+              label="Attack"
+              icon={<AttackIcon />}
+              borderColor={secondaryBorderColor}
+            />
+            <ActionButton
+              onClick={() => handleSecondaryAction('Defense')}
+              label="Defense"
+              icon={<DefenseIcon />}
+              borderColor={secondaryBorderColor}
+            />
+            <ActionButton
+              onClick={handleBack}
+              label="Back"
+              icon={<BackIcon />}
+              borderColor={actionColors.Item}
+            />
+            <div></div>
+          </ActionGrid>
+        )}
+      </ActionButtonsContainer>
 
-          {/* Combat Log Modal */}
-          {isLogOpen && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-8">
-              <div className="bg-black border-2 border-white w-full max-w-lg max-h-[500px] flex flex-col">
-                <div className="flex items-center justify-between p-3 border-b border-gray-700 flex-shrink-0">
-                  <span>Combat Log</span>
-                  <button
-                    onClick={() => setIsLogOpen(false)}
-                    className="hover:bg-gray-800 rounded p-1"
-                  >
-                    <X className="w-4 h-4 text-white" />
-                  </button>
-                </div>
-                <ScrollArea className="flex-1 overflow-y-auto p-3">
-                  <div className="space-y-4">
-                    {battleLog.length === 0 ? (
-                      <div className="text-gray-500 text-sm text-center">No combat rounds yet</div>
-                    ) : (
-                      battleLog.map((entry) => (
-                        <div key={entry.round} className="border border-gray-700 p-3 space-y-1">
-                          <div className="text-cyan-400 font-bold text-xs mb-2">Round {entry.round}</div>
+      {/* Combat Log Modal */}
+      {isLogOpen && (
+        <BattleLogOverlay>
+          <BattleLogModal>
+            <BattleLogHeader>
+              <span>Combat Log</span>
+              <CloseLogButton onClick={() => setIsLogOpen(false)}>
+                <X className="w-4 h-4 text-white" />
+              </CloseLogButton>
+            </BattleLogHeader>
+            <BattleLogContent>
+              <BattleLogEntries>
+                {battleLog.length === 0 ? (
+                  <EmptyLogMessage>No combat rounds yet</EmptyLogMessage>
+                ) : (
+                  battleLog.map((entry) => (
+                    <BattleLogEntry key={entry.round}>
+                      <RoundTitle>Round {entry.round}</RoundTitle>
 
-                          {/* Decisions */}
-                          <div className="text-xs text-gray-300">
-                            <span className="text-green-400">Player:</span>{' '}
-                            <span className="capitalize">{entry.playerDecision.type}</span> +{' '}
-                            <span className="capitalize">{entry.playerDecision.action}</span>
-                          </div>
-                          <div className="text-xs text-gray-300">
-                            <span className="text-red-400">Enemy:</span>{' '}
-                            <span className="capitalize">{entry.enemyDecision.type}</span> +{' '}
-                            <span className="capitalize">{entry.enemyDecision.action}</span>
-                          </div>
+                      {/* Decisions */}
+                      <LogText>
+                        <span style={{ color: '#4ade80' }}>{`Player: `}</span>
+                        <CapitalizeText>{`${entry.playerDecision.type }`}</CapitalizeText>
+                        <CapitalizeText>{entry.playerDecision.action}</CapitalizeText>
+                      </LogText>
+                      <LogText>
+                        <span style={{ color: '#f87171' }}>Enemy:</span>{' '}
+                        <CapitalizeText>{entry.enemyDecision.type}</CapitalizeText> +{' '}
+                        <CapitalizeText>{entry.enemyDecision.action}</CapitalizeText>
+                      </LogText>
 
-                          {/* Advantage */}
-                          {entry.advantage !== 'none' && (
-                            <div className="text-xs text-yellow-400">
-                              Advantage: {entry.advantage === 'player' ? 'Player' : 'Enemy'}
-                            </div>
-                          )}
+                      {/* Advantage */}
+                      {entry.advantage !== 'none' && (
+                        <LogText color="#facc15">
+                          Advantage: {entry.advantage === 'player' ? 'Player' : 'Enemy'}
+                        </LogText>
+                      )}
 
-                          {/* Rolls */}
-                          {entry.playerRoll && (
-                            <div className="text-xs text-gray-400 break-words">
-                              Player Roll: {entry.playerRoll} ({entry.playerRollDetails})
-                            </div>
-                          )}
-                          {entry.enemyRoll && (
-                            <div className="text-xs text-gray-400 break-words">
-                              Enemy Roll: {entry.enemyRoll} ({entry.enemyRollDetails})
-                            </div>
-                          )}
+                      {/* Rolls */}
+                      {entry.playerRoll && (
+                        <LogText>
+                          Player Roll: {entry.playerRoll} ({entry.playerRollDetails})
+                        </LogText>
+                      )}
+                      {entry.enemyRoll && (
+                        <LogText>
+                          Enemy Roll: {entry.enemyRoll} ({entry.enemyRollDetails})
+                        </LogText>
+                      )}
 
-                          {/* Damage */}
-                          {entry.damageToEnemy > 0 && (
-                            <div className="text-xs text-red-300">
-                              ⚔️ Dealt {entry.damageToEnemy} damage to enemy
-                            </div>
-                          )}
-                          {entry.damageToPlayer > 0 && (
-                            <div className="text-xs text-orange-300">
-                              💥 Took {entry.damageToPlayer} damage
-                            </div>
-                          )}
+                      {/* Damage */}
+                      {entry.damageToEnemy > 0 && (
+                        <LogText color="#fca5a5">
+                          ⚔️ Dealt {entry.damageToEnemy} damage to enemy
+                        </LogText>
+                      )}
+                      {entry.damageToPlayer > 0 && (
+                        <LogText color="#fdba74">
+                          💥 Took {entry.damageToPlayer} damage
+                        </LogText>
+                      )}
 
-                          {/* HP After */}
-                          <div className="text-xs text-gray-500 mt-1">
-                            Player HP: {entry.playerHPAfter} | Enemy HP: {entry.enemyHPAfter}
-                          </div>
+                      {/* HP After */}
+                      <LogText color="#6b7280" style={{ marginTop: '0.25rem' }}>
+                        Player HP: {entry.playerHPAfter} | Enemy HP: {entry.enemyHPAfter}
+                      </LogText>
 
-                          {/* Result */}
-                          <div className="text-xs text-gray-400 italic mt-2 break-words">{entry.result}</div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </ScrollArea>
-              </div>
-            </div>
-          )}
-    </div>
+                      {/* Result */}
+                      <LogText style={{ fontStyle: 'italic', marginTop: '0.5rem' }}>
+                        {entry.result}
+                      </LogText>
+                    </BattleLogEntry>
+                  ))
+                )}
+              </BattleLogEntries>
+            </BattleLogContent>
+          </BattleLogModal>
+        </BattleLogOverlay>
+      )}
+    </CombatContainer>
   );
 
   return (
@@ -444,29 +727,12 @@ interface ActionButtonProps {
 
 function ActionButton({ onClick, label, icon, borderColor }: ActionButtonProps) {
   return (
-    <button
-      onClick={onClick}
-      className={`bg-gradient-to-b from-gray-800 to-gray-900 border-2 ${borderColor} rounded-lg p-4 hover:shadow-lg transition-all aspect-square flex flex-col items-center justify-center gap-2`}
-    >
-      <div className="flex-1 flex items-center justify-center w-full">
+    <StyledActionButton onClick={onClick} borderColor={borderColor}>
+      <ActionIconContainer>
         {icon}
-      </div>
-      <div className="text-xs text-cyan-400">{label}</div>
-    </button>
-  );
-}
-
-interface LogItemProps {
-  icon: string;
-  text: string;
-}
-
-function LogItem({ icon, text }: LogItemProps) {
-  return (
-    <div className="flex items-start gap-2 text-xs">
-      <span className="text-sm">{icon}</span>
-      <span className="text-gray-300">{text}</span>
-    </div>
+      </ActionIconContainer>
+      <ActionLabel>{label}</ActionLabel>
+    </StyledActionButton>
   );
 }
 

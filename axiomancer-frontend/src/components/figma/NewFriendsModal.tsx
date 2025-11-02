@@ -1,3 +1,4 @@
+import styled from '@emotion/styled';
 import { Dialog, DialogContent } from './Dialog';
 
 interface NewFriendsModalProps {
@@ -5,6 +6,68 @@ interface NewFriendsModalProps {
   onOpenChange: (open: boolean) => void;
   enemyName: string;
 }
+
+const ModalContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1.5rem;
+`;
+
+const FriendshipIcon = styled.div`
+  font-size: 3.75rem;
+  line-height: 1;
+`;
+
+const Title = styled.h2`
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #4ade80; // green-400
+  margin: 0;
+`;
+
+const MessageContainer = styled.div`
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const MessageText = styled.p`
+  color: #d1d5db; // gray-300
+  margin: 0;
+`;
+
+const EnemyName = styled.span`
+  color: #22d3ee; // cyan-400
+`;
+
+const SubText = styled.p`
+  font-size: 0.875rem;
+  color: #9ca3af; // gray-400
+  margin: 0;
+`;
+
+const ContinueButton = styled.button`
+  padding: 0.5rem 1.5rem;
+  background: #16a34a; // green-600
+  color: white;
+  border: 2px solid #4ade80; // green-400
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 1rem;
+
+  &:hover {
+    background: #15803d; // green-700
+  }
+
+  &:focus {
+    outline: none;
+  }
+`;
 
 /**
  * Modal shown when friendship counter reaches 3
@@ -14,32 +77,29 @@ export function NewFriendsModal({ open, onOpenChange, enemyName }: NewFriendsMod
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md bg-black border-2 border-green-400 text-white">
-        <div className="flex flex-col items-center justify-center p-8 space-y-6">
+        <ModalContainer>
           {/* Friendship Icon */}
-          <div className="text-6xl">🤝</div>
+          <FriendshipIcon>🤝</FriendshipIcon>
 
           {/* Title */}
-          <h2 className="text-2xl font-bold text-green-400">New Friends!</h2>
+          <Title>New Friends!</Title>
 
           {/* Message */}
-          <div className="text-center space-y-2">
-            <p className="text-gray-300">
-              Through mutual understanding and respect, you and <span className="text-cyan-400">{enemyName}</span> have
+          <MessageContainer>
+            <MessageText>
+              Through mutual understanding and respect, you and <EnemyName>{enemyName}</EnemyName> have
               become friends!
-            </p>
-            <p className="text-sm text-gray-400">
+            </MessageText>
+            <SubText>
               Sometimes the best victory is finding common ground.
-            </p>
-          </div>
+            </SubText>
+          </MessageContainer>
 
           {/* Close Button */}
-          <button
-            onClick={() => onOpenChange(false)}
-            className="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors border-2 border-green-400"
-          >
+          <ContinueButton onClick={() => onOpenChange(false)}>
             Continue
-          </button>
-        </div>
+          </ContinueButton>
+        </ModalContainer>
       </DialogContent>
     </Dialog>
   );

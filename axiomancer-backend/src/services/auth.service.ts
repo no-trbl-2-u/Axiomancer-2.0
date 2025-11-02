@@ -66,7 +66,7 @@ export class AuthService {
   }
 
   private static sanitizeUser(user: User): Omit<User, 'password'> {
-    const { password, ...sanitizedUser } = user;
+    const { password: _password, ...sanitizedUser } = user;
     return sanitizedUser;
   }
 }

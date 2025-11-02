@@ -36,7 +36,7 @@ export function createStatusEffectsFromCombatEffect(
   effectDescription: string,
   target: 'self' | 'opponent',
   hasAdvantage: boolean = false,
-  isDefended: boolean = false
+  _isDefended: boolean = false
 ): CombatEffectResult {
   const result: CombatEffectResult = {
     buffs: [],

@@ -382,28 +382,9 @@ export function executeFallacy(
 }
 
 /**
- * Calculate reflection damage for defend actions
- */
-function calculateReflectionDamage(
-  attacker: Character | Enemy,
-  argumentType: PhilosophicalAspect
-): number {
-  switch (argumentType) {
-    case 'body':
-      return Math.floor(attacker.derivedStats.physicalAttack * 0.25);
-    case 'mind':
-      return Math.floor(attacker.derivedStats.mindAttack * 0.25);
-    case 'heart':
-      return Math.floor(attacker.derivedStats.ailmentAttack * 0.25);
-    default:
-      return 0;
-  }
-}
-
-/**
  * Generate AI choice for enemy based on their philosophical alignment and strategy
  */
-export function generateEnemyChoice(enemy: Enemy, playerPreviousChoices: CombatChoice[]): CombatChoice {
+export function generateEnemyChoice(_enemy: Enemy, _playerPreviousChoices: CombatChoice[]): CombatChoice {
   // Random aspect selection: 33% chance for each (Body, Mind, Heart)
   const aspects: PhilosophicalAspect[] = ['body', 'mind', 'heart'];
   const randomAspectIndex = Math.floor(Math.random() * aspects.length);
