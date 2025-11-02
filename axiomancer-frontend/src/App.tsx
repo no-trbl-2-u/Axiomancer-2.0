@@ -11,6 +11,7 @@ import { CharacterCreationScreen } from './components/game/CharacterCreationScre
 import { CharacterSelectionPage } from './pages/CharacterSelectionPage';
 import { GamePage } from './pages/GamePage';
 import { hasExistingCharacter } from './utils/characterSave';
+import './components/figma/global.css';
 
 // Protected route component that requires authentication
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {

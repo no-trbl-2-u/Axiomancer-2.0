@@ -8,7 +8,7 @@ import { saveCharacter } from '../../utils/characterSave';
 import { SkillSelectionModal } from '../combat/SkillSelectionModal';
 import { CombatScreen } from './CombatScreen';
 import { processEventEffectReduction, clearAllPersistentEffects } from '../../utils/persistentEffects';
-import { CombatModal } from '../../figma/CombatModal';
+import { CombatModal } from '../figma/CombatModal';
 
 type EventType = 'combat' | 'moral' | 'gathering' | 'rest';
 type SkillCategory = 'body' | 'mind' | 'heart';
@@ -203,10 +203,10 @@ const ModalContent = styled.div<{ isCombat?: boolean }>`
   background: ${theme.colors.background.panel};
   border: 2px solid ${theme.colors.border.primary};
   border-radius: ${theme.borderRadius.lg};
-  width: ${props => props.isCombat ? '95vw' : '90%'};
-  max-width: ${props => props.isCombat ? '95vw' : '800px'};
-  height: ${props => props.isCombat ? '95vh' : 'auto'};
-  max-height: 90vh;
+  width: ${props => props.isCombat ? 'min(600px, 95vw)' : '90%'};
+  max-width: ${props => props.isCombat ? '600px' : '800px'};
+  height: ${props => props.isCombat ? 'auto' : 'auto'};
+  max-height: ${props => props.isCombat ? '700px' : '90vh'};
   overflow-y: auto;
   position: relative;
 
@@ -939,10 +939,9 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
 
     switch (eventType) {
       case 'combat':
-        // CombatModal renders its own Dialog which conflicts with EventModal's structure
-        // We need to render it but the Dialog should manage its own visibility
-        // Pass open=true to make the Dialog visible (it has its own portal)
-        return <CombatModal open={true} onOpenChange={onClose} />;
+        // CombatModal with bare=true renders without Dialog wrapper to avoid nested modals
+        // EventModal provides the modal structure, CombatModal provides the combat UI
+        return <CombatModal open={true} onOpenChange={onClose} bare={true} />;
         
       case 'moral':
         if (!currentScenario) return null;

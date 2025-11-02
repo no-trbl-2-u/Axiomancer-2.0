@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from './Dialog';
 import { X, BookOpen } from 'lucide-react';
 import { ScrollArea } from './ScrollArea';
-import { useGameStore } from '../stores/gameStore';
+import { useGameStore } from '../../stores/gameStore';
 import { NewFriendsModal } from './NewFriendsModal';
 import {
   resolveCombatRound,
   generateEnemyDecision,
   createBattleLogEntry,
   checkCombatEnd,
-} from '../utils/newCombatMechanics';
-import { CombatType, CombatActionType, CombatDecision } from '../types/newCombat';
+} from '../../utils/newCombatMechanics';
+import { CombatType, CombatActionType, CombatDecision } from '../../types/newCombat';
 
 type ActionView = 'primary' | 'secondary';
 type PrimaryAction = 'Body' | 'Mind' | 'Heart' | 'Item' | 'Flee';
@@ -18,6 +18,8 @@ type PrimaryAction = 'Body' | 'Mind' | 'Heart' | 'Item' | 'Flee';
 interface CombatModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** When true, renders content without Dialog wrapper (for use inside other modals) */
+  bare?: boolean;
 }
 
 const actionColors: Record<PrimaryAction, string> = {
@@ -28,7 +30,7 @@ const actionColors: Record<PrimaryAction, string> = {
   Flee: 'border-white',
 };
 
-export function CombatModal({ open, onOpenChange }: CombatModalProps) {
+export function CombatModal({ open, onOpenChange, bare = false }: CombatModalProps) {
   const gameState = useGameStore((state) => state.gameState);
   const updateCombat = useGameStore((state) => state.updateCombat);
   const updateCharacter = useGameStore((state) => state.updateCharacter);
@@ -166,11 +168,9 @@ export function CombatModal({ open, onOpenChange }: CombatModalProps) {
   const enemyHPPercent = (enemy.health / enemy.maxHealth) * 100;
   const enemyMPPercent = (enemy.mana / enemy.maxMana) * 100;
 
-  return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl bg-black border-2 border-gray-700 text-white p-0 overflow-hidden">
-          <div className="relative min-h-[600px] bg-black">
+  // The main combat UI content
+  const combatContent = (
+    <div className="relative min-h-[600px] bg-black">
             {/* Round indicator and Battle Log */}
             <div className="absolute top-4 left-4 right-4">
               <div className="text-xs text-gray-400 text-center border-t border-b border-gray-700 py-1 flex items-center justify-center gap-4">
@@ -250,7 +250,15 @@ export function CombatModal({ open, onOpenChange }: CombatModalProps) {
 
           {/* Player Character */}
           <div className="absolute bottom-44 left-8">
-            <div className="text-7xl">{player.portrait?.imageUrl || '🧝'}</div>
+            {player.portrait?.imageUrl ? (
+              <img
+                src={player.portrait.imageUrl}
+                alt={player.name}
+                className="w-24 h-24 rounded-full border-2 border-cyan-400 object-cover"
+              />
+            ) : (
+              <div className="text-7xl">🧝</div>
+            )}
           </div>
 
           {/* Action Buttons */}
@@ -394,23 +402,36 @@ export function CombatModal({ open, onOpenChange }: CombatModalProps) {
               </div>
             </div>
           )}
-        </div>
-      </DialogContent>
-    </Dialog>
+    </div>
+  );
 
-    {/* New Friends Modal */}
-    <NewFriendsModal
-      open={showNewFriendsModal}
-      onOpenChange={(open) => {
-        setShowNewFriendsModal(open);
-        if (!open) {
-          // Close combat modal too
-          onOpenChange(false);
-        }
-      }}
-      enemyName={enemy?.name || 'Enemy'}
-    />
-  </>
+  return (
+    <>
+      {bare ? (
+        // Render content directly without Dialog wrapper (for use inside EventModal)
+        combatContent
+      ) : (
+        // Render with Dialog wrapper (for standalone use)
+        <Dialog open={open} onOpenChange={onOpenChange}>
+          <DialogContent className="max-w-2xl bg-black border-2 border-gray-700 text-white p-0 overflow-hidden">
+            {combatContent}
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* New Friends Modal */}
+      <NewFriendsModal
+        open={showNewFriendsModal}
+        onOpenChange={(open) => {
+          setShowNewFriendsModal(open);
+          if (!open) {
+            // Close combat modal too
+            onOpenChange(false);
+          }
+        }}
+        enemyName={enemy?.name || 'Enemy'}
+      />
+    </>
   );
 }
 
