@@ -332,7 +332,7 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
                     onClick={() => setIsLogOpen(false)}
                     className="hover:bg-gray-800 rounded p-1"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-4 h-4 text-white" />
                   </button>
                 </div>
                 <ScrollArea className="flex-1 p-3">

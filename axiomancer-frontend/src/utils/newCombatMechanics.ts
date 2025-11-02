@@ -110,26 +110,28 @@ function getDefenseForType(combatant: Character | Enemy, type: CombatType): numb
     case 'mind':
       return combatant.derivedStats.mindDefense;
     case 'heart':
-      return combatant.derivedStats.ailmentDefense; // Will be renamed to heartDefense
+      return combatant.derivedStats.ailmentDefense;
   }
 }
 
 /**
- * Calculate damage
- * Damage = Attacker's Stat + Roll - Defender's Defense
- * Minimum damage is 1
+ * Calculate damage with defense modifier
+ * Damage = Roll - (Defense * modifier)
+ * Minimum damage is 0
  */
 function calculateDamage(
-  attackerStat: number,
-  attackRoll: number,
-  defenderDefense: number
+  damageRoll: number,
+  defenderDefense: number,
+  defenseModifier: number = 1.0
 ): number {
-  const damage = attackerStat + attackRoll - defenderDefense;
-  return Math.max(1, damage);
+  const modifiedDefense = Math.floor(defenderDefense * defenseModifier);
+  const damage = damageRoll - modifiedDefense;
+  return Math.max(0, damage);
 }
 
 /**
  * Resolve Attack vs Attack scenario
+ * NEW MECHANICS: Both roll (with advantage), winner then rolls for damage
  */
 function resolveAttackVsAttack(
   playerDecision: CombatDecision,
@@ -138,49 +140,102 @@ function resolveAttackVsAttack(
   enemy: Enemy,
   advantage: AdvantageType
 ): CombatResolutionResult {
-  let playerRoll: number;
-  let playerRollDetails: string;
-  let enemyRoll: number;
-  let enemyRollDetails: string;
+  let playerAttackRoll: number;
+  let playerAttackRollDetails: string;
+  let enemyAttackRoll: number;
+  let enemyAttackRollDetails: string;
 
   const playerStat = getStatForType(player, playerDecision.type);
   const enemyStat = getStatForType(enemy, enemyDecision.type);
-  const playerDefense = getDefenseForType(player, enemyDecision.type);
-  const enemyDefense = getDefenseForType(enemy, playerDecision.type);
 
-  // Player rolls based on advantage
+  // STEP 1: Both roll attack rolls (with advantage modifiers)
   if (advantage === 'player') {
     const rollResult = rollWithAdvantage();
-    playerRoll = rollResult.result;
-    playerRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) - took higher`;
-    enemyRoll = rollD20();
-    enemyRollDetails = `1d20`;
+    playerAttackRoll = rollResult.result + playerStat;
+    playerAttackRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) took higher (${rollResult.result}) + ${playerStat} stat = ${playerAttackRoll}`;
+
+    const enemyD20 = rollD20();
+    enemyAttackRoll = enemyD20 + enemyStat;
+    enemyAttackRollDetails = `1d20 (${enemyD20}) + ${enemyStat} stat = ${enemyAttackRoll}`;
   } else if (advantage === 'enemy') {
-    playerRoll = rollD20();
-    playerRollDetails = `1d20`;
+    const playerD20 = rollD20();
+    playerAttackRoll = playerD20 + playerStat;
+    playerAttackRollDetails = `1d20 (${playerD20}) + ${playerStat} stat = ${playerAttackRoll}`;
+
     const rollResult = rollWithAdvantage();
-    enemyRoll = rollResult.result;
-    enemyRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) - took higher`;
+    enemyAttackRoll = rollResult.result + enemyStat;
+    enemyAttackRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) took higher (${rollResult.result}) + ${enemyStat} stat = ${enemyAttackRoll}`;
   } else {
     // No advantage - both roll 1d20
-    playerRoll = rollD20();
-    playerRollDetails = `1d20`;
-    enemyRoll = rollD20();
-    enemyRollDetails = `1d20`;
+    const playerD20 = rollD20();
+    playerAttackRoll = playerD20 + playerStat;
+    playerAttackRollDetails = `1d20 (${playerD20}) + ${playerStat} stat = ${playerAttackRoll}`;
+
+    const enemyD20 = rollD20();
+    enemyAttackRoll = enemyD20 + enemyStat;
+    enemyAttackRollDetails = `1d20 (${enemyD20}) + ${enemyStat} stat = ${enemyAttackRoll}`;
   }
 
-  // Calculate damage
-  const damageToEnemy = calculateDamage(playerStat, playerRoll, enemyDefense);
-  const damageToPlayer = calculateDamage(enemyStat, enemyRoll, playerDefense);
+  // STEP 2: Determine winner, then winner rolls for damage
+  let damageToPlayer = 0;
+  let damageToEnemy = 0;
+  let result = '';
 
-  const result = `Both attacked! Player dealt ${damageToEnemy} damage, Enemy dealt ${damageToPlayer} damage.`;
+  if (playerAttackRoll > enemyAttackRoll) {
+    // Player wins - player rolls for damage
+    const enemyDefense = getDefenseForType(enemy, playerDecision.type);
+    let damageRoll: number;
+    let damageRollDetails: string;
+
+    if (advantage === 'player') {
+      const rollResult = rollWithAdvantage();
+      damageRoll = rollResult.result + playerStat;
+      damageRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) took higher (${rollResult.result}) + ${playerStat} stat = ${damageRoll}`;
+    } else if (advantage === 'enemy') {
+      const rollResult = rollWithDisadvantage();
+      damageRoll = rollResult.result + playerStat;
+      damageRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) took lower (${rollResult.result}) + ${playerStat} stat = ${damageRoll}`;
+    } else {
+      const d20 = rollD20();
+      damageRoll = d20 + playerStat;
+      damageRollDetails = `1d20 (${d20}) + ${playerStat} stat = ${damageRoll}`;
+    }
+
+    damageToEnemy = calculateDamage(damageRoll, enemyDefense);
+    result = `Player won attack roll (${playerAttackRoll} vs ${enemyAttackRoll})! Damage: ${damageRollDetails} vs ${enemyDefense} defense = ${damageToEnemy} damage`;
+  } else if (enemyAttackRoll > playerAttackRoll) {
+    // Enemy wins - enemy rolls for damage
+    const playerDefense = getDefenseForType(player, enemyDecision.type);
+    let damageRoll: number;
+    let damageRollDetails: string;
+
+    if (advantage === 'enemy') {
+      const rollResult = rollWithAdvantage();
+      damageRoll = rollResult.result + enemyStat;
+      damageRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) took higher (${rollResult.result}) + ${enemyStat} stat = ${damageRoll}`;
+    } else if (advantage === 'player') {
+      const rollResult = rollWithDisadvantage();
+      damageRoll = rollResult.result + enemyStat;
+      damageRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) took lower (${rollResult.result}) + ${enemyStat} stat = ${damageRoll}`;
+    } else {
+      const d20 = rollD20();
+      damageRoll = d20 + enemyStat;
+      damageRollDetails = `1d20 (${d20}) + ${enemyStat} stat = ${damageRoll}`;
+    }
+
+    damageToPlayer = calculateDamage(damageRoll, playerDefense);
+    result = `Enemy won attack roll (${enemyAttackRoll} vs ${playerAttackRoll})! Damage: ${damageRollDetails} vs ${playerDefense} defense = ${damageToPlayer} damage`;
+  } else {
+    // Tie - no damage
+    result = `Both rolled ${playerAttackRoll}! It's a tie - no damage dealt.`;
+  }
 
   return {
     advantage,
-    playerRoll,
-    playerRollDetails,
-    enemyRoll,
-    enemyRollDetails,
+    playerRoll: playerAttackRoll,
+    playerRollDetails: playerAttackRollDetails,
+    enemyRoll: enemyAttackRoll,
+    enemyRollDetails: enemyAttackRollDetails,
     damageToPlayer,
     damageToEnemy,
     result,
@@ -190,6 +245,10 @@ function resolveAttackVsAttack(
 
 /**
  * Resolve Attack vs Defense scenario
+ * NEW MECHANICS:
+ * - Advantage: Attacker rolls 2d20 take higher, defender's defense is HALVED
+ * - Neutral (same type): Attacker auto-hits with 1d20, defender's defense is DOUBLED
+ * - Disadvantage: Attacker rolls 2d20 take lower, defender's defense is NORMAL
  */
 function resolveAttackVsDefense(
   attackerDecision: CombatDecision,
@@ -199,37 +258,52 @@ function resolveAttackVsDefense(
   advantage: AdvantageType,
   attackerIsPlayer: boolean
 ): { attackerRoll: number; attackerRollDetails: string; damage: number; result: string } {
-  let attackerRoll: number;
-  let attackerRollDetails: string;
+  let damageRoll: number;
+  let damageRollDetails: string;
+  let defenseModifier: number;
+  let advantageText: string;
 
   const attackerStat = getStatForType(attacker, attackerDecision.type);
   const defenderDefense = getDefenseForType(defender, attackerDecision.type);
 
-  // Determine roll type based on advantage
-  if (advantage === (attackerIsPlayer ? 'player' : 'enemy')) {
-    // Attacker has advantage
+  // Determine advantage from attacker's perspective
+  const attackerAdvantage = attackerIsPlayer ? advantage :
+    (advantage === 'player' ? 'enemy' : advantage === 'enemy' ? 'player' : 'none');
+
+  // Roll based on advantage and set defense modifier
+  if (attackerAdvantage === (attackerIsPlayer ? 'player' : 'enemy')) {
+    // Attacker has advantage: 2d20 take higher, defense halved
     const rollResult = rollWithAdvantage();
-    attackerRoll = rollResult.result;
-    attackerRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) - took higher`;
-  } else if (advantage === (attackerIsPlayer ? 'enemy' : 'player')) {
-    // Attacker has disadvantage (defender has advantage)
+    damageRoll = rollResult.result + attackerStat;
+    damageRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) took higher (${rollResult.result}) + ${attackerStat} stat = ${damageRoll}`;
+    defenseModifier = 0.5;
+    advantageText = 'with advantage (defense halved)';
+  } else if (attackerAdvantage === (attackerIsPlayer ? 'enemy' : 'player')) {
+    // Attacker has disadvantage: 2d20 take lower, normal defense
     const rollResult = rollWithDisadvantage();
-    attackerRoll = rollResult.result;
-    attackerRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) - took lower`;
+    damageRoll = rollResult.result + attackerStat;
+    damageRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) took lower (${rollResult.result}) + ${attackerStat} stat = ${damageRoll}`;
+    defenseModifier = 1.0;
+    advantageText = 'with disadvantage';
   } else {
-    // Neutral
-    attackerRoll = rollD20();
-    attackerRollDetails = `1d20`;
+    // Neutral (same type): Auto-hit with 1d20, defense doubled
+    const d20 = rollD20();
+    damageRoll = d20 + attackerStat;
+    damageRollDetails = `1d20 (${d20}) + ${attackerStat} stat = ${damageRoll}`;
+    defenseModifier = 2.0;
+    advantageText = 'neutral (defense doubled)';
   }
 
-  const damage = calculateDamage(attackerStat, attackerRoll, defenderDefense);
+  const damage = calculateDamage(damageRoll, defenderDefense, defenseModifier);
+  const modifiedDefense = Math.floor(defenderDefense * defenseModifier);
+
   const attackerName = attackerIsPlayer ? 'Player' : 'Enemy';
   const defenderName = attackerIsPlayer ? 'Enemy' : 'Player';
-  const result = `${attackerName} attacked while ${defenderName} defended. ${attackerName} dealt ${damage} damage.`;
+  const result = `${attackerName} attacked ${advantageText} while ${defenderName} defended. Damage: ${damageRollDetails} vs ${modifiedDefense} defense (${defenderDefense} × ${defenseModifier}) = ${damage} damage`;
 
   return {
-    attackerRoll,
-    attackerRollDetails,
+    attackerRoll: damageRoll,
+    attackerRollDetails: damageRollDetails,
     damage,
     result,
   };
