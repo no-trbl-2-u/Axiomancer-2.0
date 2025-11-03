@@ -367,7 +367,13 @@ export const GlobalLocalMapScreen: React.FC = () => {
       console.log(`🔓 Unlocking next area: ${nextAreaId}`);
       // Update the global area to be unlocked
       // Note: In a real implementation, this would update a persistent store
+      // TODO: Update the global area to be unlocked (aka new map)
+      const updatedAreas = GLOBAL_AREAS.map(area =>
+        area.id === nextAreaId ? { ...area, unlocked: true } : area
+      );
       // For now, we'll just log it
+      console.log('🔍 Updated areas:', updatedAreas);
+      // setGlobalAreas(updatedAreas);
     }
   };
 
