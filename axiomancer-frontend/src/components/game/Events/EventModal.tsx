@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { theme } from '../../styles/theme';
-import { useGameStore } from '../../stores/gameStore';
-import { saveCharacter } from '../../utils/characterSave';
-import { processEventEffectReduction, clearAllPersistentEffects } from '../../utils/persistentEffects';
-import { CombatModal } from '../figma/CombatModal';
+import { theme } from '../../../styles/theme';
+import { useGameStore } from '../../../stores/gameStore';
+import { saveCharacter } from '../../../utils/characterSave';
+import { processEventEffectReduction, clearAllPersistentEffects } from '../../../utils/persistentEffects';
+import { CombatModal } from './CombatModal/CombatModal';
 
 type EventType = 'combat' | 'moral' | 'gathering' | 'rest';
 type SkillCategory = 'body' | 'mind' | 'heart';
@@ -47,6 +47,7 @@ interface GatheringResource {
   energyCost: number;
 }
 
+// TODO: Move to a separate file
 const MORAL_SCENARIOS: MoralScenario[] = [
   {
     id: 'guardian',
@@ -147,6 +148,7 @@ const MORAL_SCENARIOS: MoralScenario[] = [
   }
 ];
 
+// TODO: Move to a separate file
 const GATHERING_RESOURCES: GatheringResource[] = [
   { name: 'Wild Berries', amount: 3, energyCost: 2 },
   { name: 'Fallen Branches', amount: 2, energyCost: 3 },
@@ -204,6 +206,7 @@ const ModalBody = styled.div<{ isCombat?: boolean }>`
     flex: 1;`}
     `;
 
+// TODO: Use the "real" ActionButton component
 const CloseButton = styled.button`
   position: absolute;
   top: ${theme.spacing.md};
@@ -225,6 +228,7 @@ const CloseButton = styled.button`
   }
 `;
 
+// TODO: Use the "real" ActionButton component
 const ActionButton = styled.button<{ disabled?: boolean }>`
   background: ${props => props.disabled ? theme.colors.background.primary : theme.colors.primary};
   color: ${props => props.disabled ? theme.colors.text.muted : 'white'};
@@ -271,6 +275,7 @@ const EventDescription = styled.div`
   }
 `;
 
+// TODO: Use the "real" ActionButton component
 const ChoiceButton = styled.button`
   background: ${theme.colors.background.secondary};
   border: 2px solid ${theme.colors.border.primary};
@@ -363,9 +368,9 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
   // Close the entire event modal when the enemy is defeated in combat
   useEffect(() => {
     if (!isOpen || eventType !== 'combat') return;
-    
+
     const combat = gameState.combat;
-    
+
     // Only close if combat exists and enemy is defeated
     // Don't close if combat is null during initialization
     if (combat && combat.enemy && combat.enemy.health <= 0) {
@@ -373,18 +378,19 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
     }
   }, [isOpen, eventType, gameState.combat, onClose]);
 
+  /* initializeEvent() is used to set gameState (combat and moral, now. Gathering in the future) based on the event */
+  // TODO: Maybe abstract this into a separate file?
   const initializeEvent = () => {
     setEventCompleted(false);
     setEventResult('');
 
-    // EventType is already determined by GlobalLocalMapScreen (respecting debug mode)
-    // This just initializes the appropriate event content
     switch (eventType) {
       case 'combat':
         // Initialize combat in the global store with forest monsters
-        const forestMonsters = ['elder_tree', 'tree_guardian_1', 'tree_guardian_2'];
+        // TODO: Create a "getMonster" function that uses the gameState to determine map to pick a random monster
+        const forestMonsters = ['happy_tree1', 'happy_tree2'];
         const randomMonster = forestMonsters[Math.floor(Math.random() * forestMonsters.length)];
-        startCombat(randomMonster || 'elder_tree');
+        startCombat(randomMonster || 'happy_tree1');
         break;
       case 'moral':
         // Handle special cases first
@@ -418,6 +424,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
     }
   };
 
+  // TODO: Abstract to its own file
   const handleMoralChoice = (choice: any) => {
     if (!currentScenario) return;
 
@@ -455,6 +462,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
     // TODO: Update karma and gold
   };
 
+  // TODO: Abstract to its own file
   const handleGathering = (resource: GatheringResource) => {
     // TODO: Check energy and update inventory
     setEventResult(`You gathered ${resource.amount} ${resource.name}!`);
@@ -465,23 +473,24 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
     updateCharacter(characterWithReducedEffects);
   };
 
+  // TODO: Abstract to its own file
   const handleRest = () => {
     const disruptionChance = Math.random();
-    
+
     if (disruptionChance < 0.15) {
       // Disrupted rest - only clears effects, doesn't fully restore
       const restoredHp = Math.floor(gameState.character.maxHealth * 0.5);
       const restoredMp = Math.floor(gameState.character.maxMana * 0.5);
-      
+
       // Clear all persistent effects (as per requirements)
       const characterWithClearedEffects = clearAllPersistentEffects(gameState.character);
-      
+
       updateCharacter({
         ...characterWithClearedEffects,
         health: Math.min(gameState.character.maxHealth, gameState.character.health + restoredHp),
         mana: Math.min(gameState.character.maxMana, gameState.character.mana + restoredMp)
       });
-      
+
       const theftChance = Math.random();
       if (theftChance < 0.15) {
         setEventResult('Your rest was disrupted by strange noises, and you discover some of your gold is missing! All effects cleared. (Restored 50% HP/MP)');
@@ -491,7 +500,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
     } else {
       // Full rest - clears all effects and fully restores
       const characterWithClearedEffects = clearAllPersistentEffects(gameState.character);
-      
+
       updateCharacter({
         ...characterWithClearedEffects,
         health: gameState.character.maxHealth,
@@ -499,7 +508,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
       });
       setEventResult('You sleep peacefully and wake up fully refreshed! All effects cleared. (Restored 100% HP/MP)');
     }
-    
+
     setEventCompleted(true);
   };
 
@@ -516,36 +525,38 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
   const renderEventContent = () => {
     if (eventCompleted) {
       return (
-      <EventDescription>
-      <div className="event-title">Event Complete</div>
-      <div className="event-text">{eventResult}</div>
-      <ActionButton onClick={() => {
-      // Auto-save character progress after completing event
-        saveCharacter(gameState);
-          onClose();
+        <EventDescription>
+          <div className="event-title">Event Complete</div>
+          <div className="event-text">{eventResult}</div>
+          <ActionButton onClick={() => {
+            // Auto-save character progress after completing event
+            saveCharacter(gameState);
+            onClose();
           }} style={{ marginTop: theme.spacing.md }}>
-              Continue Journey
-            </ActionButton>
-          </EventDescription>
-        );
+            Continue Journey
+          </ActionButton>
+        </EventDescription>
+      );
     }
 
+    /* All Event Types firing their respective modals */
     switch (eventType) {
       case 'combat':
         // CombatModal with bare=true renders without Dialog wrapper to avoid nested modals
         // EventModal provides the modal structure, CombatModal provides the combat UI
         return <CombatModal open={true} onOpenChange={onClose} bare={true} />;
-        
+
+      // TODO: Create MoralModal component
       case 'moral':
         if (!currentScenario) return null;
-        
+
         return (
           <div>
             <EventDescription>
               <div className="event-title">{currentScenario.title}</div>
               <div className="event-text">{currentScenario.description}</div>
             </EventDescription>
-            
+
             {currentScenario.choices.map((choice) => (
               <ChoiceButton key={choice.id} onClick={() => handleMoralChoice(choice)}>
                 <div className="choice-text">{choice.text}</div>
@@ -553,7 +564,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
             ))}
           </div>
         );
-        
+
+      // TODO: Create GatheringModal component
       case 'gathering':
         return (
           <div>
@@ -561,7 +573,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
               <div className="event-title">Resource Gathering</div>
               <div className="event-text">You&apos;ve discovered a location rich with natural resources. What would you like to gather?</div>
             </EventDescription>
-            
+
             <ResourceGrid>
               {GATHERING_RESOURCES.map((resource) => (
                 <ResourceCard key={resource.name}>
@@ -570,7 +582,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
                     Amount: {resource.amount}<br />
                     Energy Cost: {resource.energyCost}
                   </div>
-                  <button 
+                  <button
                     onClick={() => handleGathering(resource)}
                     disabled={gameState.mapEnergy < resource.energyCost}
                   >
@@ -581,7 +593,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
             </ResourceGrid>
           </div>
         );
-        
+
+      // TODO: Create RestModal component
       case 'rest':
         return (
           <div>
@@ -589,13 +602,13 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
               <div className="event-title">Peaceful Resting Spot</div>
               <div className="event-text">You&apos;ve found a safe place to rest and recover. The soft grass and gentle breeze make this an ideal spot to regain your strength.</div>
             </EventDescription>
-            
+
             <ActionButton onClick={handleRest}>
               Rest Here
             </ActionButton>
           </div>
         );
-        
+
       default:
         return <div>Unknown event type</div>;
     }

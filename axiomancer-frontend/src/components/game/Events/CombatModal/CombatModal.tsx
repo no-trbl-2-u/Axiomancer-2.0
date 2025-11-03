@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { Dialog, DialogContent } from './Dialog';
+import { Dialog, DialogContent } from '../../../figma/Dialog';
 import { X, BookOpen } from 'lucide-react';
-import { ScrollArea } from './ScrollArea';
-import { useGameStore } from '../../stores/gameStore';
-import { NewFriendsModal } from './NewFriendsModal';
-import { theme } from '../../styles/theme';
+import { ScrollArea } from '../../../figma/ScrollArea';
+import { useGameStore } from '../../../../stores/gameStore';
+import { NewFriendsModal } from '../../../figma/NewFriendsModal';
+import { theme } from '../../../../styles/theme';
 import {
   resolveCombatRound,
   generateEnemyDecision,
   createBattleLogEntry,
   checkCombatEnd,
-} from '../../utils/newCombatMechanics';
-import { CombatType, CombatActionType, CombatDecision } from '../../types/newCombat';
+} from '../../../../utils/newCombatMechanics';
+import { CombatType, CombatActionType, CombatDecision } from '../../../../types/newCombat';
 
 type ActionView = 'primary' | 'secondary';
 type PrimaryAction = 'Body' | 'Mind' | 'Heart' | 'Item' | 'Flee';
@@ -628,7 +628,7 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
                       {/* Decisions */}
                       <LogText>
                         <span style={{ color: '#4ade80' }}>{`Player: `}</span>
-                        <CapitalizeText>{`${entry.playerDecision.type }`}</CapitalizeText>
+                        <CapitalizeText>{`${entry.playerDecision.type}`}</CapitalizeText>
                         <CapitalizeText>{entry.playerDecision.action}</CapitalizeText>
                       </LogText>
                       <LogText>

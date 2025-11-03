@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { CombatModal } from '../../components/figma/CombatModal';
+import { CombatModal } from '../../components/game/Events/CombatModal/CombatModal';
 import { NewCombatState, BattleLogEntry } from '../../types/newCombat';
 import { Character, Enemy } from '../../types/game';
 import { useGameStore } from '../../stores/gameStore';

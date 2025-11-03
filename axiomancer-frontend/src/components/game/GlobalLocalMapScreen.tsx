@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
 import { useDebugStore } from '../../stores/debugStore';
-import { EventModal } from './EventModal';
+import { EventModal } from './Events/EventModal';
 import { LockedNodeModal } from './LockedNodeModal';
 import { saveCharacter } from '../../utils/characterSave';
 
