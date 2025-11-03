@@ -387,10 +387,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
     switch (eventType) {
       case 'combat':
         // Initialize combat in the global store with forest monsters
-        // TODO: Create a "getMonster" function that uses the gameState to determine map to pick a random monster
-        const forestMonsters = ['happy_tree1', 'happy_tree2'];
-        const randomMonster = forestMonsters[Math.floor(Math.random() * forestMonsters.length)];
-        startCombat(randomMonster || 'happy_tree1');
+        // Get a random enemy based on the current location/map
+        /* Call a random enemy */
+        startCombat('random');
+        /* Call a specific enemy */
+        // startCombat('happy_tree1')
         break;
       case 'moral':
         // Handle special cases first

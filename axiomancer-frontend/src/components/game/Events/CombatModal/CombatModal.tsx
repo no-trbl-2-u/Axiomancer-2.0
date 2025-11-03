@@ -156,8 +156,16 @@ const LevelDisplay = styled.div`
   }
 `;
 
-const CharacterImage = styled.div<{ position: 'enemy' | 'player' }>`
+// TODO: I think its container is white so it looks really weird (Player's as well)
+const CharacterImage = styled.div<{ position: 'enemy' | 'player', src: string }>`
   position: absolute;
+  background-image: url(${props => props.src});
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
 
   ${props => props.position === 'enemy' ? `
     top: 6rem;
@@ -518,9 +526,7 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
       </CombatantCard>
 
       {/* Enemy Image */}
-      <CharacterImage position="enemy">
-        <div>{enemy.image || '👹'}</div>
-      </CharacterImage>
+      <CharacterImage position="enemy" src={enemy.image || ''} />
 
       {/* Player Card */}
       <CombatantCard position="player">

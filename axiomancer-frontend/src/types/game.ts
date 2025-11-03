@@ -1,3 +1,8 @@
+// Enemy type moved to components/game/Events/CombatModal/enemyHelper.ts
+// Re-exported here for backwards compatibility
+import type { Enemy as EnemyType } from '../components/game/Events/CombatModal/enemyHelper';
+export type Enemy = EnemyType;
+
 export interface CharacterPortrait {
   imageUrl: string;
   description: string;
@@ -274,27 +279,6 @@ export interface GameEvent {
   type: 'philosophical_dilemma' | 'combat' | 'discovery' | 'trade';
   triggered: boolean;
   requirements?: ChoiceRequirement[];
-}
-
-export interface Enemy {
-  id: string;
-  name: string;
-  level: number;
-  health: number;
-  maxHealth: number;
-  mana: number;
-  maxMana: number;
-  baseStats: BaseStats;
-  derivedStats: DerivedStats;
-  skills: Skill[];
-  equipment?: Equipment[];
-  loot: Item[];
-  type: 'fallacy' | 'sophist' | 'skeptic' | 'nihilist' | 'beast' | 'guardian';
-  enemyTier?: 'normal' | 'elite' | 'boss';
-  image?: string;
-  description: string;
-  weaknesses?: PhilosophicalAspect[];
-  strengths?: PhilosophicalAspect[];
 }
 
 export type PhilosophicalAspect = 'body' | 'mind' | 'heart';

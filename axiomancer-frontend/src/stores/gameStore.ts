@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, CharacterPortrait, BaseStats, Equipment, EquipmentSlot, Skill, PhilosophicalAspect } from '../types/game';
 import { initialQuests } from '../utils/questSystem';
-import { createEnemyByType } from '../utils/combatMechanics';
+import { getEnemyById, getRandomEnemyBasedOnMap } from '../components/game/Events/CombatModal/enemyHelper';
 import { loadCharacter, saveCharacter } from '../utils/characterSave';
 import { createInitialBaseStats, calculateDerivedStats, calculateMaxHP, calculateMaxMP, calculateTotalBaseStats, getTotalInvestedPoints, getCharacterCreationPoints } from '../utils/statCalculations';
 
@@ -24,7 +24,7 @@ interface GameStore {
   // State
   gameState: GameState;
   currentScreen: GameScreen;
-  
+
   // Character Actions
   createCharacter: (characterData: CreateCharacterData) => void;
   loadSavedCharacter: () => Promise<boolean>;
@@ -32,47 +32,47 @@ interface GameStore {
   assignStatPoint: (statName: keyof BaseStats) => void;
   unassignStatPoint: (statName: keyof BaseStats) => void;
   gainExperience: (amount: number) => void;
-  
+
   // Location & Navigation
   moveToLocation: (locationId: string) => void;
   moveToNode: (nodeId: string) => void;
   unlockNode: (locationId: string, nodeId: string) => void;
-  
+
   // Inventory Management
   updateInventory: (updates: Partial<GameState['inventory']>) => void;
-  
+
   // Story Progression
   updateStory: (updates: Partial<GameState['story']>) => void;
   unlockGuardianProgression: () => void;
-  
+
   // Combat System
   startCombat: (enemyId: string) => void;
   endCombat: () => void;
   updateCombat: (updates: Partial<CombatState>) => void;
-  
+
   // Quest System
   completeQuest: (questId: string) => void;
   addQuest: (quest: Quest) => void;
-  
+
   // Equipment System
   equipItem: (slot: EquipmentSlot, item: Equipment) => void;
   unequipItem: (slot: EquipmentSlot) => void;
-  
+
   // Skill System
   learnSkill: (skill: Skill) => void;
   canLearnSkill: (skill: Skill) => boolean;
   equipSkill: (skill: Skill, aspect: PhilosophicalAspect) => void;
   unequipSkill: (skillId: string, aspect: PhilosophicalAspect) => void;
-  
+
   // Screen Navigation
   changeScreen: (screen: GameScreen) => void;
-  
+
   // Philosophical Choices
   makePhilosophicalChoice: (choiceId: string, outcome: any) => void;
-  
+
   // Save System
   saveGame: () => Promise<void>;
-  
+
   // Reset/New Game
   startNewGame: (characterName: string) => void;
   resetGame: () => void;
@@ -1156,7 +1156,7 @@ export const useGameStore = create<GameStore>()(
       moveToLocation: (locationId: string) => {
         set((state) => {
           const targetLocation = state.gameState.locations[locationId];
-          const startNodeId = targetLocation?.isNodeMap ? 
+          const startNodeId = targetLocation?.isNodeMap ?
             targetLocation.nodes?.find(n => n.type === 'start')?.id : undefined;
           const nextCurrentNode = startNodeId || state.gameState.currentNode;
 
@@ -1183,8 +1183,8 @@ export const useGameStore = create<GameStore>()(
                 ...state.gameState.locations,
                 [state.gameState.currentLocation]: {
                   ...currentLoc,
-                  nodes: currentLoc.nodes?.map(node => 
-                    node.id === nodeId 
+                  nodes: currentLoc.nodes?.map(node =>
+                    node.id === nodeId
                       ? { ...node, visited: true }
                       : node
                   ) || []
@@ -1294,7 +1294,19 @@ export const useGameStore = create<GameStore>()(
       // Combat System
       startCombat: (enemyId: string) => {
         const state = get();
-        const enemy = createEnemyByType(enemyId);
+
+        // Try to get enemy by ID first, if not found or if 'random', get random enemy based on location
+        let enemy;
+        if (enemyId === 'random') {
+          enemy = getRandomEnemyBasedOnMap(state.gameState.currentLocation);
+        } else {
+          enemy = getEnemyById(enemyId);
+        }
+
+        if (!enemy) {
+          console.error(`Failed to create enemy with ID: ${enemyId}`);
+          return;
+        }
 
         // Initialize new combat state
         const newCombatState: any = {
@@ -1513,8 +1525,8 @@ export const useGameStore = create<GameStore>()(
           // Auto-learn the skill if not already available
           const availableSkills = state.gameState.character.availableSkills;
           const skillAlreadyAvailable = availableSkills.some(s => s.id === skill.id);
-          const updatedAvailableSkills = skillAlreadyAvailable 
-            ? availableSkills 
+          const updatedAvailableSkills = skillAlreadyAvailable
+            ? availableSkills
             : [...availableSkills, skill];
 
           console.log(`✅ Equipped ${skill.name} to ${aspect}`);
