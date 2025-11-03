@@ -121,20 +121,6 @@ const CombatMainArea = styled.div`
   justify-content: center;
 `;
 
-const CombatantPanel = styled.div<{ side: 'left' | 'right' }>`
-  flex: 1;
-  background: ${theme.colors.background.panel};
-  border: ${theme.rpg.borderWidth} solid ${theme.colors.border.primary};
-  border-radius: ${theme.rpg.panelBorderRadius};
-  padding: ${theme.spacing.lg};
-  box-shadow: ${theme.shadows.panel};
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: ${theme.spacing.md};
-  min-height: 200px;
-`;
-
 const PortraitContainer = styled.div`
   width: 150px;
   height: 180px;
@@ -522,7 +508,7 @@ export const CombatScreen: React.FC = () => {
           },
           onCombatEnd: (winner: string, result: string) => {
             console.log('🏁 Combat ended:', winner, result);
-            handleCombatEnd(winner, result);
+            handleCombatEnd(winner);
           }
         });
 
@@ -644,7 +630,7 @@ export const CombatScreen: React.FC = () => {
     }
   };
 
-  const handleCombatEnd = (_winner: string, _result: string) => {
+  const handleCombatEnd = (_winner: string) => {
     if (!combatManagerRef.current) return;
 
     // Export final combat state

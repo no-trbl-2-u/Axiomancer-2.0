@@ -7,7 +7,7 @@ import { fallacySpellbook } from '../../utils/fallacySpellbook';
 import { Container, Grid, FlexContainer } from '../shared/Grid';
 import { Card } from '../shared/Card';
 import { Panel } from '../shared/Panel';
-import { Title, Text, Subtitle, Description, Badge } from '../shared/Text';
+import { Title, Text, Description } from '../shared/Text';
 import { TabsContainer, Tab } from '../shared/Tab';
 import { StatGrid, StatGridItem } from '../shared/StatDisplay';
 import { SlotsContainer, Slot } from '../shared/Slot';

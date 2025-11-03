@@ -1,13 +1,10 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, CharacterPortrait, BaseStats, Equipment, EquipmentSlot, Skill, PhilosophicalAspect } from '../types/game';
-import { NewCombatState } from '../types/newCombat';
 import { initialQuests } from '../utils/questSystem';
 import { createEnemyByType } from '../utils/combatMechanics';
-import { fallacySpellbook } from '../utils/fallacySpellbook';
 import { loadCharacter, saveCharacter } from '../utils/characterSave';
 import { createInitialBaseStats, calculateDerivedStats, calculateMaxHP, calculateMaxMP, calculateTotalBaseStats, getTotalInvestedPoints, getCharacterCreationPoints } from '../utils/statCalculations';
-import { clearAllBuffsDebuffs } from '../utils/buffDebuffEngine';
 
 /**
  * Character creation data
@@ -1133,9 +1130,6 @@ export const useGameStore = create<GameStore>()(
             leveledUp = true;
 
             console.log(`🎉 Level up! ${currentCharacter.name} reached level ${newLevel}`);
-
-            // Set new experience requirement for next level
-            const newExpRequirement = 1000; // Always 1000 XP per level
           }
 
           return {

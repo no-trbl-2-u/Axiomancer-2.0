@@ -13,7 +13,7 @@ import {
   AdvantageType,
   CombatResolutionResult,
   BattleLogEntry,
-  NewCombatState,
+  NewCombatState
 } from '../types/newCombat';
 
 /**
@@ -399,6 +399,7 @@ export function generateEnemyDecision(): CombatDecision {
   const randomType = types[Math.floor(Math.random() * types.length)];
   const randomAction = actions[Math.floor(Math.random() * actions.length)];
 
+  // TODO: Check these types
   return {
     type: randomType,
     action: randomAction,

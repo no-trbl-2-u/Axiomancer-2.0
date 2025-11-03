@@ -1,4 +1,3 @@
-import { BuffDebuff, BuffDebuffEffect, StatusEffectName } from '../types/game';
 
 /**
  * Complete Status Effects System - Bleak and Heart-Wrenching
@@ -19,7 +18,7 @@ import { BuffDebuff, BuffDebuffEffect, StatusEffectName } from '../types/game';
 /**
  * Logic Immunity - The cold comfort of rational detachment
  */
-export const createLogicImmunityBuff = (duration: number = 3): BuffDebuff => ({
+export const createLogicImmunityBuff = (duration: number = 3) => ({
   id: 'logic_immunity',
   name: 'Logic Immunity',
   description: 'You\'ve built walls of pure reason against the chaos of emotion, but at what cost to your humanity?',
@@ -38,7 +37,7 @@ export const createLogicImmunityBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Strength from Pain - The bitter harvest of suffering
  */
-export const createStrengthFromPainBuff = (damage: number, duration: number = 3): BuffDebuff => ({
+export const createStrengthFromPainBuff = (damage: number, duration: number = 3) => ({
   id: 'strength_from_pain',
   name: 'Strength from Pain',
   description: 'Your wounds have become your armor, your suffering your weapon. Pain is the only truth you know.',
@@ -58,7 +57,7 @@ export const createStrengthFromPainBuff = (damage: number, duration: number = 3)
 /**
  * Insight into Weaknesses - The terrible knowledge of human frailty
  */
-export const createInsightBuff = (duration: number = 4): BuffDebuff => ({
+export const createInsightBuff = (duration: number = 4) => ({
   id: 'insight',
   name: 'Insight into Weaknesses',
   description: 'You see the cracks in every soul, including your own. Knowledge is a curse that never leaves.',
@@ -77,7 +76,7 @@ export const createInsightBuff = (duration: number = 4): BuffDebuff => ({
 /**
  * Vision of Truth - The blinding light of reality
  */
-export const createVisionBuff = (visionType: string = 'enemy attacks', duration: number = 3): BuffDebuff => ({
+export const createVisionBuff = (visionType: string = 'enemy attacks', duration: number = 3) => ({
   id: 'foresight',
   name: 'Foresight',
   description: `You glimpse ${visionType}, but the future holds only more suffering. Hope is the cruelest illusion.`,
@@ -95,7 +94,7 @@ export const createVisionBuff = (visionType: string = 'enemy attacks', duration:
 /**
  * Resistance to Manipulation - The weary armor of experience
  */
-export const createResistanceBuff = (duration: number = 4): BuffDebuff => ({
+export const createResistanceBuff = (duration: number = 4) => ({
   id: 'resistance',
   name: 'Resistance to Manipulation',
   description: 'You\'ve been broken so many times that lies no longer touch you. But neither does truth.',
@@ -117,7 +116,7 @@ export const createResistanceBuff = (duration: number = 4): BuffDebuff => ({
 /**
  * Innovation Spark - The fleeting fire of creation
  */
-export const createInnovationBuff = (duration: number = 3): BuffDebuff => ({
+export const createInnovationBuff = (duration: number = 3) => ({
   id: 'innovation',
   name: 'Innovation',
   description: 'A spark of genuine creation in this dying world. It will be extinguished, but not yet.',
@@ -136,7 +135,7 @@ export const createInnovationBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Momentum of Change - The terrifying rush of progress
  */
-export const createMomentumBuff = (duration: number = 2): BuffDebuff => ({
+export const createMomentumBuff = (duration: number = 2) => ({
   id: 'momentum',
   name: 'Momentum',
   description: 'Change accelerates toward an unknown end. What horrors await when it finally stops?',
@@ -154,7 +153,7 @@ export const createMomentumBuff = (duration: number = 2): BuffDebuff => ({
 /**
  * Courage in Despair - The last stand of the broken
  */
-export const createCourageBuff = (duration: number = 3): BuffDebuff => ({
+export const createCourageBuff = (duration: number = 3) => ({
   id: 'courage',
   name: 'Courage',
   description: 'You face the abyss with open eyes. Fear has lost its power over your shattered spirit.',
@@ -173,7 +172,7 @@ export const createCourageBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Mental Fortitude - The prison of rational thought
  */
-export const createMentalFortitudeBuff = (duration: number = 4): BuffDebuff => ({
+export const createMentalFortitudeBuff = (duration: number = 4) => ({
   id: 'mental_fortitude',
   name: 'Mental Fortitude',
   description: 'Your mind is a fortress against chaos, but inside its walls you\'re utterly alone.',
@@ -191,7 +190,7 @@ export const createMentalFortitudeBuff = (duration: number = 4): BuffDebuff => (
 /**
  * Mental Autonomy - Freedom from the chains of thought
  */
-export const createMentalAutonomyBuff = (duration: number = 5): BuffDebuff => ({
+export const createMentalAutonomyBuff = (duration: number = 5) => ({
   id: 'mental_autonomy',
   name: 'Mental Autonomy',
   description: 'Your thoughts are your own, but they echo in the empty chambers of your soul.',
@@ -210,7 +209,7 @@ export const createMentalAutonomyBuff = (duration: number = 5): BuffDebuff => ({
 /**
  * Intellectual Sovereignty - The crown of isolation
  */
-export const createIntellectualSovereigntyBuff = (duration: number = 4): BuffDebuff => ({
+export const createIntellectualSovereigntyBuff = (duration: number = 4) => ({
   id: 'intellectual_sovereignty',
   name: 'Intellectual Sovereignty',
   description: 'You reign supreme in your kingdom of one, where truth is your only subject.',
@@ -229,7 +228,7 @@ export const createIntellectualSovereigntyBuff = (duration: number = 4): BuffDeb
 /**
  * Integrity - The fragile shield of self
  */
-export const createIntegrityBuff = (duration: number = 3): BuffDebuff => ({
+export const createIntegrityBuff = (duration: number = 3) => ({
   id: 'integrity',
   name: 'Integrity',
   description: 'You cling to your principles like a drowning man to driftwood in a storm of corruption.',
@@ -247,7 +246,7 @@ export const createIntegrityBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Moral High Ground - The crumbling peak of righteousness
  */
-export const createMoralHighGroundBuff = (duration: number = 3): BuffDebuff => ({
+export const createMoralHighGroundBuff = (duration: number = 3) => ({
   id: 'moral_high_ground',
   name: 'Moral High Ground',
   description: 'From your lofty perch you judge others, but the ground beneath you is eroding.',
@@ -266,7 +265,7 @@ export const createMoralHighGroundBuff = (duration: number = 3): BuffDebuff => (
 /**
  * Moral Consistency - The rigid cage of principle
  */
-export const createMoralConsistencyBuff = (duration: number = 4): BuffDebuff => ({
+export const createMoralConsistencyBuff = (duration: number = 4) => ({
   id: 'moral_consistency',
   name: 'Moral Consistency',
   description: 'Your principles are unyielding, but they\'ve become a prison that excludes all mercy.',
@@ -284,7 +283,7 @@ export const createMoralConsistencyBuff = (duration: number = 4): BuffDebuff => 
 /**
  * Moral Perfection - The impossible ideal
  */
-export const createMoralPerfectionBuff = (duration: number = 5): BuffDebuff => ({
+export const createMoralPerfectionBuff = (duration: number = 5) => ({
   id: 'moral_perfection',
   name: 'Moral Perfection',
   description: 'You\'ve achieved an impossible standard, but the weight of it crushes your spirit.',
@@ -303,7 +302,7 @@ export const createMoralPerfectionBuff = (duration: number = 5): BuffDebuff => (
 /**
  * Humility - The bitter taste of self-knowledge
  */
-export const createHumilityBuff = (duration: number = 3): BuffDebuff => ({
+export const createHumilityBuff = (duration: number = 3) => ({
   id: 'humility',
   name: 'Humility',
   description: 'You know your place in the vast, uncaring universe. It\'s the lowest rung.',
@@ -321,7 +320,7 @@ export const createHumilityBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * True Moral Understanding - The abyss of ethical clarity
  */
-export const createTrueMoralUnderstandingBuff = (duration: number = 6): BuffDebuff => ({
+export const createTrueMoralUnderstandingBuff = (duration: number = 6) => ({
   id: 'true_moral_understanding',
   name: 'True Moral Understanding',
   description: 'You see the moral structure of the universe, and it fills you with despair.',
@@ -340,7 +339,7 @@ export const createTrueMoralUnderstandingBuff = (duration: number = 6): BuffDebu
 /**
  * Healthy Spirituality - The fragile bloom in poisoned soil
  */
-export const createHealthySpiritualityBuff = (duration: number = 4): BuffDebuff => ({
+export const createHealthySpiritualityBuff = (duration: number = 4) => ({
   id: 'healthy_spirituality',
   name: 'Healthy Spirituality',
   description: 'Your spirit finds nourishment in this wasteland, but the toxins still seep through.',
@@ -358,7 +357,7 @@ export const createHealthySpiritualityBuff = (duration: number = 4): BuffDebuff 
 /**
  * Spiritual Wholeness - The shattered vessel made whole
  */
-export const createSpiritualWholenessBuff = (duration: number = 5): BuffDebuff => ({
+export const createSpiritualWholenessBuff = (duration: number = 5) => ({
   id: 'spiritual_wholeness',
   name: 'Spiritual Wholeness',
   description: 'Your spirit is complete, but the world around you remains broken.',
@@ -377,7 +376,7 @@ export const createSpiritualWholenessBuff = (duration: number = 5): BuffDebuff =
 /**
  * Stability - The illusion of security
  */
-export const createStabilityBuff = (duration: number = 3): BuffDebuff => ({
+export const createStabilityBuff = (duration: number = 3) => ({
   id: 'stability',
   name: 'Stability',
   description: 'You\'ve found solid ground in a world of shifting sands, but the earth trembles beneath you.',
@@ -395,7 +394,7 @@ export const createStabilityBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Strategic Advantage - The cold calculation of survival
  */
-export const createStrategicAdvantageBuff = (duration: number = 2): BuffDebuff => ({
+export const createStrategicAdvantageBuff = (duration: number = 2) => ({
   id: 'strategic_advantage',
   name: 'Strategic Advantage',
   description: 'You see the battlefield clearly, but victory brings only more battles.',
@@ -413,7 +412,7 @@ export const createStrategicAdvantageBuff = (duration: number = 2): BuffDebuff =
 /**
  * Strategic Retreat - The wisdom of temporary surrender
  */
-export const createStrategicRetreatBuff = (duration: number = 2): BuffDebuff => ({
+export const createStrategicRetreatBuff = (duration: number = 2) => ({
   id: 'strategic_retreat',
   name: 'Strategic Retreat',
   description: 'You step back to fight another day, but retreat tastes like defeat.',
@@ -431,7 +430,7 @@ export const createStrategicRetreatBuff = (duration: number = 2): BuffDebuff => 
 /**
  * Democratic Discourse - The exhausting process of reason
  */
-export const createDemocraticBuff = (duration: number = 3): BuffDebuff => ({
+export const createDemocraticBuff = (duration: number = 3) => ({
   id: 'democratic',
   name: 'Democratic Discourse',
   description: 'You engage in true dialogue, but consensus feels like surrender.',
@@ -449,7 +448,7 @@ export const createDemocraticBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Perfect Discourse - The ideal that can never be reached
  */
-export const createPerfectDiscourseBuff = (duration: number = 4): BuffDebuff => ({
+export const createPerfectDiscourseBuff = (duration: number = 4) => ({
   id: 'perfect_discourse',
   name: 'Perfect Discourse',
   description: 'You achieve true understanding, but it reveals how alone you really are.',
@@ -468,7 +467,7 @@ export const createPerfectDiscourseBuff = (duration: number = 4): BuffDebuff => 
 /**
  * Universal Recognition - The burden of being seen
  */
-export const createUniversalRecognitionBuff = (duration: number = 3): BuffDebuff => ({
+export const createUniversalRecognitionBuff = (duration: number = 3) => ({
   id: 'universal_recognition',
   name: 'Universal Recognition',
   description: 'Everyone sees your worth, but their gaze is a weight you can\'t bear.',
@@ -486,7 +485,7 @@ export const createUniversalRecognitionBuff = (duration: number = 3): BuffDebuff
 /**
  * Acknowledgment - The painful validation of existence
  */
-export const createAcknowledgmentBuff = (duration: number = 2): BuffDebuff => ({
+export const createAcknowledgmentBuff = (duration: number = 2) => ({
   id: 'acknowledgment',
   name: 'Acknowledgment',
   description: 'Someone finally sees you, but their recognition exposes your vulnerabilities.',
@@ -504,7 +503,7 @@ export const createAcknowledgmentBuff = (duration: number = 2): BuffDebuff => ({
 /**
  * Perfect Self-Trust - The dangerous illusion of certainty
  */
-export const createPerfectSelfTrustBuff = (duration: number = 4): BuffDebuff => ({
+export const createPerfectSelfTrustBuff = (duration: number = 4) => ({
   id: 'perfect_self_trust',
   name: 'Perfect Self-Trust',
   description: 'You trust yourself completely, but doubt creeps in at the edges of your certainty.',
@@ -522,7 +521,7 @@ export const createPerfectSelfTrustBuff = (duration: number = 4): BuffDebuff => 
 /**
  * Clarity - The sharp blade of truth
  */
-export const createClarityBuff = (duration: number = 3): BuffDebuff => ({
+export const createClarityBuff = (duration: number = 3) => ({
   id: 'clarity',
   name: 'Clarity',
   description: 'You see everything clearly, but the truth is more than you can bear to look at.',
@@ -541,7 +540,7 @@ export const createClarityBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Imagination - The cruel gift of possibility
  */
-export const createImaginationBuff = (duration: number = 3): BuffDebuff => ({
+export const createImaginationBuff = (duration: number = 3) => ({
   id: 'imagination',
   name: 'Imagination',
   description: 'You can imagine better worlds, but they only make this one more unbearable.',
@@ -560,7 +559,7 @@ export const createImaginationBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Broader Understanding - The expanding horizon of despair
  */
-export const createBroaderUnderstandingBuff = (duration: number = 4): BuffDebuff => ({
+export const createBroaderUnderstandingBuff = (duration: number = 4) => ({
   id: 'broader_understanding',
   name: 'Broader Understanding',
   description: 'You understand more than ever, but the scope of human suffering overwhelms you.',
@@ -579,7 +578,7 @@ export const createBroaderUnderstandingBuff = (duration: number = 4): BuffDebuff
 /**
  * Linear Thinking - The straight path to nowhere
  */
-export const createLinearThinkingBuff = (duration: number = 3): BuffDebuff => ({
+export const createLinearThinkingBuff = (duration: number = 3) => ({
   id: 'linear_thinking',
   name: 'Linear Thinking',
   description: 'You follow logical paths, but they all lead to the same dead end.',
@@ -597,7 +596,7 @@ export const createLinearThinkingBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Logical Clarity - The cold light of reason
  */
-export const createLogicalClarityBuff = (duration: number = 3): BuffDebuff => ({
+export const createLogicalClarityBuff = (duration: number = 3) => ({
   id: 'logical_clarity',
   name: 'Logical Clarity',
   description: 'Logic illuminates everything, but reveals the meaninglessness beneath.',
@@ -615,7 +614,7 @@ export const createLogicalClarityBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Enlightenment - The blinding flash of truth
  */
-export const createEnlightenmentBuff = (duration: number = 5): BuffDebuff => ({
+export const createEnlightenmentBuff = (duration: number = 5) => ({
   id: 'enlightenment',
   name: 'Enlightenment',
   description: 'You see the truth of existence, but it burns your eyes and scars your soul.',
@@ -634,7 +633,7 @@ export const createEnlightenmentBuff = (duration: number = 5): BuffDebuff => ({
 /**
  * Total Recall - The curse of perfect memory
  */
-export const createTotalRecallBuff = (duration: number = 4): BuffDebuff => ({
+export const createTotalRecallBuff = (duration: number = 4) => ({
   id: 'total_recall',
   name: 'Total Recall',
   description: 'You remember everything, every failure, every loss, every moment of despair.',
@@ -653,7 +652,7 @@ export const createTotalRecallBuff = (duration: number = 4): BuffDebuff => ({
 /**
  * Perfect Memory - The inescapable archive of suffering
  */
-export const createPerfectMemoryBuff = (duration: number = 6): BuffDebuff => ({
+export const createPerfectMemoryBuff = (duration: number = 6) => ({
   id: 'perfect_memory',
   name: 'Perfect Memory',
   description: 'Every detail preserved forever, every pain relived in perfect clarity.',
@@ -672,7 +671,7 @@ export const createPerfectMemoryBuff = (duration: number = 6): BuffDebuff => ({
 /**
  * Independence - The lonely freedom of isolation
  */
-export const createIndependenceBuff = (duration: number = 3): BuffDebuff => ({
+export const createIndependenceBuff = (duration: number = 3) => ({
   id: 'independence',
   name: 'Independence',
   description: 'You stand alone, free from others\' influence, but utterly isolated in your convictions.',
@@ -690,7 +689,7 @@ export const createIndependenceBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * True Independence - The terrifying freedom of self
  */
-export const createTrueIndependenceBuff = (duration: number = 4): BuffDebuff => ({
+export const createTrueIndependenceBuff = (duration: number = 4) => ({
   id: 'true_independence',
   name: 'True Independence',
   description: 'You are completely self-reliant, but the weight of total responsibility crushes you.',
@@ -709,7 +708,7 @@ export const createTrueIndependenceBuff = (duration: number = 4): BuffDebuff => 
 /**
  * Mental Privacy - The fortress of solitude
  */
-export const createMentalPrivacyBuff = (duration: number = 3): BuffDebuff => ({
+export const createMentalPrivacyBuff = (duration: number = 3) => ({
   id: 'mental_privacy',
   name: 'Mental Privacy',
   description: 'Your thoughts are safe from intrusion, but they echo in the silence of your isolation.',
@@ -727,7 +726,7 @@ export const createMentalPrivacyBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Thought Sovereignty - The kingdom of one mind
  */
-export const createThoughtSovereigntyBuff = (duration: number = 4): BuffDebuff => ({
+export const createThoughtSovereigntyBuff = (duration: number = 4) => ({
   id: 'thought_sovereignty',
   name: 'Thought Sovereignty',
   description: 'Your mind is your domain, but it\'s a kingdom without subjects.',
@@ -746,7 +745,7 @@ export const createThoughtSovereigntyBuff = (duration: number = 4): BuffDebuff =
 /**
  * Genuine Expertise - The burden of true knowledge
  */
-export const createGenuineExpertiseBuff = (duration: number = 5): BuffDebuff => ({
+export const createGenuineExpertiseBuff = (duration: number = 5) => ({
   id: 'genuine_expertise',
   name: 'Genuine Expertise',
   description: 'You truly understand your field, but expertise brings the curse of seeing how little others know.',
@@ -765,7 +764,7 @@ export const createGenuineExpertiseBuff = (duration: number = 5): BuffDebuff => 
 /**
  * Creative Thinking - The spark in the darkness
  */
-export const createCreativeThinkingBuff = (duration: number = 3): BuffDebuff => ({
+export const createCreativeThinkingBuff = (duration: number = 3) => ({
   id: 'creative_thinking',
   name: 'Creative Thinking',
   description: 'You find new solutions, but each creation reminds you of all the problems you can\'t solve.',
@@ -784,7 +783,7 @@ export const createCreativeThinkingBuff = (duration: number = 3): BuffDebuff => 
 /**
  * Complexity Mastery - The labyrinth of understanding
  */
-export const createComplexityMasteryBuff = (duration: number = 4): BuffDebuff => ({
+export const createComplexityMasteryBuff = (duration: number = 4) => ({
   id: 'complexity_mastery',
   name: 'Complexity Mastery',
   description: 'You navigate complexity with ease, but the simple truths elude you forever.',
@@ -803,7 +802,7 @@ export const createComplexityMasteryBuff = (duration: number = 4): BuffDebuff =>
 /**
  * Perfect Distinction - The blade that cuts too deep
  */
-export const createPerfectDistinctionBuff = (duration: number = 3): BuffDebuff => ({
+export const createPerfectDistinctionBuff = (duration: number = 3) => ({
   id: 'perfect_distinction',
   name: 'Perfect Distinction',
   description: 'You see differences clearly, but distinctions become divisions that isolate you.',
@@ -821,7 +820,7 @@ export const createPerfectDistinctionBuff = (duration: number = 3): BuffDebuff =
 /**
  * Decisive Action - The commitment that binds
  */
-export const createDecisiveActionBuff = (duration: number = 2): BuffDebuff => ({
+export const createDecisiveActionBuff = (duration: number = 2) => ({
   id: 'decisive_action',
   name: 'Decisive Action',
   description: 'You act without hesitation, but every choice closes doors you can never reopen.',
@@ -839,7 +838,7 @@ export const createDecisiveActionBuff = (duration: number = 2): BuffDebuff => ({
 /**
  * Perfect Decision Making - The paralysis of certainty
  */
-export const createPerfectDecisionMakingBuff = (duration: number = 4): BuffDebuff => ({
+export const createPerfectDecisionMakingBuff = (duration: number = 4) => ({
   id: 'perfect_decision_making',
   name: 'Perfect Decision Making',
   description: 'You make perfect choices, but the burden of never being wrong is crushing.',
@@ -858,7 +857,7 @@ export const createPerfectDecisionMakingBuff = (duration: number = 4): BuffDebuf
 /**
  * Active Agency - The terrifying freedom of choice
  */
-export const createActiveAgencyBuff = (duration: number = 3): BuffDebuff => ({
+export const createActiveAgencyBuff = (duration: number = 3) => ({
   id: 'active_agency',
   name: 'Active Agency',
   description: 'You control your destiny, but the responsibility for every outcome is yours alone.',
@@ -876,7 +875,7 @@ export const createActiveAgencyBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Perfect Autonomy - The isolation of self-determination
  */
-export const createPerfectAutonomyBuff = (duration: number = 5): BuffDebuff => ({
+export const createPerfectAutonomyBuff = (duration: number = 5) => ({
   id: 'perfect_autonomy',
   name: 'Perfect Autonomy',
   description: 'You are completely self-determining, but no one can share your burden or your joy.',
@@ -895,7 +894,7 @@ export const createPerfectAutonomyBuff = (duration: number = 5): BuffDebuff => (
 /**
  * Growth Mindset - The endless climb toward impossibility
  */
-export const createGrowthMindsetBuff = (duration: number = 4): BuffDebuff => ({
+export const createGrowthMindsetBuff = (duration: number = 4) => ({
   id: 'growth_mindset',
   name: 'Growth Mindset',
   description: 'You believe you can improve, but each step forward reveals how far you still have to go.',
@@ -913,7 +912,7 @@ export const createGrowthMindsetBuff = (duration: number = 4): BuffDebuff => ({
 /**
  * True Confidence - The fragile shell of certainty
  */
-export const createTrueConfidenceBuff = (duration: number = 3): BuffDebuff => ({
+export const createTrueConfidenceBuff = (duration: number = 3) => ({
   id: 'true_confidence',
   name: 'True Confidence',
   description: 'You believe in yourself, but doubt whispers from the shadows of your mind.',
@@ -931,7 +930,7 @@ export const createTrueConfidenceBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Contextual Understanding - The web of connections
  */
-export const createContextualUnderstandingBuff = (duration: number = 3): BuffDebuff => ({
+export const createContextualUnderstandingBuff = (duration: number = 3) => ({
   id: 'contextual_understanding',
   name: 'Contextual Understanding',
   description: 'You see how everything connects, but the vastness of the network overwhelms you.',
@@ -950,7 +949,7 @@ export const createContextualUnderstandingBuff = (duration: number = 3): BuffDeb
 /**
  * Perfect Empathy - The agony of feeling everything
  */
-export const createPerfectEmpathyBuff = (duration: number = 4): BuffDebuff => ({
+export const createPerfectEmpathyBuff = (duration: number = 4) => ({
   id: 'perfect_empathy',
   name: 'Perfect Empathy',
   description: 'You feel others\' pain as your own, but their suffering adds to your own burden.',
@@ -969,7 +968,7 @@ export const createPerfectEmpathyBuff = (duration: number = 4): BuffDebuff => ({
 /**
  * Universal Understanding - The godlike perspective
  */
-export const createUniversalUnderstandingBuff = (duration: number = 6): BuffDebuff => ({
+export const createUniversalUnderstandingBuff = (duration: number = 6) => ({
   id: 'universal_understanding',
   name: 'Universal Understanding',
   description: 'You comprehend the whole of existence, but the totality crushes your finite mind.',
@@ -988,7 +987,7 @@ export const createUniversalUnderstandingBuff = (duration: number = 6): BuffDebu
 /**
  * True Enlightenment - The final revelation
  */
-export const createTrueEnlightenmentBuff = (duration: number = 7): BuffDebuff => ({
+export const createTrueEnlightenmentBuff = (duration: number = 7) => ({
   id: 'true_enlightenment',
   name: 'True Enlightenment',
   description: 'You understand everything, but the truth of existence is more than any mind can bear.',
@@ -1007,7 +1006,7 @@ export const createTrueEnlightenmentBuff = (duration: number = 7): BuffDebuff =>
 /**
  * Balanced Perspective - The middle path of despair
  */
-export const createBalancedBuff = (duration: number = 3): BuffDebuff => ({
+export const createBalancedBuff = (duration: number = 3) => ({
   id: 'balanced',
   name: 'Balanced Perspective',
   description: 'You see both sides clearly, but balance requires you to carry the weight of both.',
@@ -1025,7 +1024,7 @@ export const createBalancedBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Perfect Balance - The impossible equilibrium
  */
-export const createPerfectBalanceBuff = (duration: number = 5): BuffDebuff => ({
+export const createPerfectBalanceBuff = (duration: number = 5) => ({
   id: 'perfect_balance',
   name: 'Perfect Balance',
   description: 'You achieve perfect equilibrium, but maintaining it requires constant effort and sacrifice.',
@@ -1044,7 +1043,7 @@ export const createPerfectBalanceBuff = (duration: number = 5): BuffDebuff => ({
 /**
  * Civility - The mask of politeness
  */
-export const createCivilityBuff = (duration: number = 2): BuffDebuff => ({
+export const createCivilityBuff = (duration: number = 2) => ({
   id: 'civility',
   name: 'Civility',
   description: 'You maintain composure, but politeness is just a thin veneer over your rage.',
@@ -1062,7 +1061,7 @@ export const createCivilityBuff = (duration: number = 2): BuffDebuff => ({
 /**
  * Articulate Expression - The weapon of words
  */
-export const createArticulateExpressionBuff = (duration: number = 3): BuffDebuff => ({
+export const createArticulateExpressionBuff = (duration: number = 3) => ({
   id: 'articulate_expression',
   name: 'Articulate Expression',
   description: 'Your words are precise and powerful, but they reveal the depths of your despair.',
@@ -1080,7 +1079,7 @@ export const createArticulateExpressionBuff = (duration: number = 3): BuffDebuff
 /**
  * Complete Awareness - The overwhelming flood of information
  */
-export const createCompleteAwarenessBuff = (duration: number = 4): BuffDebuff => ({
+export const createCompleteAwarenessBuff = (duration: number = 4) => ({
   id: 'complete_awareness',
   name: 'Complete Awareness',
   description: 'You perceive everything, but the totality of existence threatens to drown you.',
@@ -1099,7 +1098,7 @@ export const createCompleteAwarenessBuff = (duration: number = 4): BuffDebuff =>
 /**
  * Perfect Objectivity - The cold distance of truth
  */
-export const createPerfectObjectivityBuff = (duration: number = 4): BuffDebuff => ({
+export const createPerfectObjectivityBuff = (duration: number = 4) => ({
   id: 'perfect_objectivity',
   name: 'Perfect Objectivity',
   description: 'You see everything without bias, but objectivity requires you to abandon your humanity.',
@@ -1117,7 +1116,7 @@ export const createPerfectObjectivityBuff = (duration: number = 4): BuffDebuff =
 /**
  * Genuine Achievement - The hollow victory
  */
-export const createGenuineAchievementBuff = (duration: number = 3): BuffDebuff => ({
+export const createGenuineAchievementBuff = (duration: number = 3) => ({
   id: 'genuine_achievement',
   name: 'Genuine Achievement',
   description: 'You\'ve accomplished something real, but success only highlights how little it matters.',
@@ -1135,7 +1134,7 @@ export const createGenuineAchievementBuff = (duration: number = 3): BuffDebuff =
 /**
  * Real Excellence - The peak that reveals the abyss
  */
-export const createRealExcellenceBuff = (duration: number = 4): BuffDebuff => ({
+export const createRealExcellenceBuff = (duration: number = 4) => ({
   id: 'real_excellence',
   name: 'Real Excellence',
   description: 'You achieve true mastery, but excellence isolates you from those who cannot understand.',
@@ -1154,7 +1153,7 @@ export const createRealExcellenceBuff = (duration: number = 4): BuffDebuff => ({
 /**
  * Statistical Understanding - The numbers that lie
  */
-export const createStatisticalUnderstandingBuff = (duration: number = 3): BuffDebuff => ({
+export const createStatisticalUnderstandingBuff = (duration: number = 3) => ({
   id: 'statistical_understanding',
   name: 'Statistical Understanding',
   description: 'You understand the patterns, but statistics reveal the inevitability of suffering.',
@@ -1172,7 +1171,7 @@ export const createStatisticalUnderstandingBuff = (duration: number = 3): BuffDe
 /**
  * Probabilistic Mastery - The illusion of control
  */
-export const createProbabilisticMasteryBuff = (duration: number = 4): BuffDebuff => ({
+export const createProbabilisticMasteryBuff = (duration: number = 4) => ({
   id: 'probabilistic_mastery',
   name: 'Probabilistic Mastery',
   description: 'You master probability, but chance remains the cruel master of your fate.',
@@ -1191,7 +1190,7 @@ export const createProbabilisticMasteryBuff = (duration: number = 4): BuffDebuff
 /**
  * Practical Wisdom - The bitter fruit of experience
  */
-export const createPracticalWisdomBuff = (duration: number = 3): BuffDebuff => ({
+export const createPracticalWisdomBuff = (duration: number = 3) => ({
   id: 'practical_wisdom',
   name: 'Practical Wisdom',
   description: 'You know what works, but wisdom comes from suffering you wish you could forget.',
@@ -1209,7 +1208,7 @@ export const createPracticalWisdomBuff = (duration: number = 3): BuffDebuff => (
 /**
  * Magical Realism - The beautiful lie of possibility
  */
-export const createMagicalRealismBuff = (duration: number = 4): BuffDebuff => ({
+export const createMagicalRealismBuff = (duration: number = 4) => ({
   id: 'magical_realism',
   name: 'Magical Realism',
   description: 'You see magic in the mundane, but reality remains stubbornly mundane.',
@@ -1228,7 +1227,7 @@ export const createMagicalRealismBuff = (duration: number = 4): BuffDebuff => ({
 /**
  * Trust - The fragile bond of vulnerability
  */
-export const createTrustBuff = (duration: number = 3): BuffDebuff => ({
+export const createTrustBuff = (duration: number = 3) => ({
   id: 'trust',
   name: 'Trust',
   description: 'You trust others, but trust makes you vulnerable to betrayal.',
@@ -1246,7 +1245,7 @@ export const createTrustBuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Authentic Discourse - The genuine exchange of despair
  */
-export const createAuthenticDiscourseBuff = (duration: number = 3): BuffDebuff => ({
+export const createAuthenticDiscourseBuff = (duration: number = 3) => ({
   id: 'authentic_discourse',
   name: 'Authentic Discourse',
   description: 'You communicate genuinely, but authenticity exposes your deepest vulnerabilities.',
@@ -1264,7 +1263,7 @@ export const createAuthenticDiscourseBuff = (duration: number = 3): BuffDebuff =
 /**
  * Holistic Understanding - The interconnected web of suffering
  */
-export const createHolisticUnderstandingBuff = (duration: number = 4): BuffDebuff => ({
+export const createHolisticUnderstandingBuff = (duration: number = 4) => ({
   id: 'holistic_understanding',
   name: 'Holistic Understanding',
   description: 'You see how everything connects, but the connections form a web of inescapable suffering.',
@@ -1283,7 +1282,7 @@ export const createHolisticUnderstandingBuff = (duration: number = 4): BuffDebuf
 /**
  * Balanced Valuation - The scale that never balances
  */
-export const createBalancedValuationBuff = (duration: number = 3): BuffDebuff => ({
+export const createBalancedValuationBuff = (duration: number = 3) => ({
   id: 'balanced_valuation',
   name: 'Balanced Valuation',
   description: 'You value things appropriately, but appropriate value means accepting life\'s fundamental worthlessness.',
@@ -1301,7 +1300,7 @@ export const createBalancedValuationBuff = (duration: number = 3): BuffDebuff =>
 /**
  * Perfect Clarity - The unforgiving light of truth
  */
-export const createPerfectClarityBuff = (duration: number = 5): BuffDebuff => ({
+export const createPerfectClarityBuff = (duration: number = 5) => ({
   id: 'perfect_clarity',
   name: 'Perfect Clarity',
   description: 'You see everything with perfect clarity, but clarity reveals the horror of existence.',
@@ -1320,7 +1319,7 @@ export const createPerfectClarityBuff = (duration: number = 5): BuffDebuff => ({
 /**
  * Perfect Understanding - The complete knowledge that destroys
  */
-export const createPerfectUnderstandingBuff = (duration: number = 6): BuffDebuff => ({
+export const createPerfectUnderstandingBuff = (duration: number = 6) => ({
   id: 'perfect_understanding',
   name: 'Perfect Understanding',
   description: 'You understand everything perfectly, but perfect understanding reveals the meaninglessness of it all.',
@@ -1339,7 +1338,7 @@ export const createPerfectUnderstandingBuff = (duration: number = 6): BuffDebuff
 /**
  * Perfect Nuance - The subtle distinctions that matter
  */
-export const createPerfectNuanceBuff = (duration: number = 4): BuffDebuff => ({
+export const createPerfectNuanceBuff = (duration: number = 4) => ({
   id: 'perfect_nuance',
   name: 'Perfect Nuance',
   description: 'You perceive subtle differences, but nuance becomes a barrier to decisive action.',
@@ -1357,7 +1356,7 @@ export const createPerfectNuanceBuff = (duration: number = 4): BuffDebuff => ({
 /**
  * Investigative Mastery - The skill that uncovers horror
  */
-export const createInvestigativeMasteryBuff = (duration: number = 3): BuffDebuff => ({
+export const createInvestigativeMasteryBuff = (duration: number = 3) => ({
   id: 'investigative_mastery',
   name: 'Investigative Mastery',
   description: 'You uncover hidden truths, but each revelation exposes deeper layers of corruption.',
@@ -1375,7 +1374,7 @@ export const createInvestigativeMasteryBuff = (duration: number = 3): BuffDebuff
 /**
  * Perfect Accountability - The burden of responsibility
  */
-export const createPerfectAccountabilityBuff = (duration: number = 4): BuffDebuff => ({
+export const createPerfectAccountabilityBuff = (duration: number = 4) => ({
   id: 'perfect_accountability',
   name: 'Perfect Accountability',
   description: 'You take responsibility for everything, but the weight of universal accountability crushes you.',
@@ -1393,7 +1392,7 @@ export const createPerfectAccountabilityBuff = (duration: number = 4): BuffDebuf
 /**
  * Emotional Intelligence - The curse of feeling too much
  */
-export const createEmotionalIntelligenceBuff = (duration: number = 3): BuffDebuff => ({
+export const createEmotionalIntelligenceBuff = (duration: number = 3) => ({
   id: 'emotional_intelligence',
   name: 'Emotional Intelligence',
   description: 'You understand emotions perfectly, but perfect understanding means feeling everyone\'s pain.',
@@ -1412,7 +1411,7 @@ export const createEmotionalIntelligenceBuff = (duration: number = 3): BuffDebuf
 /**
  * Perfect Emotional Mastery - The control that isolates
  */
-export const createPerfectEmotionalMasteryBuff = (duration: number = 5): BuffDebuff => ({
+export const createPerfectEmotionalMasteryBuff = (duration: number = 5) => ({
   id: 'perfect_emotional_mastery',
   name: 'Perfect Emotional Mastery',
   description: 'You control your emotions perfectly, but emotional control means suppressing your humanity.',
@@ -1431,7 +1430,7 @@ export const createPerfectEmotionalMasteryBuff = (duration: number = 5): BuffDeb
 /**
  * Authentic Expression - The vulnerability of truth
  */
-export const createAuthenticExpressionBuff = (duration: number = 3): BuffDebuff => ({
+export const createAuthenticExpressionBuff = (duration: number = 3) => ({
   id: 'authentic_expression',
   name: 'Authentic Expression',
   description: 'You express yourself genuinely, but authenticity exposes you to judgment and rejection.',
@@ -1449,7 +1448,7 @@ export const createAuthenticExpressionBuff = (duration: number = 3): BuffDebuff 
 /**
  * Perfect Communication - The ideal that divides
  */
-export const createPerfectCommunicationBuff = (duration: number = 4): BuffDebuff => ({
+export const createPerfectCommunicationBuff = (duration: number = 4) => ({
   id: 'perfect_communication',
   name: 'Perfect Communication',
   description: 'You communicate perfectly, but perfect communication reveals how fundamentally alone you are.',
@@ -1468,7 +1467,7 @@ export const createPerfectCommunicationBuff = (duration: number = 4): BuffDebuff
 /**
  * Balanced Perspective - The view from the middle
  */
-export const createBalancedPerspectiveBuff = (duration: number = 3): BuffDebuff => ({
+export const createBalancedPerspectiveBuff = (duration: number = 3) => ({
   id: 'balanced_perspective',
   name: 'Balanced Perspective',
   description: 'You see all sides fairly, but balance requires you to validate even the most terrible views.',
@@ -1486,7 +1485,7 @@ export const createBalancedPerspectiveBuff = (duration: number = 3): BuffDebuff 
 /**
  * Perfect Realism - The truth that liberates and destroys
  */
-export const createPerfectRealismBuff = (duration: number = 5): BuffDebuff => ({
+export const createPerfectRealismBuff = (duration: number = 5) => ({
   id: 'perfect_realism',
   name: 'Perfect Realism',
   description: 'You accept reality as it is, but perfect acceptance means embracing a fundamentally broken world.',
@@ -1509,7 +1508,7 @@ export const createPerfectRealismBuff = (duration: number = 5): BuffDebuff => ({
 /**
  * Dogmatic Certainty - The prison of absolute conviction
  */
-export const createDogmaticCertaintyDebuff = (duration: number = 3): BuffDebuff => ({
+export const createDogmaticCertaintyDebuff = (duration: number = 3) => ({
   id: 'dogmatic_certainty',
   name: 'Dogmatic Certainty',
   description: 'You\'re absolutely certain you\'re right, but certainty blinds you to the possibility of error.',
@@ -1527,7 +1526,7 @@ export const createDogmaticCertaintyDebuff = (duration: number = 3): BuffDebuff 
 /**
  * Self-Loathing - The poison of self-hatred
  */
-export const createSelfLoathingDebuff = (damage: number, duration: number = 3): BuffDebuff => ({
+export const createSelfLoathingDebuff = (damage: number, duration: number = 3) => ({
   id: 'self_loathing',
   name: 'Self-Loathing',
   description: 'You despise yourself so much that every action becomes self-sabotage.',
@@ -1546,7 +1545,7 @@ export const createSelfLoathingDebuff = (damage: number, duration: number = 3): 
 /**
  * Inescapable Fate - The weight of predetermined suffering
  */
-export const createInescapableFateDebuff = (duration: number = 4): BuffDebuff => ({
+export const createInescapableFateDebuff = (duration: number = 4) => ({
   id: 'inescapable_fate',
   name: 'Inescapable Fate',
   description: 'Your future is predetermined, and it\'s filled with suffering you can\'t avoid.',
@@ -1564,7 +1563,7 @@ export const createInescapableFateDebuff = (duration: number = 4): BuffDebuff =>
 /**
  * Personal Doubt - The erosion of self-worth
  */
-export const createPersonalDoubtDebuff = (duration: number = 3): BuffDebuff => ({
+export const createPersonalDoubtDebuff = (duration: number = 3) => ({
   id: 'personal_doubt',
   name: 'Personal Doubt',
   description: 'You question your very right to exist, making every action feel illegitimate.',
@@ -1583,7 +1582,7 @@ export const createPersonalDoubtDebuff = (duration: number = 3): BuffDebuff => (
 /**
  * Emotional Override - The tyranny of uncontrolled feelings
  */
-export const createEmotionalOverrideDebuff = (duration: number = 2): BuffDebuff => ({
+export const createEmotionalOverrideDebuff = (duration: number = 2) => ({
   id: 'emotional_override',
   name: 'Emotional Override',
   description: 'Your emotions control you completely, overriding all reason and logic.',
@@ -1601,7 +1600,7 @@ export const createEmotionalOverrideDebuff = (duration: number = 2): BuffDebuff 
 /**
  * Intellectual Exclusion - The isolation of superior knowledge
  */
-export const createIntellectualExclusionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createIntellectualExclusionDebuff = (duration: number = 3) => ({
   id: 'intellectual_exclusion',
   name: 'Intellectual Exclusion',
   description: 'Your knowledge makes you an outsider, excluded from normal human connection.',
@@ -1619,7 +1618,7 @@ export const createIntellectualExclusionDebuff = (duration: number = 3): BuffDeb
 /**
  * Closure-Seeking - The desperate need for finality
  */
-export const createClosureSeekingDebuff = (duration: number = 3): BuffDebuff => ({
+export const createClosureSeekingDebuff = (duration: number = 3) => ({
   id: 'closure_seeking',
   name: 'Closure-Seeking',
   description: 'You desperately need this to end, making you accept any resolution, no matter how terrible.',
@@ -1637,7 +1636,7 @@ export const createClosureSeekingDebuff = (duration: number = 3): BuffDebuff => 
 /**
  * Divine Judgment - The weight of god's disapproval
  */
-export const createDivineJudgmentDebuff = (duration: number = 4): BuffDebuff => ({
+export const createDivineJudgmentDebuff = (duration: number = 4) => ({
   id: 'divine_judgment',
   name: 'Divine Judgment',
   description: 'God has judged you and found you wanting. His disapproval is a weight on your soul.',
@@ -1655,7 +1654,7 @@ export const createDivineJudgmentDebuff = (duration: number = 4): BuffDebuff => 
 /**
  * Natural Order - The crushing weight of biological determinism
  */
-export const createNaturalOrderDebuff = (duration: number = 3): BuffDebuff => ({
+export const createNaturalOrderDebuff = (duration: number = 3) => ({
   id: 'natural_order',
   name: 'Natural Order',
   description: 'This is how things are "supposed" to be. Your resistance is unnatural and doomed.',
@@ -1673,7 +1672,7 @@ export const createNaturalOrderDebuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Guilt Amplification - The echo chamber of self-reproach
  */
-export const createGuiltAmplificationDebuff = (duration: number = 3): BuffDebuff => ({
+export const createGuiltAmplificationDebuff = (duration: number = 3) => ({
   id: 'guilt_amplification',
   name: 'Guilt Amplification',
   description: 'Every action reminds you of your failures, amplifying your guilt exponentially.',
@@ -1692,7 +1691,7 @@ export const createGuiltAmplificationDebuff = (duration: number = 3): BuffDebuff
 /**
  * Tradition Binding - The chains of inherited obligation
  */
-export const createTraditionBindingDebuff = (duration: number = 4): BuffDebuff => ({
+export const createTraditionBindingDebuff = (duration: number = 4) => ({
   id: 'tradition_binding',
   name: 'Tradition Binding',
   description: 'Tradition binds you like chains, limiting your ability to adapt or change.',
@@ -1710,7 +1709,7 @@ export const createTraditionBindingDebuff = (duration: number = 4): BuffDebuff =
 /**
  * Appeasement - The weakness of constant surrender
  */
-export const createAppeasementDebuff = (duration: number = 2): BuffDebuff => ({
+export const createAppeasementDebuff = (duration: number = 2) => ({
   id: 'appeasement',
   name: 'Appeasement',
   description: 'You constantly give in to avoid conflict, but appeasement only encourages more demands.',
@@ -1728,7 +1727,7 @@ export const createAppeasementDebuff = (duration: number = 2): BuffDebuff => ({
 /**
  * Consequence Fear - The paralysis of anticipated suffering
  */
-export const createConsequenceFearDebuff = (duration: number = 3): BuffDebuff => ({
+export const createConsequenceFearDebuff = (duration: number = 3) => ({
   id: 'consequence_fear',
   name: 'Consequence Fear',
   description: 'You\'re terrified of the consequences of your actions, making you unable to act decisively.',
@@ -1746,7 +1745,7 @@ export const createConsequenceFearDebuff = (duration: number = 3): BuffDebuff =>
 /**
  * Ignorance Empowerment - The dangerous confidence of the ignorant
  */
-export const createIgnoranceEmpowermentBuff = (duration: number = 3): BuffDebuff => ({
+export const createIgnoranceEmpowermentBuff = (duration: number = 3) => ({
   id: 'ignorance_empowerment',
   name: 'Ignorance Empowerment',
   description: 'Your ignorance makes you confident, but confidence doesn\'t equal competence.',
@@ -1764,7 +1763,7 @@ export const createIgnoranceEmpowermentBuff = (duration: number = 3): BuffDebuff
 /**
  * Incredulity - The rejection of uncomfortable truth
  */
-export const createIncredulityDebuff = (duration: number = 2): BuffDebuff => ({
+export const createIncredulityDebuff = (duration: number = 2) => ({
   id: 'incredulity',
   name: 'Incredulity',
   description: 'You can\'t believe this is happening, so you reject reality itself.',
@@ -1782,7 +1781,7 @@ export const createIncredulityDebuff = (duration: number = 2): BuffDebuff => ({
 /**
  * Inertia - The momentum of stagnation
  */
-export const createInertiaDebuff = (duration: number = 3): BuffDebuff => ({
+export const createInertiaDebuff = (duration: number = 3) => ({
   id: 'inertia',
   name: 'Inertia',
   description: 'You\'re stuck in your ways, unable to adapt or change direction.',
@@ -1800,7 +1799,7 @@ export const createInertiaDebuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Motive Corruption - The suspicion that poisons trust
  */
-export const createMotiveCorruptionDebuff = (duration: number = 4): BuffDebuff => ({
+export const createMotiveCorruptionDebuff = (duration: number = 4) => ({
   id: 'motive_corruption',
   name: 'Motive Corruption',
   description: 'You suspect everyone\'s motives, making genuine connection impossible.',
@@ -1818,7 +1817,7 @@ export const createMotiveCorruptionDebuff = (duration: number = 4): BuffDebuff =
 /**
  * Fear - The paralysis of terror
  */
-export const createFearDebuff = (duration: number = 2): BuffDebuff => ({
+export const createFearDebuff = (duration: number = 2) => ({
   id: 'fear',
   name: 'Fear',
   description: 'Terror grips you, making every shadow a threat and every action dangerous.',
@@ -1837,7 +1836,7 @@ export const createFearDebuff = (duration: number = 2): BuffDebuff => ({
 /**
  * Mystical Confusion - The disorientation of false mysticism
  */
-export const createMysticalConfusionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createMysticalConfusionDebuff = (duration: number = 3) => ({
   id: 'mystical_confusion',
   name: 'Mystical Confusion',
   description: 'Mysticism confuses you, making rational thought impossible.',
@@ -1855,7 +1854,7 @@ export const createMysticalConfusionDebuff = (duration: number = 3): BuffDebuff 
 /**
  * Enforced Muteness - The silence of oppression
  */
-export const createEnforcedMutenessDebuff = (duration: number = 2): BuffDebuff => ({
+export const createEnforcedMutenessDebuff = (duration: number = 2) => ({
   id: 'enforced_muteness',
   name: 'Enforced Muteness',
   description: 'You\'re forced to remain silent, your voice stolen by oppression.',
@@ -1873,7 +1872,7 @@ export const createEnforcedMutenessDebuff = (duration: number = 2): BuffDebuff =
 /**
  * Selective Blindness - The willful ignorance of painful truth
  */
-export const createSelectiveBlindnessDebuff = (duration: number = 3): BuffDebuff => ({
+export const createSelectiveBlindnessDebuff = (duration: number = 3) => ({
   id: 'selective_blindness',
   name: 'Selective Blindness',
   description: 'You see only what you want to see, blind to the suffering around you.',
@@ -1891,7 +1890,7 @@ export const createSelectiveBlindnessDebuff = (duration: number = 3): BuffDebuff
 /**
  * Isolation - The loneliness of being different
  */
-export const createIsolationDebuff = (duration: number = 4): BuffDebuff => ({
+export const createIsolationDebuff = (duration: number = 4) => ({
   id: 'isolation',
   name: 'Isolation',
   description: 'You\'re utterly alone, cut off from human connection by your differences.',
@@ -1909,7 +1908,7 @@ export const createIsolationDebuff = (duration: number = 4): BuffDebuff => ({
 /**
  * Mind Control - The violation of mental autonomy
  */
-export const createMindControlDebuff = (duration: number = 3): BuffDebuff => ({
+export const createMindControlDebuff = (duration: number = 3) => ({
   id: 'mind_control',
   name: 'Mind Control',
   description: 'Your thoughts are not your own, controlled by someone else\'s will.',
@@ -1927,7 +1926,7 @@ export const createMindControlDebuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Exception Justification - The hypocrisy of special pleading
  */
-export const createExceptionJustificationDebuff = (duration: number = 3): BuffDebuff => ({
+export const createExceptionJustificationDebuff = (duration: number = 3) => ({
   id: 'exception_justification',
   name: 'Exception Justification',
   description: 'You justify exceptions for yourself, but condemn others for the same actions.',
@@ -1945,7 +1944,7 @@ export const createExceptionJustificationDebuff = (duration: number = 3): BuffDe
 /**
  * Lie Acceptance - The corruption of truth
  */
-export const createLieAcceptanceDebuff = (duration: number = 4): BuffDebuff => ({
+export const createLieAcceptanceDebuff = (duration: number = 4) => ({
   id: 'lie_acceptance',
   name: 'Lie Acceptance',
   description: 'You accept lies as truth, corrupting your ability to perceive reality.',
@@ -1963,7 +1962,7 @@ export const createLieAcceptanceDebuff = (duration: number = 4): BuffDebuff => (
 /**
  * Blind Devotion - The slavery of unquestioning loyalty
  */
-export const createBlindDevotionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createBlindDevotionDebuff = (duration: number = 3) => ({
   id: 'blind_devotion',
   name: 'Blind Devotion',
   description: 'You\'re devoted without question, blind to the corruption of what you worship.',
@@ -1981,7 +1980,7 @@ export const createBlindDevotionDebuff = (duration: number = 3): BuffDebuff => (
 /**
  * Blood Obligation - The chains of familial duty
  */
-export const createBloodObligationDebuff = (duration: number = 4): BuffDebuff => ({
+export const createBloodObligationDebuff = (duration: number = 4) => ({
   id: 'blood_obligation',
   name: 'Blood Obligation',
   description: 'Family obligations bind you, even when they demand you sacrifice your own well-being.',
@@ -1999,7 +1998,7 @@ export const createBloodObligationDebuff = (duration: number = 4): BuffDebuff =>
 /**
  * Identity Erosion - The loss of self
  */
-export const createIdentityErosionDebuff = (duration: number = 5): BuffDebuff => ({
+export const createIdentityErosionDebuff = (duration: number = 5) => ({
   id: 'identity_erosion',
   name: 'Identity Erosion',
   description: 'Your sense of self slowly erodes, leaving you questioning who you really are.',
@@ -2017,7 +2016,7 @@ export const createIdentityErosionDebuff = (duration: number = 5): BuffDebuff =>
 /**
  * Corruption Temptation - The allure of moral compromise
  */
-export const createCorruptionTemptationDebuff = (duration: number = 3): BuffDebuff => ({
+export const createCorruptionTemptationDebuff = (duration: number = 3) => ({
   id: 'corruption_temptation',
   name: 'Corruption Temptation',
   description: 'The temptation to compromise your values is constant, wearing down your integrity.',
@@ -2036,7 +2035,7 @@ export const createCorruptionTemptationDebuff = (duration: number = 3): BuffDebu
 /**
  * Card Playing - The trivialization of serious concerns
  */
-export const createCardPlayingDebuff = (duration: number = 2): BuffDebuff => ({
+export const createCardPlayingDebuff = (duration: number = 2) => ({
   id: 'card_playing',
   name: 'Card Playing',
   description: 'You treat serious issues like a game, trivializing real suffering.',
@@ -2054,7 +2053,7 @@ export const createCardPlayingDebuff = (duration: number = 2): BuffDebuff => ({
 /**
  * Circular Thinking - The trap of self-referential logic
  */
-export const createCircularThinkingDebuff = (duration: number = 3): BuffDebuff => ({
+export const createCircularThinkingDebuff = (duration: number = 3) => ({
   id: 'circular_thinking',
   name: 'Circular Thinking',
   description: 'Your thoughts chase their own tails, never reaching a meaningful conclusion.',
@@ -2072,7 +2071,7 @@ export const createCircularThinkingDebuff = (duration: number = 3): BuffDebuff =
 /**
  * Self-Condemnation - The voice of inner criticism
  */
-export const createSelfCondemnationDebuff = (duration: number = 3): BuffDebuff => ({
+export const createSelfCondemnationDebuff = (duration: number = 3) => ({
   id: 'self_condemnation',
   name: 'Self-Condemnation',
   description: 'You constantly condemn yourself, turning every success into a reminder of your failures.',
@@ -2091,7 +2090,7 @@ export const createSelfCondemnationDebuff = (duration: number = 3): BuffDebuff =
 /**
  * Confirmation Blindness - The rejection of contradictory evidence
  */
-export const createConfirmationBlindnessDebuff = (duration: number = 3): BuffDebuff => ({
+export const createConfirmationBlindnessDebuff = (duration: number = 3) => ({
   id: 'confirmation_blindness',
   name: 'Confirmation Blindness',
   description: 'You only see evidence that confirms your beliefs, blind to anything that challenges them.',
@@ -2109,7 +2108,7 @@ export const createConfirmationBlindnessDebuff = (duration: number = 3): BuffDeb
 /**
  * Cost Obsession - The materialistic fixation
  */
-export const createCostObsessionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createCostObsessionDebuff = (duration: number = 3) => ({
   id: 'cost_obsession',
   name: 'Cost Obsession',
   description: 'You\'re obsessed with material value, blind to true worth and human dignity.',
@@ -2127,7 +2126,7 @@ export const createCostObsessionDebuff = (duration: number = 3): BuffDebuff => (
 /**
  * Change Resistance - The fear of transformation
  */
-export const createChangeResistanceDebuff = (duration: number = 4): BuffDebuff => ({
+export const createChangeResistanceDebuff = (duration: number = 4) => ({
   id: 'change_resistance',
   name: 'Change Resistance',
   description: 'You resist all change, even when change is necessary for survival.',
@@ -2145,7 +2144,7 @@ export const createChangeResistanceDebuff = (duration: number = 4): BuffDebuff =
 /**
  * Ego Damage - The shattering of self-importance
  */
-export const createEgoDamageDebuff = (duration: number = 3): BuffDebuff => ({
+export const createEgoDamageDebuff = (duration: number = 3) => ({
   id: 'ego_damage',
   name: 'Ego Damage',
   description: 'Your ego is damaged, making you question your worth and abilities.',
@@ -2164,7 +2163,7 @@ export const createEgoDamageDebuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Ignorance Shield - The false protection of not knowing
  */
-export const createIgnoranceShieldDebuff = (duration: number = 3): BuffDebuff => ({
+export const createIgnoranceShieldDebuff = (duration: number = 3) => ({
   id: 'ignorance_shield',
   name: 'Ignorance Shield',
   description: 'You shield yourself with ignorance, but ignorance makes you vulnerable to manipulation.',
@@ -2182,7 +2181,7 @@ export const createIgnoranceShieldDebuff = (duration: number = 3): BuffDebuff =>
 /**
  * Responsibility Avoidance - The refusal to accept consequences
  */
-export const createResponsibilityAvoidanceDebuff = (duration: number = 3): BuffDebuff => ({
+export const createResponsibilityAvoidanceDebuff = (duration: number = 3) => ({
   id: 'responsibility_avoidance',
   name: 'Responsibility Avoidance',
   description: 'You avoid responsibility for your actions, but avoidance doesn\'t make consequences disappear.',
@@ -2200,7 +2199,7 @@ export const createResponsibilityAvoidanceDebuff = (duration: number = 3): BuffD
 /**
  * Disciplinary Blindness - The tunnel vision of expertise
  */
-export const createDisciplinaryBlindnessDebuff = (duration: number = 4): BuffDebuff => ({
+export const createDisciplinaryBlindnessDebuff = (duration: number = 4) => ({
   id: 'disciplinary_blindness',
   name: 'Disciplinary Blindness',
   description: 'Your expertise blinds you to other perspectives, limiting your understanding.',
@@ -2218,7 +2217,7 @@ export const createDisciplinaryBlindnessDebuff = (duration: number = 4): BuffDeb
 /**
  * Implication - The weight of unspoken accusations
  */
-export const createImplicationDebuff = (duration: number = 3): BuffDebuff => ({
+export const createImplicationDebuff = (duration: number = 3) => ({
   id: 'implication',
   name: 'Implication',
   description: 'You\'re constantly implying terrible things, poisoning relationships with suspicion.',
@@ -2236,7 +2235,7 @@ export const createImplicationDebuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Conclusion Manipulation - The forced acceptance of false conclusions
  */
-export const createConclusionManipulationDebuff = (duration: number = 3): BuffDebuff => ({
+export const createConclusionManipulationDebuff = (duration: number = 3) => ({
   id: 'conclusion_manipulation',
   name: 'Conclusion Manipulation',
   description: 'You\'re manipulated into accepting conclusions that aren\'t your own.',
@@ -2254,7 +2253,7 @@ export const createConclusionManipulationDebuff = (duration: number = 3): BuffDe
 /**
  * False Expertise - The confidence of the incompetent
  */
-export const createFalseExpertiseDebuff = (duration: number = 3): BuffDebuff => ({
+export const createFalseExpertiseDebuff = (duration: number = 3) => ({
   id: 'false_expertise',
   name: 'False Expertise',
   description: 'You believe you\'re an expert, but your confidence exceeds your actual knowledge.',
@@ -2272,7 +2271,7 @@ export const createFalseExpertiseDebuff = (duration: number = 3): BuffDebuff => 
 /**
  * Unrecognized Achievement - The bitterness of unappreciated effort
  */
-export const createUnrecognizedAchievementDebuff = (duration: number = 3): BuffDebuff => ({
+export const createUnrecognizedAchievementDebuff = (duration: number = 3) => ({
   id: 'unrecognized_achievement',
   name: 'Unrecognized Achievement',
   description: 'Your efforts go unrecognized, making success feel meaningless.',
@@ -2291,7 +2290,7 @@ export const createUnrecognizedAchievementDebuff = (duration: number = 3): BuffD
 /**
  * False Choice - The illusion of options
  */
-export const createFalseChoiceDebuff = (duration: number = 2): BuffDebuff => ({
+export const createFalseChoiceDebuff = (duration: number = 2) => ({
   id: 'false_choice',
   name: 'False Choice',
   description: 'You\'re given choices that are all terrible, making decision-making torture.',
@@ -2309,7 +2308,7 @@ export const createFalseChoiceDebuff = (duration: number = 2): BuffDebuff => ({
 /**
  * Definition Confusion - The chaos of unclear meaning
  */
-export const createDefinitionConfusionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createDefinitionConfusionDebuff = (duration: number = 3) => ({
   id: 'definition_confusion',
   name: 'Definition Confusion',
   description: 'Words lose their meaning, making communication impossible.',
@@ -2327,7 +2326,7 @@ export const createDefinitionConfusionDebuff = (duration: number = 3): BuffDebuf
 /**
  * End-Times Despair - The hopelessness of apocalypse
  */
-export const createEndTimesDespairDebuff = (duration: number = 5): BuffDebuff => ({
+export const createEndTimesDespairDebuff = (duration: number = 5) => ({
   id: 'end_times_despair',
   name: 'End-Times Despair',
   description: 'The world is ending, making all effort seem pointless and hopeless.',
@@ -2345,7 +2344,7 @@ export const createEndTimesDespairDebuff = (duration: number = 5): BuffDebuff =>
 /**
  * Esotericism - The exclusion of hidden knowledge
  */
-export const createEsotericismDebuff = (duration: number = 3): BuffDebuff => ({
+export const createEsotericismDebuff = (duration: number = 3) => ({
   id: 'esotericism',
   name: 'Esotericism',
   description: 'Hidden knowledge excludes you, making you feel unworthy and ignorant.',
@@ -2363,7 +2362,7 @@ export const createEsotericismDebuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Fixed Identity - The prison of immutable self
  */
-export const createFixedIdentityDebuff = (duration: number = 4): BuffDebuff => ({
+export const createFixedIdentityDebuff = (duration: number = 4) => ({
   id: 'fixed_identity',
   name: 'Fixed Identity',
   description: 'Your identity is fixed and unchangeable, limiting your potential for growth.',
@@ -2381,7 +2380,7 @@ export const createFixedIdentityDebuff = (duration: number = 4): BuffDebuff => (
 /**
  * Linguistic Purism - The rigidity of perfect language
  */
-export const createLinguisticPurismDebuff = (duration: number = 3): BuffDebuff => ({
+export const createLinguisticPurismDebuff = (duration: number = 3) => ({
   id: 'linguistic_purism',
   name: 'Linguistic Purism',
   description: 'You insist on perfect language, but perfection excludes genuine expression.',
@@ -2399,7 +2398,7 @@ export const createLinguisticPurismDebuff = (duration: number = 3): BuffDebuff =
 /**
  * Middle Exclusion - The rejection of moderation
  */
-export const createMiddleExclusionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createMiddleExclusionDebuff = (duration: number = 3) => ({
   id: 'middle_exclusion',
   name: 'Middle Exclusion',
   description: 'You reject moderate positions, forcing extreme and unsustainable choices.',
@@ -2417,7 +2416,7 @@ export const createMiddleExclusionDebuff = (duration: number = 3): BuffDebuff =>
 /**
  * Profanity Passion - The vulgar expression of despair
  */
-export const createProfanityPassionDebuff = (duration: number = 2): BuffDebuff => ({
+export const createProfanityPassionDebuff = (duration: number = 2) => ({
   id: 'profanity_passion',
   name: 'Profanity Passion',
   description: 'Your passion expresses itself through vulgarity, alienating those you want to reach.',
@@ -2435,7 +2434,7 @@ export const createProfanityPassionDebuff = (duration: number = 2): BuffDebuff =
 /**
  * False Equivalence - The misleading comparison
  */
-export const createFalseEquivalenceDebuff = (duration: number = 3): BuffDebuff => ({
+export const createFalseEquivalenceDebuff = (duration: number = 3) => ({
   id: 'false_equivalence',
   name: 'False Equivalence',
   description: 'You equate things that aren\'t equal, distorting understanding and justice.',
@@ -2453,7 +2452,7 @@ export const createFalseEquivalenceDebuff = (duration: number = 3): BuffDebuff =
 /**
  * Completion Obsession - The endless drive for closure
  */
-export const createCompletionObsessionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createCompletionObsessionDebuff = (duration: number = 3) => ({
   id: 'completion_obsession',
   name: 'Completion Obsession',
   description: 'You\'re obsessed with finishing things, even when abandonment would be wiser.',
@@ -2471,7 +2470,7 @@ export const createCompletionObsessionDebuff = (duration: number = 3): BuffDebuf
 /**
  * Free Speech Absolutism - The tyranny of unrestricted expression
  */
-export const createFreeSpeechAbsolutismDebuff = (duration: number = 3): BuffDebuff => ({
+export const createFreeSpeechAbsolutismDebuff = (duration: number = 3) => ({
   id: 'free_speech_absolutism',
   name: 'Free Speech Absolutism',
   description: 'You insist on absolute free speech, but absolute freedom harms the vulnerable.',
@@ -2489,7 +2488,7 @@ export const createFreeSpeechAbsolutismDebuff = (duration: number = 3): BuffDebu
 /**
  * Attribution Bias - The distortion of cause and effect
  */
-export const createAttributionBiasDebuff = (duration: number = 4): BuffDebuff => ({
+export const createAttributionBiasDebuff = (duration: number = 4) => ({
   id: 'attribution_bias',
   name: 'Attribution Bias',
   description: 'You misattribute causes and effects, leading to unjust blame and credit.',
@@ -2507,7 +2506,7 @@ export const createAttributionBiasDebuff = (duration: number = 4): BuffDebuff =>
 /**
  * Reality Doubt - The questioning of existence itself
  */
-export const createRealityDoubtDebuff = (duration: number = 4): BuffDebuff => ({
+export const createRealityDoubtDebuff = (duration: number = 4) => ({
   id: 'reality_doubt',
   name: 'Reality Doubt',
   description: 'You doubt the reality of your experiences, making all perception unreliable.',
@@ -2525,7 +2524,7 @@ export const createRealityDoubtDebuff = (duration: number = 4): BuffDebuff => ({
 /**
  * Collective Guilt - The burden of group responsibility
  */
-export const createCollectiveGuiltDebuff = (duration: number = 4): BuffDebuff => ({
+export const createCollectiveGuiltDebuff = (duration: number = 4) => ({
   id: 'collective_guilt',
   name: 'Collective Guilt',
   description: 'You feel guilty for the actions of your entire group, an impossible burden.',
@@ -2543,7 +2542,7 @@ export const createCollectiveGuiltDebuff = (duration: number = 4): BuffDebuff =>
 /**
  * Incomplete Understanding - The frustration of partial knowledge
  */
-export const createIncompleteUnderstandingDebuff = (duration: number = 3): BuffDebuff => ({
+export const createIncompleteUnderstandingDebuff = (duration: number = 3) => ({
   id: 'incomplete_understanding',
   name: 'Incomplete Understanding',
   description: 'You understand partially, but incomplete knowledge is more dangerous than ignorance.',
@@ -2561,7 +2560,7 @@ export const createIncompleteUnderstandingDebuff = (duration: number = 3): BuffD
 /**
  * Hero Destruction - The shattering of ideals
  */
-export const createHeroDestructionDebuff = (duration: number = 4): BuffDebuff => ({
+export const createHeroDestructionDebuff = (duration: number = 4) => ({
   id: 'hero_destruction',
   name: 'Hero Destruction',
   description: 'You destroy your heroes, leaving yourself without inspiration or guidance.',
@@ -2579,7 +2578,7 @@ export const createHeroDestructionDebuff = (duration: number = 4): BuffDebuff =>
 /**
  * False Heroism - The illusion of valor
  */
-export const createFalseHeroismDebuff = (duration: number = 3): BuffDebuff => ({
+export const createFalseHeroismDebuff = (duration: number = 3) => ({
   id: 'false_heroism',
   name: 'False Heroism',
   description: 'You believe you\'re a hero, but your actions are selfish and destructive.',
@@ -2597,7 +2596,7 @@ export const createFalseHeroismDebuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Probability Denial - The rejection of mathematical reality
  */
-export const createProbabilityDenialDebuff = (duration: number = 3): BuffDebuff => ({
+export const createProbabilityDenialDebuff = (duration: number = 3) => ({
   id: 'probability_denial',
   name: 'Probability Denial',
   description: 'You deny statistical reality, making rational decision-making impossible.',
@@ -2615,7 +2614,7 @@ export const createProbabilityDenialDebuff = (duration: number = 3): BuffDebuff 
 /**
  * Helplessness - The paralysis of learned hopelessness
  */
-export const createHelplessnessDebuff = (duration: number = 3): BuffDebuff => ({
+export const createHelplessnessDebuff = (duration: number = 3) => ({
   id: 'helplessness',
   name: 'Helplessness',
   description: 'You\'ve learned that nothing you do matters, making action seem pointless.',
@@ -2633,7 +2632,7 @@ export const createHelplessnessDebuff = (duration: number = 3): BuffDebuff => ({
 /**
  * Group Determinism - The prison of collective identity
  */
-export const createGroupDeterminismDebuff = (duration: number = 4): BuffDebuff => ({
+export const createGroupDeterminismDebuff = (duration: number = 4) => ({
   id: 'group_determinism',
   name: 'Group Determinism',
   description: 'Your group determines everything about you, limiting your individual potential.',
@@ -2651,7 +2650,7 @@ export const createGroupDeterminismDebuff = (duration: number = 4): BuffDebuff =
 /**
  * Truth Dilution - The corruption of information
  */
-export const createTruthDilutionDebuff = (duration: number = 4): BuffDebuff => ({
+export const createTruthDilutionDebuff = (duration: number = 4) => ({
   id: 'truth_dilution',
   name: 'Truth Dilution',
   description: 'Truth is diluted with lies, making genuine understanding impossible.',
@@ -2669,7 +2668,7 @@ export const createTruthDilutionDebuff = (duration: number = 4): BuffDebuff => (
 /**
  * Deserved Suffering - The internalization of victim-blaming
  */
-export const createDeservedSufferingDebuff = (duration: number = 5): BuffDebuff => ({
+export const createDeservedSufferingDebuff = (duration: number = 5) => ({
   id: 'deserved_suffering',
   name: 'Deserved Suffering',
   description: 'You believe your suffering is deserved, making escape from abuse impossible.',
@@ -2687,7 +2686,7 @@ export const createDeservedSufferingDebuff = (duration: number = 5): BuffDebuff 
 /**
  * Moral Suppression - The silencing of ethical voice
  */
-export const createMoralSuppressionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createMoralSuppressionDebuff = (duration: number = 3) => ({
   id: 'moral_suppression',
   name: 'Moral Suppression',
   description: 'Your moral voice is suppressed, making you complicit in injustice.',
@@ -2705,7 +2704,7 @@ export const createMoralSuppressionDebuff = (duration: number = 3): BuffDebuff =
 /**
  * False Relatability - The pretense of shared experience
  */
-export const createFalseRelatabilityDebuff = (duration: number = 3): BuffDebuff => ({
+export const createFalseRelatabilityDebuff = (duration: number = 3) => ({
   id: 'false_relatability',
   name: 'False Relatability',
   description: 'You pretend to relate to others\' experiences, but your pretense alienates them.',
@@ -2723,7 +2722,7 @@ export const createFalseRelatabilityDebuff = (duration: number = 3): BuffDebuff 
 /**
  * Consequence Paralysis - The fear that prevents action
  */
-export const createConsequenceParalysisDebuff = (duration: number = 3): BuffDebuff => ({
+export const createConsequenceParalysisDebuff = (duration: number = 3) => ({
   id: 'consequence_paralysis',
   name: 'Consequence Paralysis',
   description: 'You\'re paralyzed by fear of consequences, making decisive action impossible.',
@@ -2741,7 +2740,7 @@ export const createConsequenceParalysisDebuff = (duration: number = 3): BuffDebu
 /**
  * Numerical Confusion - The distortion of quantitative truth
  */
-export const createNumericalConfusionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createNumericalConfusionDebuff = (duration: number = 3) => ({
   id: 'numerical_confusion',
   name: 'Numerical Confusion',
   description: 'Numbers confuse and mislead you, making data-driven decisions impossible.',
@@ -2759,7 +2758,7 @@ export const createNumericalConfusionDebuff = (duration: number = 3): BuffDebuff
 /**
  * Magical Belief - The dependence on supernatural solutions
  */
-export const createMagicalBeliefDebuff = (duration: number = 3): BuffDebuff => ({
+export const createMagicalBeliefDebuff = (duration: number = 3) => ({
   id: 'magical_belief',
   name: 'Magical Belief',
   description: 'You believe in magic solutions, ignoring practical reality.',
@@ -2777,7 +2776,7 @@ export const createMagicalBeliefDebuff = (duration: number = 3): BuffDebuff => (
 /**
  * Bad Faith - The corruption of genuine discourse
  */
-export const createBadFaithDebuff = (duration: number = 4): BuffDebuff => ({
+export const createBadFaithDebuff = (duration: number = 4) => ({
   id: 'bad_faith',
   name: 'Bad Faith',
   description: 'You argue in bad faith, corrupting the possibility of genuine understanding.',
@@ -2795,7 +2794,7 @@ export const createBadFaithDebuff = (duration: number = 4): BuffDebuff => ({
 /**
  * Measurement Obsession - The quantification of quality
  */
-export const createMeasurementObsessionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createMeasurementObsessionDebuff = (duration: number = 3) => ({
   id: 'measurement_obsession',
   name: 'Measurement Obsession',
   description: 'You\'re obsessed with measuring everything, blind to unquantifiable value.',
@@ -2813,7 +2812,7 @@ export const createMeasurementObsessionDebuff = (duration: number = 3): BuffDebu
 /**
  * Thought Assumption - The arrogance of presumed telepathy
  */
-export const createThoughtAssumptionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createThoughtAssumptionDebuff = (duration: number = 3) => ({
   id: 'thought_assumption',
   name: 'Thought Assumption',
   description: 'You assume you know others\' thoughts, poisoning relationships with suspicion.',
@@ -2831,7 +2830,7 @@ export const createThoughtAssumptionDebuff = (duration: number = 3): BuffDebuff 
 /**
  * Moral Exception - The hypocrisy of special pleading
  */
-export const createMoralExceptionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createMoralExceptionDebuff = (duration: number = 3) => ({
   id: 'moral_exception',
   name: 'Moral Exception',
   description: 'You make exceptions for yourself, but condemn others for the same actions.',
@@ -2850,7 +2849,7 @@ export const createMoralExceptionDebuff = (duration: number = 3): BuffDebuff => 
 /**
  * Superiority Damage - The shattering of arrogant self-worth
  */
-export const createSuperiorityDamageDebuff = (duration: number = 4): BuffDebuff => ({
+export const createSuperiorityDamageDebuff = (duration: number = 4) => ({
   id: 'superiority_damage',
   name: 'Superiority Damage',
   description: 'Your sense of superiority is damaged, revealing your fundamental insecurity.',
@@ -2868,7 +2867,7 @@ export const createSuperiorityDamageDebuff = (duration: number = 4): BuffDebuff 
 /**
  * Mortification - The self-inflicted spiritual wounds
  */
-export const createMortificationDebuff = (duration: number = 3): BuffDebuff => ({
+export const createMortificationDebuff = (duration: number = 3) => ({
   id: 'mortification',
   name: 'Mortification',
   description: 'You mortify your flesh for spiritual gain, but the pain only reveals your desperation.',
@@ -2886,7 +2885,7 @@ export const createMortificationDebuff = (duration: number = 3): BuffDebuff => (
 /**
  * Criteria Shifting - The moving target of judgment
  */
-export const createCriteriaShiftingDebuff = (duration: number = 3): BuffDebuff => ({
+export const createCriteriaShiftingDebuff = (duration: number = 3) => ({
   id: 'criteria_shifting',
   name: 'Criteria Shifting',
   description: 'You shift criteria constantly, making fair evaluation impossible.',
@@ -2904,7 +2903,7 @@ export const createCriteriaShiftingDebuff = (duration: number = 3): BuffDebuff =
 /**
  * Boundary Violation - The invasion of personal space
  */
-export const createBoundaryViolationDebuff = (duration: number = 3): BuffDebuff => ({
+export const createBoundaryViolationDebuff = (duration: number = 3) => ({
   id: 'boundary_violation',
   name: 'Boundary Violation',
   description: 'Your boundaries are violated, making you feel unsafe and exposed.',
@@ -2922,7 +2921,7 @@ export const createBoundaryViolationDebuff = (duration: number = 3): BuffDebuff 
 /**
  * Identity Destruction - The erasure of self
  */
-export const createIdentityDestructionDebuff = (duration: number = 4): BuffDebuff => ({
+export const createIdentityDestructionDebuff = (duration: number = 4) => ({
   id: 'identity_destruction',
   name: 'Identity Destruction',
   description: 'Your identity is destroyed, leaving you questioning who you are.',
@@ -2940,7 +2939,7 @@ export const createIdentityDestructionDebuff = (duration: number = 4): BuffDebuf
 /**
  * Story Preference - The prioritization of narrative over truth
  */
-export const createStoryPreferenceDebuff = (duration: number = 3): BuffDebuff => ({
+export const createStoryPreferenceDebuff = (duration: number = 3) => ({
   id: 'story_preference',
   name: 'Story Preference',
   description: 'You prefer comforting stories to harsh truth, blinding yourself to reality.',
@@ -2958,7 +2957,7 @@ export const createStoryPreferenceDebuff = (duration: number = 3): BuffDebuff =>
 /**
  * Selfish Preservation - The priority of self over others
  */
-export const createSelfishPreservationDebuff = (duration: number = 3): BuffDebuff => ({
+export const createSelfishPreservationDebuff = (duration: number = 3) => ({
   id: 'selfish_preservation',
   name: 'Selfish Preservation',
   description: 'You preserve yourself at others\' expense, but selfishness isolates you completely.',
@@ -2976,7 +2975,7 @@ export const createSelfishPreservationDebuff = (duration: number = 3): BuffDebuf
 /**
  * Discussion Suppression - The silencing of dissent
  */
-export const createDiscussionSuppressionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createDiscussionSuppressionDebuff = (duration: number = 3) => ({
   id: 'discussion_suppression',
   name: 'Discussion Suppression',
   description: 'Discussion is suppressed, making collaborative problem-solving impossible.',
@@ -2994,7 +2993,7 @@ export const createDiscussionSuppressionDebuff = (duration: number = 3): BuffDeb
 /**
  * Recognition Denial - The refusal to acknowledge worth
  */
-export const createRecognitionDenialDebuff = (duration: number = 3): BuffDebuff => ({
+export const createRecognitionDenialDebuff = (duration: number = 3) => ({
   id: 'recognition_denial',
   name: 'Recognition Denial',
   description: 'Your worth is denied, making you feel invisible and insignificant.',
@@ -3012,7 +3011,7 @@ export const createRecognitionDenialDebuff = (duration: number = 3): BuffDebuff 
 /**
  * Connection Confusion - The distortion of logical relationships
  */
-export const createConnectionConfusionDebuff = (duration: number = 2): BuffDebuff => ({
+export const createConnectionConfusionDebuff = (duration: number = 2) => ({
   id: 'connection_confusion',
   name: 'Connection Confusion',
   description: 'Logical connections confuse you, making rational thought impossible.',
@@ -3030,7 +3029,7 @@ export const createConnectionConfusionDebuff = (duration: number = 2): BuffDebuf
 /**
  * Novelty Denial - The rejection of innovation
  */
-export const createNoveltyDenialDebuff = (duration: number = 3): BuffDebuff => ({
+export const createNoveltyDenialDebuff = (duration: number = 3) => ({
   id: 'novelty_denial',
   name: 'Novelty Denial',
   description: 'You deny the possibility of novelty, trapping yourself in outdated thinking.',
@@ -3048,7 +3047,7 @@ export const createNoveltyDenialDebuff = (duration: number = 3): BuffDebuff => (
 /**
  * Olfactory Rejection - The disgust of perceived inferiority
  */
-export const createOlfactoryRejectionDebuff = (duration: number = 3): BuffDebuff => ({
+export const createOlfactoryRejectionDebuff = (duration: number = 3) => ({
   id: 'olfactory_rejection',
   name: 'Olfactory Rejection',
   description: 'You\'re rejected based on smell, a superficial judgment that dehumanizes.',
@@ -3066,7 +3065,7 @@ export const createOlfactoryRejectionDebuff = (duration: number = 3): BuffDebuff
 /**
  * Memory Manipulation - The distortion of personal history
  */
-export const createMemoryManipulationDebuff = (duration: number = 4): BuffDebuff => ({
+export const createMemoryManipulationDebuff = (duration: number = 4) => ({
   id: 'memory_manipulation',
   name: 'Memory Manipulation',
   description: 'Your memories are manipulated, making your personal history unreliable.',
@@ -3084,7 +3083,7 @@ export const createMemoryManipulationDebuff = (duration: number = 4): BuffDebuff
 /**
  * Othering - The dehumanization of difference
  */
-export const createOtheringDebuff = (duration: number = 4): BuffDebuff => ({
+export const createOtheringDebuff = (duration: number = 4) => ({
   id: 'othering',
   name: 'Othering',
   description: 'You\'re treated as "other," excluded from human community and dignity.',
@@ -3102,7 +3101,7 @@ export const createOtheringDebuff = (duration: number = 4): BuffDebuff => ({
 /**
  * Intellectual Humiliation - The shame of exposed ignorance
  */
-export const createIntellectualHumiliationDebuff = (duration: number = 3): BuffDebuff => ({
+export const createIntellectualHumiliationDebuff = (duration: number = 3) => ({
   id: 'intellectual_humiliation',
   name: 'Intellectual Humiliation',
   description: 'Your intellectual shortcomings are exposed, making you feel stupid and inadequate.',
@@ -3120,7 +3119,7 @@ export const createIntellectualHumiliationDebuff = (duration: number = 3): BuffD
 /**
  * Universal Condemnation - The judgment of all humanity
  */
-export const createUniversalCondemnationDebuff = (duration: number = 4): BuffDebuff => ({
+export const createUniversalCondemnationDebuff = (duration: number = 4) => ({
   id: 'universal_condemnation',
   name: 'Universal Condemnation',
   description: 'Everyone and everything is condemned, making hope for improvement impossible.',
@@ -3138,7 +3137,7 @@ export const createUniversalCondemnationDebuff = (duration: number = 4): BuffDeb
 /**
  * Analysis Paralysis - The overthinking that prevents action
  */
-export const createAnalysisParalysisDebuff = (duration: number = 3): BuffDebuff => ({
+export const createAnalysisParalysisDebuff = (duration: number = 3) => ({
   id: 'analysis_paralysis',
   name: 'Analysis Paralysis',
   description: 'You overanalyze everything, making decisive action impossible.',
@@ -3156,7 +3155,7 @@ export const createAnalysisParalysisDebuff = (duration: number = 3): BuffDebuff 
 /**
  * Maturity Denial - The refusal to acknowledge growth
  */
-export const createMaturityDenialDebuff = (duration: number = 3): BuffDebuff => ({
+export const createMaturityDenialDebuff = (duration: number = 3) => ({
   id: 'maturity_denial',
   name: 'Maturity Denial',
   description: 'Your maturity is denied, treating you like a child despite your capabilities.',
@@ -3174,7 +3173,7 @@ export const createMaturityDenialDebuff = (duration: number = 3): BuffDebuff => 
 /**
  * Personalization - The self-centered interpretation of everything
  */
-export const createPersonalizationDebuff = (duration: number = 3): BuffDebuff => ({
+export const createPersonalizationDebuff = (duration: number = 3) => ({
   id: 'personalization',
   name: 'Personalization',
   description: 'You interpret everything personally, making objective reality impossible.',
@@ -3192,7 +3191,7 @@ export const createPersonalizationDebuff = (duration: number = 3): BuffDebuff =>
 /**
  * Simplicity Demand - The insistence on oversimplification
  */
-export const createSimplicityDemandDebuff = (duration: number = 3): BuffDebuff => ({
+export const createSimplicityDemandDebuff = (duration: number = 3) => ({
   id: 'simplicity_demand',
   name: 'Simplicity Demand',
   description: 'Complex issues must be simplified, but simplification distorts truth.',
@@ -3210,7 +3209,7 @@ export const createSimplicityDemandDebuff = (duration: number = 3): BuffDebuff =
 /**
  * Deniability Shield - The protection of plausible ignorance
  */
-export const createDeniabilityShieldDebuff = (duration: number = 3): BuffDebuff => ({
+export const createDeniabilityShieldDebuff = (duration: number = 3) => ({
   id: 'deniability_shield',
   name: 'Deniability Shield',
   description: 'You shield yourself with deniability, but deniability doesn\'t absolve responsibility.',
@@ -3228,7 +3227,7 @@ export const createDeniabilityShieldDebuff = (duration: number = 3): BuffDebuff 
 /**
  * Sentiment Manipulation - The weaponization of emotion
  */
-export const createSentimentManipulationDebuff = (duration: number = 3): BuffDebuff => ({
+export const createSentimentManipulationDebuff = (duration: number = 3) => ({
   id: 'sentiment_manipulation',
   name: 'Sentiment Manipulation',
   description: 'Your emotions are manipulated as weapons, making genuine feeling impossible.',
@@ -3246,7 +3245,7 @@ export const createSentimentManipulationDebuff = (duration: number = 3): BuffDeb
 /**
  * Language Policing - The censorship of expression
  */
-export const createLanguagePolicingDebuff = (duration: number = 3): BuffDebuff => ({
+export const createLanguagePolicingDebuff = (duration: number = 3) => ({
   id: 'language_policing',
   name: 'Language Policing',
   description: 'Your language is policed, making authentic expression dangerous.',
@@ -3264,7 +3263,7 @@ export const createLanguagePolicingDebuff = (duration: number = 3): BuffDebuff =
 /**
  * Toxic Positivity - The denial of legitimate suffering
  */
-export const createToxicPositivityDebuff = (duration: number = 3): BuffDebuff => ({
+export const createToxicPositivityDebuff = (duration: number = 3) => ({
   id: 'toxic_positivity',
   name: 'Toxic Positivity',
   description: 'Positivity is demanded, but forced optimism denies real pain and suffering.',
@@ -3287,7 +3286,7 @@ export const createToxicPositivityDebuff = (duration: number = 3): BuffDebuff =>
  * Mind Attack Follow-up Buff - Natural effect from Mind attacks
  * As mentioned in Combat.md: "buff until the end of the next turn where their next attack triggers a separate attack that causes fixed damage"
  */
-export const createMindAttackBuff = (damage: number): BuffDebuff => ({
+export const createMindAttackBuff = (damage: number) => ({
   id: 'mind_attack_followup',
   name: 'Mental Advantage',
   description: 'Your mind attack has planted seeds of doubt that will bloom into additional damage on your next attack.',
@@ -3306,7 +3305,7 @@ export const createMindAttackBuff = (damage: number): BuffDebuff => ({
  * Heart Attack Guilt Debuff - Natural effect from Heart attacks
  * As mentioned in Combat.md: "DEBUFF for 3 turns where they take (x) damage (Minus Ailment Defense) every time they use "Attack""
  */
-export const createailmentAttackDebuff = (damage: number, duration: number = 3, chanceToFade?: number): BuffDebuff => ({
+export const createailmentAttackDebuff = (damage: number, duration: number = 3) => ({
   id: 'heart_attack_guilt',
   name: 'Emotional Guilt',
   description: 'The weight of your emotional attack creates a growing burden of guilt that damages you when you try to fight back.',
@@ -3327,7 +3326,7 @@ export const createailmentAttackDebuff = (damage: number, duration: number = 3, 
  * Body Defense Reflection Buff - Natural effect from Body defense
  * As mentioned in Combat.md: "BUFF called "Reflect" where whenever the player is "Attacked" or recieved damage from a Special Attack, the attacking combatant takes (x) damage"
  */
-export const createReflectionBuff = (damage: number): BuffDebuff => ({
+export const createReflectionBuff = (damage: number) => ({
   id: 'body_reflection',
   name: 'Physical Reflection',
   description: 'Your physical defense creates a barrier that reflects incoming attacks back at your attacker.',
@@ -3346,7 +3345,7 @@ export const createReflectionBuff = (damage: number): BuffDebuff => ({
  * Mind Defense Counter-Argument Buff - Natural effect from Mind defense
  * As mentioned in Combat.md: "counter their argument by recieving a temporary buff (3 turns), where the player recieves a bonus to their mind attack"
  */
-export const createCounterArgumentBuff = (mindAttackBonus: number, duration: number = 3): BuffDebuff => ({
+export const createCounterArgumentBuff = (mindAttackBonus: number, duration: number = 3) => ({
   id: 'mind_counter_argument',
   name: 'Counter-Argument',
   description: 'Your mental defense has prepared a devastating counter-argument that will strengthen your future attacks.',
@@ -3365,7 +3364,7 @@ export const createCounterArgumentBuff = (mindAttackBonus: number, duration: num
  * Heart Defense Foresight Buff - Natural effect from Heart defense
  * As mentioned in Combat.md: "the player will be granted a buff for 3 turns where they will be aware of the enemy's Attack action"
  */
-export const createForesightBuff = (visionType: string = 'enemy attacks', duration: number = 3): BuffDebuff => ({
+export const createForesightBuff = (_visionType: string = 'enemy attacks', duration: number = 3) => ({
   id: 'heart_foresight',
   name: 'Emotional Foresight',
   description: 'Your emotional defense grants you insight into your opponent\'s intentions, letting you anticipate their attacks.',
@@ -3384,7 +3383,7 @@ export const createForesightBuff = (visionType: string = 'enemy attacks', durati
  * Body Defense Enhanced Reflection - Enhanced version for advantage
  * As mentioned in Combat.md: "The player receives a bonus where the attacker recieves 1/2 (instead of 1/4) of the damage"
  */
-export const createBodyDefenseBuff = (damage: number): BuffDebuff => ({
+export const createBodyDefenseBuff = (damage: number) => ({
   id: 'body_defense_enhanced',
   name: 'Enhanced Physical Defense',
   description: 'Your body-based defense creates an even stronger barrier, reflecting more damage back to attackers.',
@@ -3403,7 +3402,7 @@ export const createBodyDefenseBuff = (damage: number): BuffDebuff => ({
  * Mind Defense Enhanced Counter - Enhanced version for advantage
  * As mentioned in Combat.md: "The player recieves a bonus to Mind Attack equal to x1/2 (instead of 1/4) of the opponents Mind Attack"
  */
-export const createMindDefenseBuff = (mindAttackBonus: number, duration: number = 3): BuffDebuff => ({
+export const createMindDefenseBuff = (mindAttackBonus: number, duration: number = 3) => ({
   id: 'mind_defense_enhanced',
   name: 'Enhanced Counter-Argument',
   description: 'Your mental defense has crafted an even more devastating counter-argument against your opponent.',
@@ -3422,7 +3421,7 @@ export const createMindDefenseBuff = (mindAttackBonus: number, duration: number 
  * Heart Defense Enhanced Foresight - Enhanced version for advantage
  * As mentioned in Combat.md: "the player will be granted a buff for 3 turns where they will be aware of the enemy's Attack action and Argument type"
  */
-export const createailmentDefenseBuff = (duration: number = 3): BuffDebuff => ({
+export const createailmentDefenseBuff = (duration: number = 3) => ({
   id: 'heart_defense_enhanced',
   name: 'Enhanced Emotional Foresight',
   description: 'Your emotional defense grants you complete insight into your opponent\'s strategy and intentions.',
@@ -3446,21 +3445,20 @@ export const createailmentDefenseBuff = (duration: number = 3): BuffDebuff => ({
  */
 export function createBleakStatusEffect(
   id: string,
-  name: StatusEffectName,
+  name,
   description: string,
   type: 'buff' | 'debuff',
   duration: number,
-  effects: BuffDebuffEffect,
   icon: string,
   stackable: boolean = false,
   maxStacks?: number
-): BuffDebuff {
+) {
   return {
     id,
     name,
     description,
     type,
-    effect: effects,
+    // effect,
     duration,
     remainingTurns: duration,
     stackable,
@@ -3473,7 +3471,7 @@ export function createBleakStatusEffect(
 /**
  * Get all available status effects
  */
-export function getAllStatusEffects(): Record<string, BuffDebuff> {
+export function getAllStatusEffects() {
   return {
     // Natural combat effects (from Combat.md)
     mind_attack_followup: createMindAttackBuff(15),
@@ -3498,8 +3496,8 @@ export function getAllStatusEffects(): Record<string, BuffDebuff> {
  */
 export function applyStatusEffect(
   target: any,
-  effect: BuffDebuff,
-  source?: string
+  effect,
+  _source?: string
 ): string[] {
   const messages: string[] = [];
 
@@ -3537,7 +3535,7 @@ export function processStatusEffects(combatant: any): string[] {
     // Remove expired effects
     if (effect.remainingTurns <= 0) {
       const effectType = effect.type === 'buff' ? 'buffs' : 'debuffs';
-      const index = combatant[effectType]?.findIndex((e: BuffDebuff) => e.id === effect.id);
+      const index = combatant[effectType]?.findIndex((e) => e.id === effect.id);
       if (index !== undefined && index >= 0) {
         combatant[effectType].splice(index, 1);
         messages.push(`${effect.name} fades from ${combatant.name}`);

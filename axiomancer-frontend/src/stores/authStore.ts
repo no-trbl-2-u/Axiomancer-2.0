@@ -23,7 +23,7 @@ interface AuthStore extends AuthState {
 export const useAuthStore = create<AuthStore>()(
   devtools(
     persist(
-      (set, get) => ({
+      (set) => ({
         // Initial State
         user: null,
         token: null,

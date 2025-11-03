@@ -81,9 +81,9 @@ export interface Character {
   inventory: Item[];
   equippedItems?: EquippedItems;
   inventoryCategories?: InventoryCategories;
-  persistentEffects?: CombatantBuffs; // Buffs/debuffs that persist outside combat
 }
 
+// TODO: Refactor after I revisit skills and status effects
 export interface Skill {
   id: string;
   name: string;
@@ -303,7 +303,7 @@ export type CombatAction = 'attack' | 'defend' | 'special' | 'skill';
 export interface CombatChoice {
   aspect: PhilosophicalAspect;
   action: CombatAction;
-  selectedSkill?: string;
+  type: PhilosophicalAspect;
 }
 
 export interface CombatRoundResult {
@@ -332,118 +332,29 @@ export interface CombatState {
     player: number;
     enemy: number;
   };
-  playerBuffs: CombatantBuffs;
-  enemyBuffs: CombatantBuffs;
-  agreeToDisagreeCounter: number;
-  log: CombatLogEntry[];
+  friendshipCounter: number;
+  battleLog: BattleLogEntry[];
 }
 
-export interface CombatLogEntry {
-  id: string;
-  timestamp: number;
-  actor: string;
-  action: string;
-  target: string;
-  damage?: number;
-  effect?: string;
-}
-
-// Comprehensive list of all possible status effects
-export type StatusEffectName =
-  | 'Acknowledgment' | 'Active Agency' | 'Analysis Paralysis' | 'Appeasement' | 'Articulate Expression'
-  | 'Attribution Bias' | 'Authentic Discourse' | 'Authentic Expression' | 'Bad Faith' | 'Balanced Perspective'
-  | 'Balanced Valuation' | 'Blind Devotion' | 'Blood Obligation' | 'Boundary Violation' | 'Broader Understanding'
-  | 'Card Playing' | 'Change Resistance' | 'Circular Thinking' | 'Civility' | 'Clarity' | 'Closure-Seeking'
-  | 'Collective Guilt' | 'Complete Awareness' | 'Completion Obsession' | 'Complexity Mastery' | 'Conclusion Manipulation'
-  | 'Confirmation Blindness' | 'Connection Confusion' | 'Consequence Fear' | 'Consequence Paralysis' | 'Contextual Understanding'
-  | 'Corruption Temptation' | 'Cost Obsession' | 'Counter-Argument' | 'Courage' | 'Creative Thinking'
-  | 'Criteria Shifting' | 'Decisive Action' | 'Definition Confusion' | 'Democratic Discourse' | 'Deniability Shield'
-  | 'Deserved Suffering' | 'Disciplinary Blindness' | 'Discussion Suppression' | 'Divine Judgment' | 'Dogmatic Certainty'
-  | 'Ego Damage' | 'Emotional Foresight' | 'Emotional Guilt' | 'Emotional Intelligence' | 'Emotional Override'
-  | 'End-Times Despair' | 'Enforced Muteness' | 'Enhanced Counter-Argument' | 'Enhanced Emotional Foresight' | 'Enhanced Physical Defense'
-  | 'Enlightenment' | 'Esotericism' | 'Exception Justification' | 'False Choice' | 'False Equivalence'
-  | 'False Expertise' | 'False Heroism' | 'False Relatability' | 'Fear' | 'Fixed Identity' | 'Foresight'
-  | 'Free Speech Absolutism' | 'Genuine Achievement' | 'Genuine Expertise' | 'Group Determinism' | 'Growth Mindset'
-  | 'Guilt Amplification' | 'Healthy Spirituality' | 'Helplessness' | 'Hero Destruction' | 'Holistic Understanding'
-  | 'Humility' | 'Identity Destruction' | 'Identity Erosion' | 'Ignorance Empowerment' | 'Ignorance Shield'
-  | 'Imagination' | 'Implication' | 'Incomplete Understanding' | 'Incredulity' | 'Independence' | 'Inertia'
-  | 'Inescapable Fate' | 'Innovation' | 'Insight into Weaknesses' | 'Integrity' | 'Intellectual Exclusion'
-  | 'Intellectual Humiliation' | 'Intellectual Sovereignty' | 'Investigative Mastery' | 'Isolation' | 'Language Policing'
-  | 'Lie Acceptance' | 'Linear Thinking' | 'Linguistic Purism' | 'Logical Clarity' | 'Logic Immunity'
-  | 'Magical Belief' | 'Magical Realism' | 'Maturity Denial' | 'Measurement Obsession' | 'Memory Manipulation'
-  | 'Mental Advantage' | 'Mental Autonomy' | 'Mental Fortitude' | 'Mental Privacy' | 'Middle Exclusion'
-  | 'Mind Control' | 'Momentum' | 'Moral Consistency' | 'Moral Exception' | 'Moral High Ground'
-  | 'Moral Perfection' | 'Moral Suppression' | 'Mortification' | 'Motive Corruption' | 'Mystical Confusion'
-  | 'Natural Order' | 'Novelty Denial' | 'Numerical Confusion' | 'Olfactory Rejection' | 'Othering'
-  | 'Perfect Accountability' | 'Perfect Autonomy' | 'Perfect Balance' | 'Perfect Clarity' | 'Perfect Communication'
-  | 'Perfect Decision Making' | 'Perfect Discourse' | 'Perfect Distinction' | 'Perfect Emotional Mastery' | 'Perfect Empathy'
-  | 'Perfect Memory' | 'Perfect Nuance' | 'Perfect Objectivity' | 'Perfect Realism' | 'Perfect Self-Trust'
-  | 'Perfect Understanding' | 'Personal Doubt' | 'Personalization' | 'Physical Reflection' | 'Practical Wisdom'
-  | 'Probabilistic Mastery' | 'Probability Denial' | 'Profanity Passion' | 'Real Excellence' | 'Reality Doubt'
-  | 'Recognition Denial' | 'Resistance to Manipulation' | 'Responsibility Avoidance' | 'Selective Blindness' | 'Self-Condemnation'
-  | 'Selfish Preservation' | 'Self-Loathing' | 'Sentiment Manipulation' | 'Simplicity Demand' | 'Spiritual Wholeness'
-  | 'Stability' | 'Statistical Understanding' | 'Story Preference' | 'Strategic Advantage' | 'Strategic Retreat'
-  | 'Strength from Pain' | 'Superiority Damage' | 'Thought Assumption' | 'Thought Sovereignty' | 'Total Recall'
-  | 'Toxic Positivity' | 'Tradition Binding' | 'True Confidence' | 'True Enlightenment' | 'True Independence'
-  | 'True Moral Understanding' | 'Trust' | 'Truth Dilution' | 'Universal Condemnation' | 'Universal Recognition'
-  | 'Universal Understanding' | 'Unrecognized Achievement';
-
-export interface BuffDebuff {
-  id: string;
-  name: StatusEffectName;
-  description: string;
-  type: 'buff' | 'debuff';
-  effect: BuffDebuffEffect;
-  duration: number;
-  remainingTurns: number;
-  stackable: boolean;
-  maxStacks?: number;
-  currentStacks: number;
-  icon: string;
-}
-
-export interface BuffDebuffEffect {
-  statModifiers?: {
-    physicalAttack?: number;
-    physicalDefense?: number;
-    mindAttack?: number;
-    mindDefense?: number;
-    ailmentAttack?: number;
-    ailmentDefense?: number;
-    accuracy?: number;
-    evasion?: number;
-    body?: number;
-    mind?: number;
-    heart?: number;
+export interface BattleLogEntry {
+  round: string;
+  playerDecision: CombatChoice;
+  enemyDecision: CombatChoice;
+  advantage: 'player' | 'enemy' | 'none';
+  damage: {
+    toPlayer: number;
+    toEnemy: number;
   };
-  percentageModifiers?: {
-    physicalAttack?: number;
-    physicalDefense?: number;
-    mindAttack?: number;
-    mindDefense?: number;
-    ailmentAttack?: number;
-    ailmentDefense?: number;
-    accuracy?: number;
-    evasion?: number;
-    body?: number;
-    mind?: number;
-    heart?: number;
-  };
-  specialEffects?: {
-    reflection?: number; // Reflects damage back to attacker
-    fixedDamageNextTurn?: number; // Mind attack follow-up damage
-    damageOnAttack?: number; // Heart attack debuff damage
-    skipTurn?: boolean; // Fear, confusion effects
-    healPrevention?: boolean;
-    immuneToNextAttack?: boolean;
-    chanceToFadePerTurn?: number; // Percentage chance for effect to fade each turn
-    foresight?: boolean; // Can see enemy moves/attacks
-  };
-}
-
-export interface CombatantBuffs {
-  buffs: BuffDebuff[];
-  debuffs: BuffDebuff[];
+  effects: string[];
+  playerRoll: string;
+  enemyRoll: string;
+  playerRollDetails: string;
+  enemyRollDetails: string;
+  damageToEnemy: number;
+  damageToPlayer: number;
+  playerHPAfter: string;
+  enemyHPAfter: string;
+  result: string;
 }
 
 export interface GameState {
@@ -459,20 +370,21 @@ export interface GameState {
   questLog: Quest[];
   gamePhase: 'childhood' | 'labyrinth' | 'adulthood';
   story: {
-    visitedFriend: boolean;
-    builtBoat: boolean;
-    gatheredWood: boolean;
-    gatheredIronOre: boolean;
-    visitedMajorCity: boolean;
-    heardAdvisorRumor: boolean;
-    visitedIslands: string[];
-    returnedHome: boolean;
-    decidedToBeAdvisor: boolean;
-    talkedToGuardian: boolean;
+    /* Childhood series of events in order */
     startedFishing: boolean;
     hasCart: boolean;
     hasHorse: boolean;
     hasFish: number;
+    gatheredWood: boolean;
+    gatheredIronOre: boolean;
+    visitedMajorCity: boolean;
+    heardAdvisorRumor: boolean;
+    builtBoat: boolean;
+    visitedIslands: string[];
+    visitedFriend: boolean;
+    returnedHome: boolean;
+    decidedToBeAdvisor: boolean;
+    talkedToGuardian: boolean;
   };
   combat: CombatState | null;
   inventory: {

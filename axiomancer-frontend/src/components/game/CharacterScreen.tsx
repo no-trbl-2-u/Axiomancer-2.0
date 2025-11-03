@@ -6,7 +6,6 @@ import { useAuthStore } from '../../stores/authStore';
 import { characterService } from '../../services/characterService';
 import { BuffDebuffDisplay } from '../combat/BuffDebuffDisplay';
 import { getPersistentEffects, hasActivePersistentEffects } from '../../utils/persistentEffects';
-import { BaseStats } from '../../types/game';
 import { Container } from '../shared/Grid';
 import { Panel } from '../shared/Panel';
 import { Title, Text, Subtitle } from '../shared/Text';
@@ -130,7 +129,6 @@ export const CharacterScreen = React.memo((): JSX.Element => {
   const assignStatPoint = useGameStore(state => state.assignStatPoint);
   const unassignStatPoint = useGameStore(state => state.unassignStatPoint);
   const [portraitUrl, setPortraitUrl] = useState<string>(character.portrait?.imageUrl || '');
-  const [isLoading, setIsLoading] = useState(false);
 
   // Fetch character portrait from backend if not available in gameState
   useEffect(() => {
@@ -143,15 +141,12 @@ export const CharacterScreen = React.memo((): JSX.Element => {
     // Otherwise, fetch from backend
     const fetchCharacterData = async () => {
       try {
-        setIsLoading(true);
         const characterData = await characterService.loadCharacter();
         if (characterData?.character?.portrait?.imageUrl) {
           setPortraitUrl(characterData.character.portrait.imageUrl);
         }
       } catch (error) {
         console.error('Failed to load character portrait:', error);
-      } finally {
-        setIsLoading(false);
       }
     };
 

@@ -1,6 +1,6 @@
-import { Character, Enemy, PhilosophicalAspect, CombatAction, BuffDebuff } from '../types/game';
+import { Character, Enemy, PhilosophicalAspect, CombatAction } from '../types/game';
 import { CombatState, BattleLogEntry, TurnResolution, CombatResolutionStep } from '../types/combatState';
-import { calculateModifiedStats, processBuffsDebuffs, createReflectionBuff, createCounterArgumentBuff, createForesightBuff } from './buffDebuffEngine';
+import { calculateModifiedStats, processBuffsDebuffs } from './buffDebuffEngine';
 import { executeCombatAction, executeFallacy, determineAspectWinner, generateEnemyChoice } from './combatMechanics';
 import { fallacySpellbook } from './fallacySpellbook';
 
@@ -472,11 +472,12 @@ export class MasterCombatStateManager {
     return steps;
   }
 
+  // TODO: Clean this up!
   /**
    * Create defense stance buffs
    */
   private createDefenseBuffs(aspect: PhilosophicalAspect, target: 'player' | 'enemy', hasAdvantage: boolean): BuffDebuff[] {
-    const buffs: BuffDebuff[] = [];
+    const buffs = [];
     const stats = target === 'player' ? this.combatState.originalPlayer.derivedStats : this.combatState.originalEnemy.derivedStats;
 
     switch (aspect) {
