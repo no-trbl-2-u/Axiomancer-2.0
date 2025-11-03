@@ -33,10 +33,12 @@ const actionColors: Record<PrimaryAction, string> = {
 };
 
 // Styled Components
-const CombatContainer = styled.div`
+const CombatContainer = styled.div<{ backgroundImage?: string }>`
   position: relative;
   min-height: 600px;
-  background: #000;
+  background: ${props => props.backgroundImage
+    ? `url(${props.backgroundImage}) center/cover no-repeat, #000`
+    : '#000'};
   color: #fff;
 `;
 
@@ -337,6 +339,19 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
   const friendshipCounter = combatState?.friendshipCounter ?? 0;
   const battleLog = combatState?.battleLog ?? [];
 
+  // Get current location for background
+  // TODO: Enhance this and take out of file
+  const getMapImage = (curLoc: string) => {
+    switch (curLoc) {
+      case 'fishing_town':
+        return '/combat-backgrounds/forest.png'
+      default:
+        return '/combat-backgrounds/forest.png'
+    }
+  }
+  console.log('🔍 Game State:', gameState.currentLocation);
+  const backgroundImage = getMapImage(gameState.currentLocation);
+
   // Reset view when modal opens
   useEffect(() => {
     if (open) {
@@ -419,6 +434,7 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
       enemy: updatedEnemy,
       round: round + 1,
       friendshipCounter: newFriendshipCounter,
+      // FIXME: Logging is broken!
       battleLog,
       playerChoice: {},
       enemyChoice: {},
@@ -458,7 +474,7 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
 
   // The main combat UI content
   const combatContent = (
-    <CombatContainer>
+    <CombatContainer {...(backgroundImage ? { backgroundImage } : {})}>
       {/* Round indicator and Battle Log */}
       <RoundIndicator>
         <RoundInfo>

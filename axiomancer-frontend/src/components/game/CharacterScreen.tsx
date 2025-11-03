@@ -4,8 +4,6 @@ import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
 import { useAuthStore } from '../../stores/authStore';
 import { characterService } from '../../services/characterService';
-import { BuffDebuffDisplay } from '../combat/BuffDebuffDisplay';
-import { getPersistentEffects, hasActivePersistentEffects } from '../../utils/persistentEffects';
 import { Container } from '../shared/Grid';
 import { Panel } from '../shared/Panel';
 import { Title, Text, Subtitle } from '../shared/Text';
@@ -164,9 +162,9 @@ export const CharacterScreen = React.memo((): JSX.Element => {
         <Text variant="secondary" size="md" align="center">
           Level {character.level} Philosopher
         </Text>
-        <ActionButton 
-          variant="danger" 
-          size="md" 
+        <ActionButton
+          variant="danger"
+          size="md"
           onClick={logout}
           style={{ marginTop: theme.spacing.md, width: '100%' }}
         >
@@ -287,7 +285,8 @@ export const CharacterScreen = React.memo((): JSX.Element => {
           <StatRow label="Luck" value={character.derivedStats.luck} />
         </StatCategory>
 
-        {hasActivePersistentEffects(character) && (
+        {/* TODO: Remove and Replace when I fix Buffs/Debuffs */}
+        {/* {hasActivePersistentEffects(character) && (
           <StatCategory title="⚡ Active Effects">
             <div style={{ padding: theme.spacing.md }}>
               <BuffDebuffDisplay
@@ -297,7 +296,7 @@ export const CharacterScreen = React.memo((): JSX.Element => {
               />
             </div>
           </StatCategory>
-        )}
+        )} */}
       </StyledPanel>
     </Container>
   );
