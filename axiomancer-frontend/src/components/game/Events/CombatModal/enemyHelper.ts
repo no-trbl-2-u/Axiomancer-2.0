@@ -15,6 +15,7 @@ export interface Enemy {
     baseStats: BaseStats;
     derivedStats: DerivedStats;
     skills: Skill[];
+    loot?: Item[]; // Items dropped when defeated
     enemyTier?: 'normal' | 'elite' | 'boss';
     image?: string;
     description: string;
@@ -30,6 +31,10 @@ function createEnemy(baseStats: BaseStats, enemyData: Partial<Enemy>): Enemy {
     const maxMP = calculateMaxMP(baseStats);
 
     return {
+        id: '',
+        name: '',
+        level: 1,
+        description: '',
         baseStats,
         derivedStats,
         health: maxHP,

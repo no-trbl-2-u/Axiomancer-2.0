@@ -8,6 +8,72 @@ export interface CharacterPortrait {
   description: string;
 }
 
+// =============================================================================
+// Buff/Debuff System Types
+// =============================================================================
+
+/**
+ * Status effect names used in combat
+ */
+export type StatusEffectName = string;
+
+/**
+ * Effect modifiers for buffs and debuffs
+ */
+export interface BuffDebuffEffect {
+  /** Flat stat modifiers */
+  statModifiers?: {
+    physicalAttack?: number;
+    physicalDefense?: number;
+    mindAttack?: number;
+    mindDefense?: number;
+    ailmentAttack?: number;
+    ailmentDefense?: number;
+  };
+  /** Percentage-based stat modifiers */
+  percentageModifiers?: {
+    physicalAttack?: number;
+    physicalDefense?: number;
+    mindAttack?: number;
+    mindDefense?: number;
+    ailmentAttack?: number;
+    ailmentDefense?: number;
+  };
+  /** Special effect flags and values */
+  specialEffects?: {
+    fixedDamageNextTurn?: number;
+    damageOnAttack?: number;
+    reflection?: number;
+    immuneToNextAttack?: boolean;
+    chanceToFadePerTurn?: number;
+  };
+}
+
+/**
+ * A single buff or debuff effect applied to a combatant
+ */
+export interface BuffDebuff {
+  id: string;
+  name: StatusEffectName;
+  description: string;
+  type: 'buff' | 'debuff';
+  effect: BuffDebuffEffect;
+  duration: number;
+  remainingTurns: number;
+  stackable: boolean;
+  currentStacks: number;
+  maxStacks?: number;
+  icon: string;
+}
+
+/**
+ * Collection of buffs and debuffs for a combatant
+ */
+export interface CombatantBuffs {
+  buffs: BuffDebuff[];
+  debuffs: BuffDebuff[];
+}
+
 export interface BaseStats {
   heart: number;
   body: number;
@@ -53,6 +119,10 @@ export interface EquippedItems {
   cloak?: Equipment;
 }
 
+/**
+ * @planned Future feature for categorized inventory
+ * Currently unused - inventory uses flat Item[] array
+ */
 export interface InventoryCategories {
   equipment: Item[];
   consumables: Item[];
@@ -82,10 +152,8 @@ export interface Character {
     body: Skill[];
     mind: Skill[];
   };
-  equipment: Equipment[];
   inventory: Item[];
   equippedItems?: EquippedItems;
-  inventoryCategories?: InventoryCategories;
 }
 
 // TODO: Refactor after I revisit skills and status effects
@@ -169,6 +237,10 @@ export interface GameNode {
   energyCost?: number; // energy required to travel to this node
 }
 
+/**
+ * @planned Future feature for global map exploration system
+ * Currently unused - map system uses GameNode instead
+ */
 export interface GlobalMapNode {
   id: string;
   name: string;
@@ -182,6 +254,10 @@ export interface GlobalMapNode {
   theme: 'peaceful' | 'mysterious' | 'dangerous' | 'magical';
 }
 
+/**
+ * @planned Future feature for detailed exploration within locations
+ * Currently unused
+ */
 export interface ExplorationNode {
   id: string;
   type: 'dialogue' | 'combat' | 'discovery';
@@ -199,6 +275,10 @@ export interface ExplorationNode {
   item?: Item;
 }
 
+/**
+ * @planned Future feature for dialogue choice system
+ * Currently unused
+ */
 export interface DialogueOption {
   id: string;
   text: string;
@@ -209,6 +289,10 @@ export interface DialogueOption {
   storyProgress?: Record<string, boolean>;
 }
 
+/**
+ * @planned Future feature for node-based events
+ * Currently unused - basic event system in use instead
+ */
 export interface NodeEvent {
   id: string;
   type: 'gather' | 'combat' | 'dialogue' | 'choice' | 'fishing' | 'building';
@@ -221,6 +305,10 @@ export interface NodeEvent {
   outcome?: ChoiceOutcome;
 }
 
+/**
+ * @planned Future feature for node choices
+ * Currently unused
+ */
 export interface NodeChoice {
   id: string;
   text: string;
@@ -228,6 +316,10 @@ export interface NodeChoice {
   outcome?: ChoiceOutcome;
 }
 
+/**
+ * @planned Future feature for node costs
+ * Currently unused
+ */
 export interface NodeCost {
   health?: number;
   mana?: number;
@@ -284,12 +376,19 @@ export interface GameEvent {
 export type PhilosophicalAspect = 'body' | 'mind' | 'heart';
 export type CombatAction = 'attack' | 'defend' | 'special' | 'skill';
 
+/**
+ * @deprecated Legacy combat system - Consider using CombatDecision from newCombat.ts
+ * This type is still used in older combat mechanics code
+ */
 export interface CombatChoice {
   aspect: PhilosophicalAspect;
   action: CombatAction;
   type: PhilosophicalAspect;
 }
 
+/**
+ * @deprecated Legacy combat system
+ */
 export interface CombatRoundResult {
   playerChoice: CombatChoice;
   enemyChoice: CombatChoice;
@@ -302,6 +401,11 @@ export interface CombatRoundResult {
   effects: string[];
 }
 
+/**
+ * @deprecated Legacy combat state - Used in older combat system
+ * Note: A separate, more detailed CombatState exists in combatState.ts for buff/debuff system
+ * Consider consolidating or clearly separating these systems
+ */
 export interface CombatState {
   active: boolean;
   turn: 'player' | 'enemy';
@@ -320,6 +424,10 @@ export interface CombatState {
   battleLog: BattleLogEntry[];
 }
 
+/**
+ * @deprecated Legacy battle log format with string-based data
+ * Note: newCombat.ts has a more modern BattleLogEntry with proper number types
+ */
 export interface BattleLogEntry {
   round: string;
   playerDecision: CombatChoice;

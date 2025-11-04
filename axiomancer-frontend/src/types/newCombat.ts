@@ -1,6 +1,12 @@
 /**
  * New Combat System Types
  * Based on new-combat-mechanics.md
+ * 
+ * This is the ACTIVE combat system used in CombatModal.tsx
+ * Simpler rock-paper-scissors style: Heart > Body > Mind > Heart
+ * 
+ * Note: An older, more complex combat system exists in game.ts and combatState.ts
+ * with buff/debuff mechanics. Both systems currently coexist.
  */
 
 import { Character, Enemy } from './game';

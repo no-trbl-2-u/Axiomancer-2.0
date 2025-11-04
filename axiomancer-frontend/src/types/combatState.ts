@@ -3,6 +3,12 @@ import { Character, Enemy, BuffDebuff, PhilosophicalAspect, CombatAction } from 
 /**
  * Enhanced Combat State System
  * Designed for turn-based philosophical combat with persistent effects
+ * 
+ * Note: This is an alternate, more complex combat system with buff/debuff mechanics.
+ * The simpler "newCombat.ts" system is currently used in the UI (CombatModal.tsx).
+ * This system is used by combatStateManager.ts but not the main game flow.
+ * 
+ * Consider consolidating these systems in the future.
  */
 
 export interface BattleLogEntry {
