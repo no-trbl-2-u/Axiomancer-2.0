@@ -1,4 +1,5 @@
-import { Character, BuffDebuff, CombatantBuffs } from '../types/game';
+import { Character } from '../types/game';
+import { BuffDebuff, CombatantBuffs } from '../types/buffs';
 import { calculateModifiedStats } from './buffDebuffEngine';
 
 /**

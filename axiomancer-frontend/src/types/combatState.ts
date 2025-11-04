@@ -1,4 +1,4 @@
-import { Character, Enemy, BuffDebuff, PhilosophicalAspect, CombatAction } from './game';
+import { Character, Enemy, PhilosophicalAspect, CombatAction } from './game';
 
 /**
  * Enhanced Combat State System
@@ -9,6 +9,9 @@ import { Character, Enemy, BuffDebuff, PhilosophicalAspect, CombatAction } from 
  * This system is used by combatStateManager.ts but not the main game flow.
  * 
  * Consider consolidating these systems in the future.
+ * 
+ * NOTE: This file should NOT import buff types. If buff functionality is needed,
+ * it should be handled in the buff-specific utility files that can import from types/buffs.ts
  */
 
 export interface BattleLogEntry {
@@ -23,9 +26,7 @@ export interface CombatantState {
   maxHealth: number;
   mana: number;
   maxMana: number;
-  buffs: BuffDebuff[];
-  debuffs: BuffDebuff[];
-  modifiedStats?: any; // Calculated stats including buff/debuff effects
+  modifiedStats?: any; // Calculated stats including any effects
 }
 
 export interface CombatPhaseData {
@@ -74,11 +75,10 @@ export interface CombatState {
 }
 
 export interface CombatResolutionStep {
-  type: 'damage' | 'status_effect' | 'buff_application' | 'turn_end';
+  type: 'damage' | 'status_effect' | 'turn_end';
   target: 'player' | 'enemy';
   description: string;
   value?: number;
-  effect?: BuffDebuff;
   delay: number; // Milliseconds to wait before this step
 }
 

@@ -1,4 +1,4 @@
-import { BuffDebuff, CombatantBuffs } from '../types/game';
+import { BuffDebuff, CombatantBuffs } from '../types/buffs';
 
 /**
  * Combat Visual System - UI-agnostic helpers for displaying combat status effects

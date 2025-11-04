@@ -1,4 +1,5 @@
-import { BuffDebuff, BuffDebuffEffect, CombatantBuffs, DerivedStats, StatusEffectName } from '../types/game';
+import { BuffDebuff, BuffDebuffEffect, CombatantBuffs, StatusEffectName } from '../types/buffs';
+import { DerivedStats } from '../types/game';
 
 /**
  * Buff/Debuff Engine - Handles all combat status effects

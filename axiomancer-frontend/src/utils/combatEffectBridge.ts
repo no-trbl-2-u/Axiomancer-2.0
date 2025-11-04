@@ -1,4 +1,4 @@
-import { BuffDebuff } from '../types/game';
+import { BuffDebuff } from '../types/buffs';
 import {
   createDogmaticCertaintyDebuff,
   createLogicImmunityBuff,
