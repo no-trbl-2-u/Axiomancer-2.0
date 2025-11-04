@@ -1,5 +1,5 @@
-import { Character } from '../types/game';
-import { BuffDebuff, CombatantBuffs } from '../types/buffs';
+import { Character } from '../../types/game';
+import { BuffDebuff, CombatantBuffs } from '../../types/buffs';
 import { calculateModifiedStats } from './buffDebuffEngine';
 
 /**
@@ -92,10 +92,10 @@ export function getPersistentEffectsSummary(character: Character): {
   beneficialBuffs: BuffDebuff[];
 } {
   const effects = character.persistentEffects || { buffs: [], debuffs: [] };
-  
+
   // Identify critical debuffs (low health, major stat penalties)
-  const criticalDebuffs = effects.debuffs.filter(debuff => 
-    debuff.effect.percentageModifiers && 
+  const criticalDebuffs = effects.debuffs.filter(debuff =>
+    debuff.effect.percentageModifiers &&
     Object.values(debuff.effect.percentageModifiers).some(mod => mod && mod < -25)
   );
 
@@ -117,8 +117,8 @@ export function getPersistentEffectsSummary(character: Character): {
  * Calculate modified character stats including persistent effects
  */
 export function calculateCharacterStatsWithPersistentEffects(character: Character): Character {
-  if (!character.persistentEffects || 
-      (character.persistentEffects.buffs.length === 0 && character.persistentEffects.debuffs.length === 0)) {
+  if (!character.persistentEffects ||
+    (character.persistentEffects.buffs.length === 0 && character.persistentEffects.debuffs.length === 0)) {
     return character;
   }
 

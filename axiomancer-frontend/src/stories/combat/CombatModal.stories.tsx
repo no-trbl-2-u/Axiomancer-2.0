@@ -8,7 +8,7 @@ import { useGameStore } from '../../stores/gameStore';
 const mockGameStore = (combatState: NewCombatState | null) => {
   // Store original implementation
   const originalImplementation = useGameStore.getState;
-  
+
   // Mock the store
   beforeEach(() => {
     useGameStore.setState({
@@ -174,7 +174,7 @@ const createMockCombatState = (
 });
 
 const meta: Meta<typeof CombatModal> = {
-  title: 'Axiomance/CombatModal',
+  title: 'Combat/CombatModal',
   component: CombatModal,
   parameters: {
     layout: 'fullscreen',
@@ -204,7 +204,7 @@ type Story = StoryObj<typeof meta>;
 export const Round1ChoosingType: Story = {
   render: () => {
     const combatState = createMockCombatState('choosing_type', 1, 100, 80);
-    
+
     // Set the mock combat state
     useGameStore.setState({
       gameState: {
@@ -213,7 +213,7 @@ export const Round1ChoosingType: Story = {
       },
     });
 
-    return <CombatModal open={true} onOpenChange={() => {}} />;
+    return <CombatModal open={true} onOpenChange={() => { }} />;
   },
 };
 
@@ -232,7 +232,7 @@ export const ChoosingAction: Story = {
       },
     });
 
-    return <CombatModal open={true} onOpenChange={() => {}} />;
+    return <CombatModal open={true} onOpenChange={() => { }} />;
   },
 };
 
@@ -257,7 +257,7 @@ export const MidCombat: Story = {
       },
     });
 
-    return <CombatModal open={true} onOpenChange={() => {}} />;
+    return <CombatModal open={true} onOpenChange={() => { }} />;
   },
 };
 
@@ -310,7 +310,7 @@ export const NearFriendship: Story = {
       },
     });
 
-    return <CombatModal open={true} onOpenChange={() => {}} />;
+    return <CombatModal open={true} onOpenChange={() => { }} />;
   },
 };
 
@@ -335,7 +335,7 @@ export const PlayerLowHealth: Story = {
       },
     });
 
-    return <CombatModal open={true} onOpenChange={() => {}} />;
+    return <CombatModal open={true} onOpenChange={() => { }} />;
   },
 };
 
@@ -360,7 +360,7 @@ export const EnemyLowHealth: Story = {
       },
     });
 
-    return <CombatModal open={true} onOpenChange={() => {}} />;
+    return <CombatModal open={true} onOpenChange={() => { }} />;
   },
 };
 
@@ -420,7 +420,7 @@ export const BossFight: Story = {
       },
     });
 
-    return <CombatModal open={true} onOpenChange={() => {}} />;
+    return <CombatModal open={true} onOpenChange={() => { }} />;
   },
 };
 
@@ -478,6 +478,6 @@ export const LongBattle: Story = {
       },
     });
 
-    return <CombatModal open={true} onOpenChange={() => {}} />;
+    return <CombatModal open={true} onOpenChange={() => { }} />;
   },
 };

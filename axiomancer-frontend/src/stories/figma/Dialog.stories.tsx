@@ -1,18 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
 } from '../../components/figma/Dialog';
 import { Button } from '../../components/shared/Button';
 import { useState } from 'react';
 
 const meta = {
-  title: 'Axiomance/Dialog',
+  title: 'Shared/Dialog',
   component: Dialog,
   parameters: {
     layout: 'centered',
@@ -26,7 +26,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   render: () => {
     const [open, setOpen] = useState(false);
-    
+
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
@@ -59,7 +59,7 @@ export const Default: Story = {
 export const WithForm: Story = {
   render: () => {
     const [open, setOpen] = useState(false);
-    
+
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
@@ -77,8 +77,8 @@ export const WithForm: Story = {
               <label style={{ display: 'block', marginBottom: '0.5rem', color: '#CCCCCC' }}>
                 Name
               </label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Enter your name"
                 style={{
                   width: '100%',
@@ -94,8 +94,8 @@ export const WithForm: Story = {
               <label style={{ display: 'block', marginBottom: '0.5rem', color: '#CCCCCC' }}>
                 Email
               </label>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 placeholder="Enter your email"
                 style={{
                   width: '100%',
@@ -125,7 +125,7 @@ export const WithForm: Story = {
 export const AlertDialog: Story = {
   render: () => {
     const [open, setOpen] = useState(false);
-    
+
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
@@ -156,7 +156,7 @@ export const AlertDialog: Story = {
 export const LongContent: Story = {
   render: () => {
     const [open, setOpen] = useState(false);
-    
+
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
@@ -172,7 +172,7 @@ export const LongContent: Story = {
           <div style={{ maxHeight: '300px', overflowY: 'auto', padding: '1rem 0' }}>
             {Array.from({ length: 10 }, (_, i) => (
               <p key={i} style={{ color: '#FFFFFF', marginBottom: '1rem' }}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                 Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </p>
             ))}

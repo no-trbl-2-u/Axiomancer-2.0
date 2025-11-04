@@ -1,5 +1,5 @@
-import { BuffDebuff, BuffDebuffEffect, CombatantBuffs, StatusEffectName } from '../types/buffs';
-import { DerivedStats } from '../types/game';
+import { BuffDebuff, BuffDebuffEffect, CombatantBuffs, StatusEffectName } from '../../types/buffs';
+import { DerivedStats } from '../../types/game';
 
 /**
  * Buff/Debuff Engine - Handles all combat status effects
@@ -32,11 +32,11 @@ export function createBuffDebuff(
     currentStacks: 1,
     icon,
   };
-  
+
   if (maxStacks !== undefined) {
     buff.maxStacks = maxStacks;
   }
-  
+
   return buff;
 }
 
@@ -63,11 +63,11 @@ export const createHeartAttackDebuff = (damage: number, duration: number = 3, ch
       damageOnAttack: damage,
     }
   };
-  
+
   if (chanceToFade !== undefined) {
     effect.specialEffects!.chanceToFadePerTurn = chanceToFade;
   }
-  
+
   return createBuffDebuff(
     'heart_attack_guilt',
     'Emotional Guilt',
@@ -279,11 +279,11 @@ export function processBuffsDebuffs(
     },
     turnEffects,
   };
-  
+
   if (damageDealt > 0) {
     result.damageDealt = damageDealt;
   }
-  
+
   return result;
 }
 

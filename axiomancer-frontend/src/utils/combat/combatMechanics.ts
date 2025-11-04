@@ -1,10 +1,10 @@
-import { PhilosophicalAspect, CombatChoice, CombatRoundResult, Character, Enemy, BaseStats, DerivedStats, Skill } from '../types/game';
-import { CombatantBuffs } from '../types/buffs';
-import { calculateDerivedStats, calculateMaxHP, calculateMaxMP } from './statCalculations';
-import { fallacySpellbook } from './fallacySpellbook';
+import { PhilosophicalAspect, CombatChoice, CombatRoundResult, Character, Enemy, BaseStats, DerivedStats, Skill } from '../../types/game';
+import { CombatantBuffs } from '../../types/buffs';
+import { calculateDerivedStats, calculateMaxHP, calculateMaxMP } from '../statCalculations';
+import { fallacySpellbook } from '../fallacySpellbook';
 import { createMindAttackBuff, createHeartAttackDebuff, createReflectionBuff, createCounterArgumentBuff, createForesightBuff, applyBuffDebuff, calculateModifiedStats } from './buffDebuffEngine';
 import { processFallacyCombatEffects, applyStatusEffectsToCombatant, filterStatusEffectsByChance } from './combatEffectBridge';
-import { applyEquipmentBonuses } from './equipmentItems';
+import { applyEquipmentBonuses } from '../equipmentItems';
 import { getCombatVisualState } from './combatVisuals';
 
 /**
@@ -17,8 +17,8 @@ export interface CombatActionResult {
   buffsApplied: any[];
   debuffsApplied: any[];
   critical: boolean;
-  targetBuffsUpdated?: import('../types/game').CombatantBuffs;
-  attackerBuffsUpdated?: import('../types/game').CombatantBuffs;
+  targetBuffsUpdated?: import('../../types/game').CombatantBuffs;
+  attackerBuffsUpdated?: import('../../types/game').CombatantBuffs;
 }
 
 /**
@@ -240,8 +240,8 @@ export function executeFallacy(
   attacker: Character | Enemy,
   defender: Character | Enemy,
   fallacyId: string,
-  targetBuffs: import('../types/game').CombatantBuffs,
-  attackerBuffs: import('../types/game').CombatantBuffs,
+  targetBuffs: import('../../types/game').CombatantBuffs,
+  attackerBuffs: import('../../types/game').CombatantBuffs,
   hasAdvantage: boolean = false,
   defenderChoice?: { aspect: PhilosophicalAspect; action: string }
 ): CombatActionResult {
@@ -451,7 +451,7 @@ export function resolveCombatRound(
   const playerActionText = playerChoice.action.charAt(0).toUpperCase() + playerChoice.action.slice(1);
   const playerAspectText = playerChoice.aspect.charAt(0).toUpperCase() + playerChoice.aspect.slice(1);
   effects.push(`${player.name} chose ${playerAspectText} ${playerActionText}`);
-  
+
   // Show full enemy selection
   const enemyActionText = enemyChoice.action.charAt(0).toUpperCase() + enemyChoice.action.slice(1);
   const enemyAspectText = enemyChoice.aspect.charAt(0).toUpperCase() + enemyChoice.aspect.slice(1);
@@ -832,8 +832,8 @@ export function createEnemyByType(enemyType: string): Enemy {
 export class CombatStateManager {
   private player: Character;
   private enemy: Enemy;
-  private playerBuffs: import('../types/game').CombatantBuffs;
-  private enemyBuffs: import('../types/game').CombatantBuffs;
+  private playerBuffs: import('../../types/game').CombatantBuffs;
+  private enemyBuffs: import('../../types/game').CombatantBuffs;
   private round: number = 1;
   private agreeToDisagreeCounter: number = 0;
   private turnEffects: string[] = [];
@@ -930,8 +930,8 @@ export class CombatStateManager {
     winner?: 'player' | 'enemy' | 'agree_to_disagree' | undefined;
     turnEffects: string[];
     agreeToDisagreeRewards?: any;
-    playerBuffs: import('../types/game').CombatantBuffs;
-    enemyBuffs: import('../types/game').CombatantBuffs;
+    playerBuffs: import('../../types/game').CombatantBuffs;
+    enemyBuffs: import('../../types/game').CombatantBuffs;
     updatedPlayer: Character;
     updatedEnemy: Enemy;
   }> {
@@ -1137,8 +1137,8 @@ export class CombatStateManager {
       items?: any[];
       questItems?: any[];
     };
-    playerBuffs: import('../types/game').CombatantBuffs;
-    enemyBuffs: import('../types/game').CombatantBuffs;
+    playerBuffs: import('../../types/game').CombatantBuffs;
+    enemyBuffs: import('../../types/game').CombatantBuffs;
     updatedPlayer: Character;
     updatedEnemy: Enemy;
   } {
@@ -1217,8 +1217,8 @@ export class CombatStateManager {
   public getCurrentState(): {
     player: Character;
     enemy: Enemy;
-    playerBuffs: import('../types/game').CombatantBuffs;
-    enemyBuffs: import('../types/game').CombatantBuffs;
+    playerBuffs: import('../../types/game').CombatantBuffs;
+    enemyBuffs: import('../../types/game').CombatantBuffs;
     round: number;
     combatLog: string[];
     agreeToDisagreeCounter: number;

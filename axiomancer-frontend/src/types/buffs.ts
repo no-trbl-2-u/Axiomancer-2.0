@@ -37,6 +37,7 @@ export interface BuffDebuffEffect {
     fixedDamageNextTurn?: number;
     damageOnAttack?: number;
     reflection?: number;
+    foresight?: boolean;
     immuneToNextAttack?: boolean;
     chanceToFadePerTurn?: number;
   };

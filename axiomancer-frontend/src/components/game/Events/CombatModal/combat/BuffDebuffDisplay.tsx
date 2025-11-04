@@ -2,13 +2,14 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { theme } from '../../../../../styles/theme';
+import { BuffDebuff } from '../../../../../types/buffs';
 
-// interface BuffDebuffDisplayProps {
-//   buffs: BuffDebuff[];
-//   debuffs: BuffDebuff[];
-//   target: 'player' | 'enemy';
-//   className?: string;
-// }
+interface BuffDebuffDisplayProps {
+  buffs: BuffDebuff[];
+  debuffs: BuffDebuff[];
+  target: 'player' | 'enemy';
+  className?: string;
+}
 
 const Container = styled.div`
   display: flex;
@@ -145,7 +146,7 @@ const NoEffectsMessage = styled.div`
   height: 32px;
 `;
 
-const getEffectIcon = (effect: any): string => {
+const getEffectIcon = (effect: BuffDebuff): string => {
   // Use the icon from the status effect if available
   if (effect.icon) {
     return effect.icon;
@@ -173,17 +174,17 @@ const getEffectIcon = (effect: any): string => {
       // Fallback based on buff/debuff type with philosophical themes
       if (effect.type === 'buff') {
         return effect.name.toLowerCase().includes('mind') ? '🧠' :
-               effect.name.toLowerCase().includes('heart') ? '❤️' :
-               effect.name.toLowerCase().includes('body') ? '💪' : '✨';
+          effect.name.toLowerCase().includes('heart') ? '❤️' :
+            effect.name.toLowerCase().includes('body') ? '💪' : '✨';
       } else {
         return effect.name.toLowerCase().includes('mind') ? '🤯' :
-               effect.name.toLowerCase().includes('heart') ? '💔' :
-               effect.name.toLowerCase().includes('body') ? '🤕' : '💀';
+          effect.name.toLowerCase().includes('heart') ? '💔' :
+            effect.name.toLowerCase().includes('body') ? '🤕' : '💀';
       }
   }
 };
 
-const formatEffectDescription = (effect: any): string => {
+const formatEffectDescription = (effect: BuffDebuff): string => {
   let description = effect.description;
   const statEffects: string[] = [];
 
@@ -255,73 +256,73 @@ const formatEffectDescription = (effect: any): string => {
   return description;
 };
 
-// export const BuffDebuffDisplay: React.FC<BuffDebuffDisplayProps> = ({
-//   buffs,
-//   debuffs,
-//   target,
-//   className
-// }) => {
-//   const [hoveredEffect, setHoveredEffect] = React.useState<string | null>(null);
-//   const [tooltipPosition, setTooltipPosition] = React.useState({ x: 0, y: 0 });
+export const BuffDebuffDisplay: React.FC<BuffDebuffDisplayProps> = ({
+  buffs,
+  debuffs,
+  target,
+  className
+}) => {
+  const [hoveredEffect, setHoveredEffect] = React.useState<string | null>(null);
+  const [tooltipPosition, setTooltipPosition] = React.useState({ x: 0, y: 0 });
 
-//   const activeBuffs = buffs.filter(buff => buff.remainingTurns > 0);
-//   const activeDebuffs = debuffs.filter(debuff => debuff.remainingTurns > 0);
-//   const activeEffects = [...activeBuffs, ...activeDebuffs];
-  
-//   const buffEffects = activeBuffs;
-//   const debuffEffects = activeDebuffs;
+  const activeBuffs = buffs.filter(buff => buff.remainingTurns > 0);
+  const activeDebuffs = debuffs.filter(debuff => debuff.remainingTurns > 0);
+  const activeEffects = [...activeBuffs, ...activeDebuffs];
 
-//   return (
-//     <Container className={className}>
-//       <Header>
-//         {target === 'player' ? 'Your Effects' : 'Enemy Effects'}
-//         {activeEffects.length > 0 && ` (${activeEffects.length})`}
-//       </Header>
+  const buffEffects = activeBuffs;
+  const debuffEffects = activeDebuffs;
 
-//       {activeEffects.length === 0 ? (
-//         <NoEffectsMessage>
-//           No active effects
-//         </NoEffectsMessage>
-//       ) : (
-//         <EffectsList>
-//           {[...buffEffects, ...debuffEffects].map((effect) => {
-//             return (
-//               <EffectIcon
-//                 key={effect.id}
-//                 type={effect.type}
-//                 onMouseEnter={(e) => {
-//                   const rect = e.currentTarget.getBoundingClientRect();
-//                   setTooltipPosition({
-//                     x: rect.left + rect.width / 2,
-//                     y: rect.top - 10
-//                   });
-//                   setHoveredEffect(effect.id);
-//                 }}
-//                 onMouseLeave={() => setHoveredEffect(null)}
-//               >
-//                 {getEffectIcon(effect)}
-//                 <div className="duration">{effect.remainingTurns}</div>
+  return (
+    <Container className={className}>
+      <Header>
+        {target === 'player' ? 'Your Effects' : 'Enemy Effects'}
+        {activeEffects.length > 0 && ` (${activeEffects.length})`}
+      </Header>
 
-//                 {hoveredEffect === effect.id && createPortal(
-//                   <Tooltip 
-//                     show={true}
-//                     style={{
-//                       left: tooltipPosition.x,
-//                       top: tooltipPosition.y,
-//                     }}
-//                   >
-//                     <div className="tooltip-name">{effect.name}</div>
-//                     <div className="tooltip-description" style={{ whiteSpace: 'pre-line' }}>
-//                       {formatEffectDescription(effect)}
-//                     </div>
-//                   </Tooltip>,
-//                   document.body
-//                 )}
-//               </EffectIcon>
-//             );
-//           })}
-//         </EffectsList>
-//       )}
-//     </Container>
-//   );
-// };
+      {activeEffects.length === 0 ? (
+        <NoEffectsMessage>
+          No active effects
+        </NoEffectsMessage>
+      ) : (
+        <EffectsList>
+          {[...buffEffects, ...debuffEffects].map((effect) => {
+            return (
+              <EffectIcon
+                key={effect.id}
+                type={effect.type}
+                onMouseEnter={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setTooltipPosition({
+                    x: rect.left + rect.width / 2,
+                    y: rect.top - 10
+                  });
+                  setHoveredEffect(effect.id);
+                }}
+                onMouseLeave={() => setHoveredEffect(null)}
+              >
+                {getEffectIcon(effect)}
+                <div className="duration">{effect.remainingTurns}</div>
+
+                {hoveredEffect === effect.id && createPortal(
+                  <Tooltip
+                    show={true}
+                    style={{
+                      left: tooltipPosition.x,
+                      top: tooltipPosition.y,
+                    }}
+                  >
+                    <div className="tooltip-name">{effect.name}</div>
+                    <div className="tooltip-description" style={{ whiteSpace: 'pre-line' }}>
+                      {formatEffectDescription(effect)}
+                    </div>
+                  </Tooltip>,
+                  document.body
+                )}
+              </EffectIcon>
+            );
+          })}
+        </EffectsList>
+      )}
+    </Container>
+  );
+};

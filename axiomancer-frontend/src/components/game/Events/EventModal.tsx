@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { theme } from '../../../styles/theme';
 import { useGameStore } from '../../../stores/gameStore';
 import { saveCharacter } from '../../../utils/characterSave';
-import { processEventEffectReduction, clearAllPersistentEffects } from '../../../utils/persistentEffects';
+import { processEventEffectReduction, clearAllPersistentEffects } from '../../../utils/combat/persistentEffects';
 import { CombatModal } from './CombatModal/CombatModal';
 
 type EventType = 'combat' | 'moral' | 'gathering' | 'rest';

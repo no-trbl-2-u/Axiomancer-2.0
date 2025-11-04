@@ -11,7 +11,7 @@ import {
   generateEnemyDecision,
   createBattleLogEntry,
   checkCombatEnd,
-} from '../../../../utils/newCombatMechanics';
+} from '../../../../utils/combat/newCombatMechanics';
 import { CombatType, CombatActionType, CombatDecision } from '../../../../types/newCombat';
 
 type ActionView = 'primary' | 'secondary';

@@ -5,7 +5,7 @@
  * Rock-Paper-Scissors: Heart > Body > Mind > Heart
  */
 
-import { Character, Enemy } from '../types/game';
+import { Character, Enemy } from '../../types/game';
 import {
   CombatType,
   CombatActionType,
@@ -14,7 +14,7 @@ import {
   CombatResolutionResult,
   BattleLogEntry,
   NewCombatState
-} from '../types/newCombat';
+} from '../../types/newCombat';
 
 /**
  * Determine type advantage

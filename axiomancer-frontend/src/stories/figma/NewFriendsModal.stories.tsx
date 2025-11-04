@@ -4,7 +4,7 @@ import { Button } from '../../components/shared/Button';
 import { useState } from 'react';
 
 const meta = {
-  title: 'Axiomance/NewFriendsModal',
+  title: 'Combat/NewFriendsModal',
   component: NewFriendsModal,
   parameters: {
     layout: 'centered',
@@ -24,12 +24,12 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   render: (args) => {
     const [open, setOpen] = useState(false);
-    
+
     return (
       <>
         <Button onClick={() => setOpen(true)}>Show New Friends Modal</Button>
-        <NewFriendsModal 
-          open={open} 
+        <NewFriendsModal
+          open={open}
           onOpenChange={setOpen}
           enemyName={args.enemyName || 'Socrates'}
         />
@@ -45,13 +45,13 @@ export const WithDifferentEnemies: Story = {
   render: () => {
     const [open, setOpen] = useState(false);
     const [enemyName, setEnemyName] = useState('Plato');
-    
+
     const enemies = ['Plato', 'Aristotle', 'Descartes', 'Nietzsche', 'Confucius'];
-    
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
         {enemies.map((name) => (
-          <Button 
+          <Button
             key={name}
             onClick={() => {
               setEnemyName(name);
@@ -61,8 +61,8 @@ export const WithDifferentEnemies: Story = {
             Befriend {name}
           </Button>
         ))}
-        <NewFriendsModal 
-          open={open} 
+        <NewFriendsModal
+          open={open}
           onOpenChange={setOpen}
           enemyName={enemyName}
         />
@@ -74,9 +74,9 @@ export const WithDifferentEnemies: Story = {
 export const AlwaysOpen: Story = {
   render: (args) => {
     return (
-      <NewFriendsModal 
-        open={true} 
-        onOpenChange={() => {}}
+      <NewFriendsModal
+        open={true}
+        onOpenChange={() => { }}
         enemyName={args.enemyName || 'Aristotle'}
       />
     );

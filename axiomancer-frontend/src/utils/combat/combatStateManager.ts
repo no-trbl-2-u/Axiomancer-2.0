@@ -1,9 +1,9 @@
-import { Character, Enemy, PhilosophicalAspect, CombatAction } from '../types/game';
-import { CombatState, BattleLogEntry, TurnResolution, CombatResolutionStep } from '../types/combatState';
-import { BuffDebuff, CombatantBuffs } from '../types/buffs';
+import { Character, Enemy, PhilosophicalAspect, CombatAction } from '../../types/game';
+import { CombatState, BattleLogEntry, TurnResolution, CombatResolutionStep } from '../../types/combatState';
+import { BuffDebuff, CombatantBuffs } from '../../types/buffs';
 import { calculateModifiedStats, processBuffsDebuffs } from './buffDebuffEngine';
 import { executeCombatAction, executeFallacy, determineAspectWinner, generateEnemyChoice } from './combatMechanics';
-import { fallacySpellbook } from './fallacySpellbook';
+import { fallacySpellbook } from '../fallacySpellbook';
 
 /**
  * Master Combat State Manager
@@ -25,13 +25,13 @@ export class MasterCombatStateManager {
   } = {};
 
   constructor(player: Character, enemy: Enemy) {
-    console.log('🏗️ MasterCombatStateManager constructor called with:', { 
-      playerName: player?.name, 
+    console.log('🏗️ MasterCombatStateManager constructor called with:', {
+      playerName: player?.name,
       enemyName: enemy?.name,
       playerHealth: player?.health,
       enemyHealth: enemy?.health
     });
-    
+
     this.combatState = this.initializeCombatState(player, enemy);
     console.log('✅ MasterCombatStateManager initialized successfully');
   }
@@ -98,21 +98,21 @@ export class MasterCombatStateManager {
     selectedSkill?: string;
   }): Promise<TurnResolution> {
     console.log('🎮 MasterCombatStateManager.executeTurn called with:', playerChoice);
-    
+
     // Phase 1: Generate enemy choice
     const enemyChoice = generateEnemyChoice(this.combatState.originalEnemy, []);
     console.log('🤖 Enemy choice generated:', enemyChoice);
-    
+
     // Phase 2: Store choices and determine advantage
     const aspectResult = determineAspectWinner(playerChoice.aspect, enemyChoice.aspect);
     const advantage = aspectResult === 'tie' ? 'none' : aspectResult;
-    
+
     this.combatState.currentPhaseData = {
       playerChoice,
       enemyChoice,
       advantage,
     };
-    
+
     console.log('⚖️ Advantage determined:', this.combatState.currentPhaseData.advantage);
     this.combatState.phase = 'resolution';
 
@@ -120,24 +120,24 @@ export class MasterCombatStateManager {
     console.log('🔄 Resolving simultaneous actions...');
     const resolution = await this.resolveSimultaneousActions();
     console.log('✅ Resolution calculated:', resolution);
-    
+
     // Phase 4: Execute visual presentation with delays
     console.log('🎬 Executing visual resolution...');
     await this.executeVisualResolution(resolution);
-    
+
     // Phase 5: Process end of turn
     console.log('🔚 Processing end of turn...');
     await this.processEndOfTurn();
-    
+
     // Phase 6: Check for combat end
     const combatResult = this.checkCombatEnd();
     console.log('🏁 Combat end check:', combatResult);
-    
+
     if (combatResult.ended) {
       this.combatState.phase = 'ended';
       resolution.combatEnded = true;
       resolution.winner = combatResult.winner || 'player'; // Default fallback
-      
+
       // Add result to battle log
       if (resolution.battleLogEntry && combatResult.resultText) {
         resolution.battleLogEntry.result = combatResult.resultText;
@@ -211,27 +211,27 @@ export class MasterCombatStateManager {
     if (playerChoice.action === 'attack' || playerChoice.action === 'special' || playerChoice.action === 'skill') {
       const result = (playerChoice.action === 'special' || playerChoice.action === 'skill') && playerChoice.selectedSkill
         ? executeFallacy(
-            { ...this.combatState.originalPlayer, derivedStats: playerModifiedStats },
-            { ...this.combatState.originalEnemy, derivedStats: enemyModifiedStats },
-            playerChoice.selectedSkill,
-            { buffs: this.combatState.enemy.buffs, debuffs: this.combatState.enemy.debuffs },
-            { buffs: this.combatState.player.buffs, debuffs: this.combatState.player.debuffs },
-            advantage === 'player'
-          )
+          { ...this.combatState.originalPlayer, derivedStats: playerModifiedStats },
+          { ...this.combatState.originalEnemy, derivedStats: enemyModifiedStats },
+          playerChoice.selectedSkill,
+          { buffs: this.combatState.enemy.buffs, debuffs: this.combatState.enemy.debuffs },
+          { buffs: this.combatState.player.buffs, debuffs: this.combatState.player.debuffs },
+          advantage === 'player'
+        )
         : executeCombatAction(
-            { ...this.combatState.originalPlayer, derivedStats: playerModifiedStats },
-            { ...this.combatState.originalEnemy, derivedStats: enemyModifiedStats },
-            playerChoice.aspect,
-            playerChoice.action,
-            advantage === 'player',
-            { buffs: this.combatState.player.buffs, debuffs: this.combatState.player.debuffs },
-            { buffs: this.combatState.enemy.buffs, debuffs: this.combatState.enemy.debuffs }
-          );
+          { ...this.combatState.originalPlayer, derivedStats: playerModifiedStats },
+          { ...this.combatState.originalEnemy, derivedStats: enemyModifiedStats },
+          playerChoice.aspect,
+          playerChoice.action,
+          advantage === 'player',
+          { buffs: this.combatState.player.buffs, debuffs: this.combatState.player.debuffs },
+          { buffs: this.combatState.enemy.buffs, debuffs: this.combatState.enemy.debuffs }
+        );
 
       if (result.hit) {
         enemyDamage = result.damage;
         playerEffects.push(...result.effects);
-        
+
         // Apply new buffs/debuffs (they take effect next turn)
         result.buffsApplied?.forEach(buff => {
           this.combatState.player.buffs.push(buff);
@@ -256,27 +256,27 @@ export class MasterCombatStateManager {
     if (enemyChoice.action === 'attack' || enemyChoice.action === 'special') {
       const result = enemyChoice.action === 'special' && enemyChoice.selectedSkill
         ? executeFallacy(
-            { ...this.combatState.originalEnemy, derivedStats: enemyModifiedStats },
-            { ...this.combatState.originalPlayer, derivedStats: playerModifiedStats },
-            enemyChoice.selectedSkill,
-            { buffs: this.combatState.player.buffs, debuffs: this.combatState.player.debuffs },
-            { buffs: this.combatState.enemy.buffs, debuffs: this.combatState.enemy.debuffs },
-            advantage === 'enemy'
-          )
+          { ...this.combatState.originalEnemy, derivedStats: enemyModifiedStats },
+          { ...this.combatState.originalPlayer, derivedStats: playerModifiedStats },
+          enemyChoice.selectedSkill,
+          { buffs: this.combatState.player.buffs, debuffs: this.combatState.player.debuffs },
+          { buffs: this.combatState.enemy.buffs, debuffs: this.combatState.enemy.debuffs },
+          advantage === 'enemy'
+        )
         : executeCombatAction(
-            { ...this.combatState.originalEnemy, derivedStats: enemyModifiedStats },
-            { ...this.combatState.originalPlayer, derivedStats: playerModifiedStats },
-            enemyChoice.aspect,
-            enemyChoice.action,
-            advantage === 'enemy',
-            { buffs: this.combatState.enemy.buffs, debuffs: this.combatState.enemy.debuffs },
-            { buffs: this.combatState.player.buffs, debuffs: this.combatState.player.debuffs }
-          );
+          { ...this.combatState.originalEnemy, derivedStats: enemyModifiedStats },
+          { ...this.combatState.originalPlayer, derivedStats: playerModifiedStats },
+          enemyChoice.aspect,
+          enemyChoice.action,
+          advantage === 'enemy',
+          { buffs: this.combatState.enemy.buffs, debuffs: this.combatState.enemy.debuffs },
+          { buffs: this.combatState.player.buffs, debuffs: this.combatState.player.debuffs }
+        );
 
       if (result.hit) {
         playerDamage = result.damage;
         enemyEffects.push(...result.effects);
-        
+
         // Apply new buffs/debuffs (they take effect next turn)
         result.buffsApplied?.forEach(buff => {
           this.combatState.enemy.buffs.push(buff);
@@ -341,20 +341,20 @@ export class MasterCombatStateManager {
     // Create battle log entry
     const decisions = `${this.formatChoice(playerChoice)} vs. ${this.formatChoice(enemyChoice)}`;
     const logParts: string[] = [];
-    
+
     if (playerDamage > 0) {
       logParts.push(`Player takes ${playerDamage} damage`);
     }
     if (enemyDamage > 0) {
       logParts.push(`Enemy takes ${enemyDamage} damage`);
     }
-    
+
     // Add status effects to log
     const newPlayerEffects = this.combatState.player.buffs.concat(this.combatState.player.debuffs)
       .filter(effect => effect.remainingTurns === effect.duration); // New effects
     const newEnemyEffects = this.combatState.enemy.buffs.concat(this.combatState.enemy.debuffs)
       .filter(effect => effect.remainingTurns === effect.duration); // New effects
-    
+
     if (newPlayerEffects.length > 0) {
       logParts.push(`Player gains ${newPlayerEffects.map(e => e.name).join(', ')}`);
     }
@@ -443,7 +443,7 @@ export class MasterCombatStateManager {
     // Check for damage-dealing debuffs on player
     this.combatState.player.debuffs.forEach(debuff => {
       if (debuff.effect.specialEffects?.damageOnAttack) {
-        const damage = Math.max(1, debuff.effect.specialEffects.damageOnAttack - 
+        const damage = Math.max(1, debuff.effect.specialEffects.damageOnAttack -
           this.combatState.originalPlayer.derivedStats.ailmentDefense);
         steps.push({
           type: 'status_effect',
@@ -458,7 +458,7 @@ export class MasterCombatStateManager {
     // Check for damage-dealing debuffs on enemy
     this.combatState.enemy.debuffs.forEach(debuff => {
       if (debuff.effect.specialEffects?.damageOnAttack) {
-        const damage = Math.max(1, debuff.effect.specialEffects.damageOnAttack - 
+        const damage = Math.max(1, debuff.effect.specialEffects.damageOnAttack -
           this.combatState.originalEnemy.derivedStats.ailmentDefense);
         steps.push({
           type: 'status_effect',
@@ -501,7 +501,7 @@ export class MasterCombatStateManager {
           currentStacks: 1,
           icon: '💪'
         });
-        
+
         // Reflection buff
         const reflectDamage = Math.floor(stats.physicalAttack * (hasAdvantage ? 0.5 : 0.25));
         buffs.push({
@@ -517,7 +517,7 @@ export class MasterCombatStateManager {
           icon: '🛡️'
         });
         break;
-        
+
       case 'mind':
         // Mind Defense: 2x Mind Defense, 0.5x Physical Defense
         buffs.push({
@@ -537,7 +537,7 @@ export class MasterCombatStateManager {
           currentStacks: 1,
           icon: '🧠'
         });
-        
+
         // Counter-argument buff
         const counterBonus = Math.floor(stats.mindAttack * (hasAdvantage ? 0.5 : 0.25));
         buffs.push({
@@ -553,7 +553,7 @@ export class MasterCombatStateManager {
           icon: '🎯'
         });
         break;
-        
+
       case 'heart':
         // Heart Defense: 2x Ailment Defense, 0.5x Mind Defense
         buffs.push({
@@ -573,7 +573,7 @@ export class MasterCombatStateManager {
           currentStacks: 1,
           icon: '❤️'
         });
-        
+
         // Foresight buff
         const visionType = hasAdvantage ? 'both' : 'attack';
         buffs.push({
@@ -605,7 +605,7 @@ export class MasterCombatStateManager {
         resultText: 'Mutual defeat - random winner determined'
       };
     }
-    
+
     if (this.combatState.player.health <= 0) {
       return {
         ended: true,
@@ -613,7 +613,7 @@ export class MasterCombatStateManager {
         resultText: 'Defeat! Your argument crumbled under pressure.'
       };
     }
-    
+
     if (this.combatState.enemy.health <= 0) {
       const xpGained = 150; // Fixed 150 XP as per requirements
       return {
@@ -652,7 +652,7 @@ export class MasterCombatStateManager {
    */
   private formatChoice(choice: { aspect: PhilosophicalAspect; action: CombatAction; selectedSkill?: string }): string {
     const aspect = choice.aspect.charAt(0).toUpperCase() + choice.aspect.slice(1);
-    const action = choice.action === 'special' && choice.selectedSkill 
+    const action = choice.action === 'special' && choice.selectedSkill
       ? fallacySpellbook[choice.selectedSkill]?.name || 'Special'
       : choice.action.charAt(0).toUpperCase() + choice.action.slice(1);
     return `${aspect} ${action}`;
