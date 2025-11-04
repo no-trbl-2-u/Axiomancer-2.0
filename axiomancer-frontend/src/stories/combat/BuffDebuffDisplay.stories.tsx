@@ -146,62 +146,7 @@ const mockDebuffs: BuffDebuff[] = [
     },
 ];
 
-export const PlayerWithBuffsAndDebuffs: Story = {
-    args: {
-        buffs: mockBuffs,
-        debuffs: mockDebuffs,
-        target: 'player',
-    },
-};
-
-export const EnemyWithBuffsAndDebuffs: Story = {
-    args: {
-        buffs: mockBuffs,
-        debuffs: mockDebuffs,
-        target: 'enemy',
-    },
-};
-
-export const PlayerBuffsOnly: Story = {
-    args: {
-        buffs: mockBuffs,
-        debuffs: [],
-        target: 'player',
-    },
-};
-
-export const PlayerDebuffsOnly: Story = {
-    args: {
-        buffs: [],
-        debuffs: mockDebuffs,
-        target: 'player',
-    },
-};
-
-export const NoActiveEffects: Story = {
-    args: {
-        buffs: [],
-        debuffs: [],
-        target: 'player',
-    },
-};
-
-export const SingleBuff: Story = {
-    args: {
-        buffs: [mockBuffs[0]],
-        debuffs: [],
-        target: 'player',
-    },
-};
-
-export const SingleDebuff: Story = {
-    args: {
-        buffs: [],
-        debuffs: [mockDebuffs[0]],
-        target: 'enemy',
-    },
-};
-
+/* Only need to see that they render somewhere with their tooltip */
 export const ManyEffects: Story = {
     args: {
         buffs: [
