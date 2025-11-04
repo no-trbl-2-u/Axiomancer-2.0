@@ -1,8 +1,6 @@
+
 /**
- * New Combat Mechanics System
- * Based on new-combat-mechanics.md
- *
- * Rock-Paper-Scissors: Heart > Body > Mind > Heart
+* Rock - Paper - Scissors: Heart > Body > Mind > Heart
  */
 
 import { Character, Enemy } from '../../types/game';
@@ -12,8 +10,7 @@ import {
   CombatDecision,
   AdvantageType,
   CombatResolutionResult,
-  BattleLogEntry,
-  NewCombatState
+  BattleLogEntry
 } from '../../types/combat';
 
 /**
@@ -396,10 +393,9 @@ export function generateEnemyDecision(): CombatDecision {
   const types: CombatType[] = ['heart', 'body', 'mind'];
   const actions: CombatActionType[] = ['attack', 'defend'];
 
-  const randomType = types[Math.floor(Math.random() * types.length)];
-  const randomAction = actions[Math.floor(Math.random() * actions.length)];
+  const randomType = types[Math.floor(Math.random() * types.length)] as CombatType;
+  const randomAction = actions[Math.floor(Math.random() * actions.length)] as CombatActionType;
 
-  // TODO: Check these types
   return {
     type: randomType,
     action: randomAction,
@@ -417,15 +413,11 @@ export function createBattleLogEntry(
   playerHPAfter: number,
   enemyHPAfter: number
 ): BattleLogEntry {
-  return {
+  const entry: BattleLogEntry = {
     round,
     playerDecision,
     enemyDecision,
     advantage: resolution.advantage,
-    playerRoll: resolution.playerRoll,
-    playerRollDetails: resolution.playerRollDetails,
-    enemyRoll: resolution.enemyRoll,
-    enemyRollDetails: resolution.enemyRollDetails,
     damageToPlayer: resolution.damageToPlayer,
     damageToEnemy: resolution.damageToEnemy,
     playerHPAfter,
@@ -433,9 +425,25 @@ export function createBattleLogEntry(
     result: resolution.result,
     timestamp: Date.now(),
   };
+
+  // Only add optional properties if they're defined
+  if (resolution.playerRoll !== undefined) {
+    entry.playerRoll = resolution.playerRoll;
+  }
+  if (resolution.playerRollDetails !== undefined) {
+    entry.playerRollDetails = resolution.playerRollDetails;
+  }
+  if (resolution.enemyRoll !== undefined) {
+    entry.enemyRoll = resolution.enemyRoll;
+  }
+  if (resolution.enemyRollDetails !== undefined) {
+    entry.enemyRollDetails = resolution.enemyRollDetails;
+  }
+
+  return entry;
 }
 
-/**
+/**x
  * Check if combat should end
  * Returns: 'player_win' | 'enemy_win' | 'friendship' | 'continue'
  */
