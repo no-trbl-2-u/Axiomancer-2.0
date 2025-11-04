@@ -1,5 +1,6 @@
 import { Character, Enemy, PhilosophicalAspect, CombatAction } from '../types/game';
 import { CombatState, BattleLogEntry, TurnResolution, CombatResolutionStep } from '../types/combatState';
+import { BuffDebuff, CombatantBuffs } from '../types/buffs';
 import { calculateModifiedStats, processBuffsDebuffs } from './buffDebuffEngine';
 import { executeCombatAction, executeFallacy, determineAspectWinner, generateEnemyChoice } from './combatMechanics';
 import { fallacySpellbook } from './fallacySpellbook';

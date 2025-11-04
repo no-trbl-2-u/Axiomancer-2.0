@@ -37,34 +37,6 @@ export interface DerivedStats {
   luck: number;
 }
 
-export type EquipmentSlot = 'helmet' | 'bodyArmor' | 'gloves' | 'boots' | 'leftHand' | 'rightHand' | 'leftRing' | 'rightRing' | 'bracelet' | 'amulet' | 'cloak';
-
-export interface EquippedItems {
-  helmet?: Equipment;
-  bodyArmor?: Equipment;
-  gloves?: Equipment;
-  boots?: Equipment;
-  leftHand?: Equipment;
-  rightHand?: Equipment;
-  leftRing?: Equipment;
-  rightRing?: Equipment;
-  bracelet?: Equipment;
-  amulet?: Equipment;
-  cloak?: Equipment;
-}
-
-/**
- * @planned Future feature for categorized inventory
- * Currently unused - inventory uses flat Item[] array
- */
-export interface InventoryCategories {
-  equipment: Item[];
-  consumables: Item[];
-  materials: Item[];
-  keyItems: Item[];
-  questItems: Item[];
-}
-
 export interface Character {
   id: string;
   name: string;
@@ -86,8 +58,6 @@ export interface Character {
     body: Skill[];
     mind: Skill[];
   };
-  inventory: Item[];
-  equippedItems?: EquippedItems;
 }
 
 // TODO: Refactor after I revisit skills and status effects
@@ -119,26 +89,6 @@ export interface Skill {
   };
 }
 
-export interface Equipment {
-  id: string;
-  name: string;
-  type: EquipmentType;
-  subtype?: 'ring' | 'amulet' | 'bracelet';
-  stats: Partial<Character['baseStats']>;
-  special?: string;
-  icon: string;
-}
-
-export interface Item {
-  id: string;
-  name: string;
-  description: string;
-  type: ItemType;
-  value: number;
-  stackable: boolean;
-  quantity: number;
-  icon: string;
-}
 
 export interface GameLocation {
   id: string;
@@ -438,6 +388,4 @@ export interface QuestObjective {
   requirement: ChoiceRequirement;
 }
 
-export type EquipmentType = 'weapon' | 'armor' | 'accessory' | 'consumable';
-export type ItemType = 'weapon' | 'armor' | 'consumable' | 'crafting' | 'quest' | 'misc';
 export type GameScreen = 'exploration' | 'combat' | 'character' | 'inventory' | 'dialogue' | 'map' | 'skills' | 'node_travel' | 'fishing' | 'building';

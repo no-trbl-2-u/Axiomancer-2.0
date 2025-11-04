@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, CharacterPortrait, BaseStats, Equipment, EquipmentSlot, Skill, PhilosophicalAspect } from '../types/game';
+import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, CharacterPortrait, BaseStats, Skill, PhilosophicalAspect } from '../types/game';
+import { Equipment, EquipmentSlot, EquippedItems } from '../types/equipment';
 import { initialQuests } from '../utils/questSystem';
 import { getEnemyById, getRandomEnemyBasedOnMap } from '../components/game/Events/CombatModal/enemyHelper';
 import { loadCharacter, saveCharacter } from '../utils/characterSave';

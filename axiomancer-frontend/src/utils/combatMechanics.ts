@@ -1,4 +1,5 @@
-import { PhilosophicalAspect, CombatChoice, CombatRoundResult, Character, Enemy, BaseStats, DerivedStats, Skill, CombatantBuffs } from '../types/game';
+import { PhilosophicalAspect, CombatChoice, CombatRoundResult, Character, Enemy, BaseStats, DerivedStats, Skill } from '../types/game';
+import { CombatantBuffs } from '../types/buffs';
 import { calculateDerivedStats, calculateMaxHP, calculateMaxMP } from './statCalculations';
 import { fallacySpellbook } from './fallacySpellbook';
 import { createMindAttackBuff, createHeartAttackDebuff, createReflectionBuff, createCounterArgumentBuff, createForesightBuff, applyBuffDebuff, calculateModifiedStats } from './buffDebuffEngine';

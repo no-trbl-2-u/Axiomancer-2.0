@@ -1,8 +1,9 @@
-import { BaseStats, DerivedStats, Skill, Equipment, Item, PhilosophicalAspect } from '../../../../types/game';
+import { BaseStats, DerivedStats, Skill, PhilosophicalAspect } from '../../../../types/game';
 import { calculateDerivedStats, calculateMaxHP, calculateMaxMP } from '../../../../utils/statCalculations';
 
 /**
  * Enemy Type Definition
+ * Note: loot property removed - handle loot logic in combat-specific utilities
  */
 export interface Enemy {
     id: string;
@@ -15,7 +16,6 @@ export interface Enemy {
     baseStats: BaseStats;
     derivedStats: DerivedStats;
     skills: Skill[];
-    loot?: Item[]; // Items dropped when defeated
     enemyTier?: 'normal' | 'elite' | 'boss';
     image?: string;
     description: string;
@@ -42,7 +42,6 @@ function createEnemy(baseStats: BaseStats, enemyData: Partial<Enemy>): Enemy {
         mana: maxMP,
         maxMana: maxMP,
         skills: [],
-        loot: [],
         locations: [],
         ...enemyData,
     } as Enemy;
