@@ -1,6 +1,7 @@
-import { BuffDebuff, BuffDebuffEffect, CombatantBuffs, StatusEffectName } from '../../types/buffs';
-import { DerivedStats } from '../../types/game';
+import { BuffDebuff, BuffDebuffEffect, CombatantBuffs, StatusEffectName } from '../../../types/buffs';
+import { DerivedStats } from '../../../types/game';
 
+// TODO: Update this, but bridge will be similar to combatEffectBridge.ts
 /**
  * Buff/Debuff Engine - Handles all combat status effects
  * Following Combat.md specifications for visual tracking and effects

@@ -3,7 +3,6 @@ import styled from '@emotion/styled';
 import { theme } from '../../../styles/theme';
 import { useGameStore } from '../../../stores/gameStore';
 import { saveCharacter } from '../../../utils/characterSave';
-import { processEventEffectReduction, clearAllPersistentEffects } from '../../../utils/combat/persistentEffects';
 import { CombatModal } from './CombatModal/CombatModal';
 
 type EventType = 'combat' | 'moral' | 'gathering' | 'rest';
@@ -453,8 +452,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
     }
 
     // Process persistent effect duration reduction for non-combat events
-    const characterWithReducedEffects = processEventEffectReduction(gameState.character);
-    Object.assign(updates, characterWithReducedEffects);
+    // const characterWithReducedEffects = processEventEffectReduction(gameState.character);
+    // Object.assign(updates, characterWithReducedEffects);
 
     if (Object.keys(updates).length > 0) {
       updateCharacter(updates);
@@ -469,9 +468,12 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
     setEventResult(`You gathered ${resource.amount} ${resource.name}!`);
     setEventCompleted(true);
 
+    // TODO: Set item into inventory
+
+    // TODO: decrement any effects on player
     // Process persistent effect duration reduction for non-combat events
-    const characterWithReducedEffects = processEventEffectReduction(gameState.character);
-    updateCharacter(characterWithReducedEffects);
+    // const characterWithReducedEffects = processEventEffectReduction(gameState.character);
+    // updateCharacter(characterWithReducedEffects);
   };
 
   // TODO: Abstract to its own file
@@ -484,10 +486,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
       const restoredMp = Math.floor(gameState.character.maxMana * 0.5);
 
       // Clear all persistent effects (as per requirements)
-      const characterWithClearedEffects = clearAllPersistentEffects(gameState.character);
+      // const characterWithClearedEffects = clearAllPersistentEffects(gameState.character);
 
       updateCharacter({
-        ...characterWithClearedEffects,
+        // ...characterWithClearedEffects,
         health: Math.min(gameState.character.maxHealth, gameState.character.health + restoredHp),
         mana: Math.min(gameState.character.maxMana, gameState.character.mana + restoredMp)
       });
@@ -500,10 +502,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, eventType, onClo
       }
     } else {
       // Full rest - clears all effects and fully restores
-      const characterWithClearedEffects = clearAllPersistentEffects(gameState.character);
+      // const characterWithClearedEffects = clearAllPersistentEffects(gameState.character);
 
       updateCharacter({
-        ...characterWithClearedEffects,
+        // ...characterWithClearedEffects,
         health: gameState.character.maxHealth,
         mana: gameState.character.maxMana
       });

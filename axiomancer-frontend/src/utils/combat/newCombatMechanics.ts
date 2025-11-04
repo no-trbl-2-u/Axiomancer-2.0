@@ -14,7 +14,7 @@ import {
   CombatResolutionResult,
   BattleLogEntry,
   NewCombatState
-} from '../../types/newCombat';
+} from '../../types/combat';
 
 /**
  * Determine type advantage

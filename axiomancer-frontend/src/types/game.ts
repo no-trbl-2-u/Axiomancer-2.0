@@ -45,13 +45,19 @@ export interface Character {
   experienceToNextLevel: number;
   health: number;
   maxHealth: number;
-  mana: number;
-  maxMana: number;
   portrait?: CharacterPortrait;
   baseStats: BaseStats;
   derivedStats: DerivedStats;
   availableStatPoints: number;
   unassignedStatPoints: number;
+
+  // TODO:Implement these feautres 
+  mana: number;
+  maxMana: number;
+  persistentEffects?: {
+    debuffs: [],
+    buffs: []
+  };
   availableSkills: Skill[];
   equippedSkills: {
     heart: Skill[];

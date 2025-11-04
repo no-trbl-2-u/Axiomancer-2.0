@@ -12,7 +12,7 @@ import {
   createBattleLogEntry,
   checkCombatEnd,
 } from '../../../../utils/combat/newCombatMechanics';
-import { CombatType, CombatActionType, CombatDecision } from '../../../../types/newCombat';
+import { CombatType, CombatActionType, CombatDecision } from '../../../../types/combat';
 
 type ActionView = 'primary' | 'secondary';
 type PrimaryAction = 'Body' | 'Mind' | 'Heart' | 'Item' | 'Flee';
