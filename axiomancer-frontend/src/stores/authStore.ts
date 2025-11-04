@@ -13,7 +13,6 @@ interface AuthStore extends AuthState {
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   setLoading: (loading: boolean) => void;
-  initAuth: () => void;
 }
 
 /**
@@ -28,34 +27,11 @@ export const useAuthStore = create<AuthStore>()(
         user: null,
         token: null,
         isAuthenticated: false,
-        isLoading: true,
+        isLoading: false, // Changed to false - Zustand persist will handle hydration
 
         // Actions
         setLoading: (loading: boolean) => {
           set({ isLoading: loading });
-        },
-
-        initAuth: () => {
-          const token = localStorage.getItem('axiomancer_token');
-          const userStr = localStorage.getItem('axiomancer_user');
-
-          if (token && userStr) {
-            try {
-              const user = JSON.parse(userStr) as User;
-              set({ 
-                user, 
-                token, 
-                isAuthenticated: true, 
-                isLoading: false 
-              });
-            } catch (error) {
-              localStorage.removeItem('axiomancer_token');
-              localStorage.removeItem('axiomancer_user');
-              set({ isLoading: false });
-            }
-          } else {
-            set({ isLoading: false });
-          }
         },
 
         login: async (credentials: LoginCredentials) => {
@@ -63,9 +39,7 @@ export const useAuthStore = create<AuthStore>()(
             set({ isLoading: true });
             const response = await authService.login(credentials);
 
-            localStorage.setItem('axiomancer_token', response.token);
-            localStorage.setItem('axiomancer_user', JSON.stringify(response.user));
-
+            // Zustand persist middleware will automatically save to localStorage
             set({
               user: response.user,
               token: response.token,
@@ -83,9 +57,7 @@ export const useAuthStore = create<AuthStore>()(
             set({ isLoading: true });
             const response = await authService.register(data);
 
-            localStorage.setItem('axiomancer_token', response.token);
-            localStorage.setItem('axiomancer_user', JSON.stringify(response.user));
-
+            // Zustand persist middleware will automatically save to localStorage
             set({
               user: response.user,
               token: response.token,
@@ -99,8 +71,7 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         logout: () => {
-          localStorage.removeItem('axiomancer_token');
-          localStorage.removeItem('axiomancer_user');
+          // Zustand persist middleware will automatically clear localStorage
           set({
             user: null,
             token: null,

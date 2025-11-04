@@ -28,12 +28,13 @@ const StyledInput = styled.input<{ hasError?: boolean }>`
   font-size: 1rem;
   transition: border-color 0.2s ease-in-out;
   background-color: ${theme.colors.white};
+  color: ${theme.colors.dark};
 
   &:focus {
     outline: none;
     border-color: ${({ hasError }) => hasError ? theme.colors.danger : theme.colors.primary};
-    box-shadow: 0 0 0 3px ${({ hasError }) => 
-      hasError ? 'rgba(220, 53, 69, 0.1)' : 'rgba(102, 126, 234, 0.1)'};
+    box-shadow: 0 0 0 3px ${({ hasError }) =>
+    hasError ? 'rgba(220, 53, 69, 0.1)' : 'rgba(102, 126, 234, 0.1)'};
   }
 
   &::placeholder {

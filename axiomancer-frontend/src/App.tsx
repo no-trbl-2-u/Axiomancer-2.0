@@ -62,13 +62,10 @@ const CharacterRoute: React.FC = (): JSX.Element => {
 
 const AppContent = React.memo((): JSX.Element => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
-  const initAuth = useAuthStore(state => state.initAuth);
   const [showLanding, setShowLanding] = useState<boolean>(true);
-  
-  // Initialize auth on mount
-  useEffect(() => {
-    initAuth();
-  }, [initAuth]);
+
+  // Note: Auth is automatically initialized by Zustand persist middleware
+  // No need for manual initAuth() call
 
   if (showLanding) {
     return <LandingPage onClickToStart={() => setShowLanding(false)} />;
