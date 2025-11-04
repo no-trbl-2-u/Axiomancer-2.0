@@ -156,7 +156,7 @@ export interface ExplorationNode {
   enemyId?: string;
   // For discovery nodes
   discoveryType?: 'quest_item' | 'equipment' | 'consumable';
-  item?: Item;
+  itemId?: string;
 }
 
 /**
@@ -169,7 +169,7 @@ export interface DialogueOption {
   isCorrect: boolean; // true for the "real" answer that gives rewards
   response: string;
   energyReward?: number;
-  itemReward?: Item;
+  itemRewardId?: string;
   storyProgress?: Record<string, boolean>;
 }
 
@@ -208,7 +208,7 @@ export interface NodeCost {
   health?: number;
   mana?: number;
   gold?: number;
-  items?: Array<{ id: string; quantity: number }>;
+  itemIds?: string[];
 }
 
 export interface NPC {
@@ -368,7 +368,6 @@ export interface GameState {
     wood: number;
     ironOre: number;
     fish: number;
-    items: Item[];
   };
 }
 

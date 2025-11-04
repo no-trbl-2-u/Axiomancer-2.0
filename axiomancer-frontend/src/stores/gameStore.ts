@@ -837,7 +837,6 @@ function createInitialGameState(): GameState {
       wood: 0,
       ironOre: 0,
       fish: 0,
-      items: [],
     },
   };
 }

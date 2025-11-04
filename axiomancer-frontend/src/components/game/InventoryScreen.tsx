@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { theme } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
-import { EquipmentSlot, Item, Equipment, EquipmentType, ItemType } from '../../types/game';
+import { EquipmentSlot, Item, Equipment, EquipmentType, ItemType } from '../../types/equipment';
 import { equipmentItems } from '../../utils/equipmentItems';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
