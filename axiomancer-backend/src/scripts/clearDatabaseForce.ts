@@ -25,5 +25,5 @@ async function clearDatabaseForce(): Promise<void> {
 }
 
 // Run the script
-clearDatabaseForce();
+void clearDatabaseForce();
 

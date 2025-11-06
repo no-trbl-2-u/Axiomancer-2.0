@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Title, Subtitle, Label, Text, Description, ErrorMessage, Badge } from '../components/shared/Text';
 
 const meta = {
@@ -157,7 +157,7 @@ export const DescriptionEvent: StoryObj = {
     <Description variant="event">
       <div className="event-title">Quest Completed!</div>
       <div className="event-text">
-        You have successfully completed the quest "The Lost Artifact" and gained 1,000 XP 
+        You have successfully completed the quest &quot;The Lost Artifact&quot; and gained 1,000 XP 
         and 500 gold as a reward.
       </div>
     </Description>

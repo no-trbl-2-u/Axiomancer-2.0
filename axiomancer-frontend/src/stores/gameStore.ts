@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, CharacterPortrait, BaseStats, Skill, PhilosophicalAspect } from '../types/game';
-import { Equipment, EquipmentSlot, EquippedItems } from '../types/equipment';
+import { Equipment, EquipmentSlot } from '../types/equipment';
 import { initialQuests } from '../utils/questSystem';
 import { getEnemyById, getRandomEnemyBasedOnMap } from '../components/game/Events/CombatModal/enemyHelper';
 import { loadCharacter, saveCharacter } from '../utils/characterSave';
@@ -69,7 +69,7 @@ interface GameStore {
   changeScreen: (screen: GameScreen) => void;
 
   // Philosophical Choices
-  makePhilosophicalChoice: (choiceId: string, outcome: any) => void;
+  makePhilosophicalChoice: (choiceId: string, outcome: unknown) => void;
 
   // Save System
   saveGame: () => Promise<void>;
@@ -944,7 +944,7 @@ export const useGameStore = create<GameStore>()(
           }
         };
 
-        set((state) => ({
+        set(() => ({
           gameState: {
             ...createInitialGameState(),
             character: {
@@ -959,7 +959,7 @@ export const useGameStore = create<GameStore>()(
               mana: finalMaxMP,
               maxMana: finalMaxMP,
               availableStatPoints: 0,
-              unassignedStatPoints: unassignedStatPoints,
+              unassignedStatPoints,
               equippedItems: defaultEquipment,
             },
           },
@@ -1310,7 +1310,7 @@ export const useGameStore = create<GameStore>()(
         }
 
         // Initialize new combat state
-        const newCombatState: any = {
+        const newCombatState: CombatState = {
           active: true,
           phase: 'choosing_type',
           round: 1,
@@ -1341,7 +1341,7 @@ export const useGameStore = create<GameStore>()(
         }));
       },
 
-      updateCombat: (updates: Partial<any>) => {
+      updateCombat: (updates: Partial<CombatState>) => {
         set((state) => ({
           gameState: {
             ...state.gameState,
@@ -1589,7 +1589,7 @@ export const useGameStore = create<GameStore>()(
       },
 
       // Philosophical Choices
-      makePhilosophicalChoice: (choiceId: string, outcome: any) => {
+      makePhilosophicalChoice: (choiceId: string, outcome: unknown) => {
         // TODO: Implement philosophical choice handling
         console.log('Philosophical choice made:', choiceId, outcome);
       },

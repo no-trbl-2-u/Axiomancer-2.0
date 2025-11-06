@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CombatModal } from '../../components/game/Events/CombatModal/CombatModal';
 import { NewCombatState, BattleLogEntry } from '../../types/combat';
 import { Character, Enemy } from '../../types/game';

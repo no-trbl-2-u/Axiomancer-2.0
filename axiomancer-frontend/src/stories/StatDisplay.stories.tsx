@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { StatRow, StatCategory, StatGrid, StatGridItem } from '../components/shared/StatDisplay';
 
 const meta = {

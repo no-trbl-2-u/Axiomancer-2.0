@@ -59,7 +59,7 @@ const CharacterRoute: React.FC = (): JSX.Element => {
   }
 };
 
-const AppContent = React.memo((): JSX.Element => {
+const AppContent = React.memo<Record<string, never>>((): JSX.Element => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const [showLanding, setShowLanding] = useState<boolean>(true);
 
@@ -103,6 +103,8 @@ const AppContent = React.memo((): JSX.Element => {
     </Routes>
   );
 });
+
+AppContent.displayName = 'AppContent';
 
 function App(): JSX.Element {
   return (

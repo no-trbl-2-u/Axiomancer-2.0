@@ -301,3 +301,5 @@ export const CharacterScreen = React.memo((): JSX.Element => {
     </Container>
   );
 });
+
+CharacterScreen.displayName = 'CharacterScreen';

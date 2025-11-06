@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { NewFriendsModal } from '../../components/figma/NewFriendsModal';
 import { Button } from '../../components/shared/Button';
 import { useState } from 'react';

@@ -6,22 +6,12 @@ import { saveCharacter } from '../../../utils/characterSave';
 import { CombatModal } from './CombatModal/CombatModal';
 
 type EventType = 'combat' | 'moral' | 'gathering' | 'rest';
-type SkillCategory = 'body' | 'mind' | 'heart';
 
 interface EventModalProps {
   isOpen: boolean;
   eventType: EventType;
   onClose: () => void;
   nodeId: string;
-}
-
-interface Enemy {
-  id: string;
-  name: string;
-  health: number;
-  maxHealth: number;
-  imageUrl: string;
-  description: string;
 }
 
 interface MoralScenario {

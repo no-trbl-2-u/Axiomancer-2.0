@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { DebugPanel } from '../../components/game/DebugPanel';
 import { useState } from 'react';
 

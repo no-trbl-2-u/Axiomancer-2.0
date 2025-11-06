@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ActionButton, SaveButton, CloseButton } from '../components/shared/ActionButton';
 
 const meta = {

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Modal } from '../components/shared/Modal';
 import { Button } from '../components/shared/Button';
 import { useState } from 'react';
@@ -183,7 +183,7 @@ export const NoCloseButton: Story = {
     <ModalTemplate title="No Close Button" showCloseButton={false}>
       <div style={{ padding: '1rem' }}>
         <p style={{ color: '#FFFFFF', marginBottom: '1rem' }}>
-          This modal doesn't have a close button.
+          This modal doesn&apos;t have a close button.
         </p>
         <Button variant="primary">Confirm</Button>
       </div>

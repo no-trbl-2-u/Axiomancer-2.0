@@ -26,3 +26,5 @@ export const Layout = React.memo<LayoutProps>(({ children }) => {
     </LayoutContainer>
   );
 });
+
+Layout.displayName = 'Layout';

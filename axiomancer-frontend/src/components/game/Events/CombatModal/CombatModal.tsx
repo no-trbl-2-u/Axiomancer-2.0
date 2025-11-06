@@ -442,8 +442,7 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
       enemy: updatedEnemy,
       round: round + 1,
       friendshipCounter: newFriendshipCounter,
-      // FIXME: Logging is broken!
-      battleLog,
+      battleLog: [...battleLog, logEntry],
       playerChoice: {},
       enemyChoice: {},
       phase: 'choosing_aspect',

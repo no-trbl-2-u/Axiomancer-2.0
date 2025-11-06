@@ -75,3 +75,5 @@ export const LoginPage = React.memo(() => {
     </FormContainer>
   );
 });
+
+LoginPage.displayName = 'LoginPage';

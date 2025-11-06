@@ -15,3 +15,5 @@ export const GamePage = React.memo(() => {
   // Show the main game interface
   return <MainGameInterface />;
 });
+
+GamePage.displayName = 'GamePage';

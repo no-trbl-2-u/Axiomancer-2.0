@@ -41,4 +41,12 @@ module.exports = {
     es6: true,
     node: true,
   },
+  overrides: [
+    {
+      files: ['**/*.stories.tsx', '**/*.stories.ts', '**/*.stories.jsx', '**/*.stories.js'],
+      rules: {
+        'react-hooks/rules-of-hooks': 'off', // Storybook render functions can use hooks
+      },
+    },
+  ],
 };

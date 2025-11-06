@@ -1,6 +1,6 @@
 import sqlite3 from 'sqlite3';
 import { Pool } from 'pg';
-import { User, UserCreateInput } from '../types';
+import { User, UserCreateInput, UserRow, CharacterState, CharacterStateRow } from '../types';
 
 export class DatabaseService {
   private static sqliteDb: sqlite3.Database | null = null;
@@ -43,7 +43,8 @@ export class DatabaseService {
       console.log('Connected to PostgreSQL database');
       await this.createTables();
     } catch (error) {
-      throw new Error(`Failed to connect to PostgreSQL: ${error}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to connect to PostgreSQL: ${errorMessage}`);
     }
   }
 
@@ -135,7 +136,7 @@ export class DatabaseService {
         'INSERT INTO users (email, password, first_name, last_name) VALUES ($1, $2, $3, $4) RETURNING *',
         [email, password, firstName, lastName]
       );
-      return this.mapRowToUser(result.rows[0]);
+      return this.mapRowToUser(result.rows[0] as UserRow);
     }
     
     throw new Error('Database not initialized');
@@ -152,13 +153,13 @@ export class DatabaseService {
               reject(err);
               return;
             }
-            resolve(row ? this.mapRowToUser(row) : null);
+            resolve(row ? this.mapRowToUser(row as UserRow) : null);
           }
         );
       });
     } else if (this.pgPool) {
       const result = await this.pgPool.query('SELECT * FROM users WHERE email = $1', [email]);
-      return result.rows[0] ? this.mapRowToUser(result.rows[0]) : null;
+      return result.rows[0] ? this.mapRowToUser(result.rows[0] as UserRow) : null;
     }
     
     throw new Error('Database not initialized');
@@ -179,7 +180,7 @@ export class DatabaseService {
               reject(new Error('User not found'));
               return;
             }
-            resolve(this.mapRowToUser(row));
+            resolve(this.mapRowToUser(row as UserRow));
           }
         );
       });
@@ -188,13 +189,13 @@ export class DatabaseService {
       if (!result.rows[0]) {
         throw new Error('User not found');
       }
-      return this.mapRowToUser(result.rows[0]);
+      return this.mapRowToUser(result.rows[0] as UserRow);
     }
     
     throw new Error('Database not initialized');
   }
 
-  private static mapRowToUser(row: any): User {
+  private static mapRowToUser(row: UserRow): User {
     return {
       id: row.id,
       email: row.email,
@@ -206,7 +207,7 @@ export class DatabaseService {
     };
   }
 
-  static async saveCharacterState(userId: number, characterState: any): Promise<void> {
+  static async saveCharacterState(userId: number, characterState: Record<string, unknown>): Promise<void> {
     const {
       character,
       currentLocation,
@@ -315,7 +316,7 @@ export class DatabaseService {
     }
   }
 
-  static async getCharacterState(userId: number): Promise<any | null> {
+  static async getCharacterState(userId: number): Promise<CharacterState | null> {
     if (this.sqliteDb) {
       return new Promise((resolve, reject) => {
         this.sqliteDb!.get(
@@ -326,7 +327,7 @@ export class DatabaseService {
               reject(err);
               return;
             }
-            resolve(row ? this.mapRowToCharacterState(row) : null);
+            resolve(row ? this.mapRowToCharacterState(row as CharacterStateRow) : null);
           }
         );
       });
@@ -335,7 +336,7 @@ export class DatabaseService {
         'SELECT * FROM character_states WHERE user_id = $1',
         [userId]
       );
-      return result.rows[0] ? this.mapRowToCharacterState(result.rows[0]) : null;
+      return result.rows[0] ? this.mapRowToCharacterState(result.rows[0] as CharacterStateRow) : null;
     }
 
     throw new Error('Database not initialized');
@@ -360,15 +361,15 @@ export class DatabaseService {
     }
   }
 
-  private static mapRowToCharacterState(row: any): any {
+  private static mapRowToCharacterState(row: CharacterStateRow): CharacterState {
     return {
-      character: JSON.parse(row.character_data),
+      character: JSON.parse(row.character_data) as Record<string, unknown>,
       currentLocation: row.current_location,
       currentNode: row.current_node,
-      story: JSON.parse(row.story_data),
-      inventory: JSON.parse(row.inventory_data),
-      locations: JSON.parse(row.locations_data),
-      questLog: JSON.parse(row.quest_log_data),
+      story: JSON.parse(row.story_data) as Record<string, unknown>,
+      inventory: JSON.parse(row.inventory_data) as Record<string, unknown>,
+      locations: JSON.parse(row.locations_data) as Record<string, unknown>,
+      questLog: JSON.parse(row.quest_log_data) as Record<string, unknown>,
       mapEnergy: row.map_energy,
       maxMapEnergy: row.max_map_energy,
       gamePhase: row.game_phase,

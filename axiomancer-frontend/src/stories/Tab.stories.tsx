@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Tab, TabsContainer } from '../components/shared/Tab';
 import { useState } from 'react';
 
@@ -145,78 +145,86 @@ export const AspectTabs: Story = {
   render: () => <AspectTabsTemplate />,
 };
 
+const CenteredTabsComponent = () => {
+  const [activeTab, setActiveTab] = useState(0);
+  
+  return (
+    <TabsContainer align="center">
+      <Tab active={activeTab === 0} onClick={() => setActiveTab(0)}>
+        Home
+      </Tab>
+      <Tab active={activeTab === 1} onClick={() => setActiveTab(1)}>
+        Profile
+      </Tab>
+      <Tab active={activeTab === 2} onClick={() => setActiveTab(2)}>
+        Settings
+      </Tab>
+    </TabsContainer>
+  );
+};
+
 export const CenteredTabs: Story = {
-  render: () => {
-    const [activeTab, setActiveTab] = useState(0);
-    
-    return (
-      <TabsContainer align="center">
-        <Tab active={activeTab === 0} onClick={() => setActiveTab(0)}>
-          Home
-        </Tab>
-        <Tab active={activeTab === 1} onClick={() => setActiveTab(1)}>
-          Profile
-        </Tab>
-        <Tab active={activeTab === 2} onClick={() => setActiveTab(2)}>
-          Settings
-        </Tab>
-      </TabsContainer>
-    );
-  },
+  render: () => <CenteredTabsComponent />,
+};
+
+const RightAlignedTabsComponent = () => {
+  const [activeTab, setActiveTab] = useState(0);
+  
+  return (
+    <TabsContainer align="right">
+      <Tab active={activeTab === 0} onClick={() => setActiveTab(0)}>
+        View
+      </Tab>
+      <Tab active={activeTab === 1} onClick={() => setActiveTab(1)}>
+        Edit
+      </Tab>
+      <Tab active={activeTab === 2} onClick={() => setActiveTab(2)}>
+        Delete
+      </Tab>
+    </TabsContainer>
+  );
 };
 
 export const RightAlignedTabs: Story = {
-  render: () => {
-    const [activeTab, setActiveTab] = useState(0);
+  render: () => <RightAlignedTabsComponent />,
+};
+
+const TabsWithOneDisabledComponent = () => {
+  const [activeTab, setActiveTab] = useState(0);
     
-    return (
-      <TabsContainer align="right">
-        <Tab active={activeTab === 0} onClick={() => setActiveTab(0)}>
-          View
-        </Tab>
-        <Tab active={activeTab === 1} onClick={() => setActiveTab(1)}>
-          Edit
-        </Tab>
-        <Tab active={activeTab === 2} onClick={() => setActiveTab(2)}>
-          Delete
-        </Tab>
-      </TabsContainer>
-    );
-  },
+  return (
+    <TabsContainer>
+      <Tab active={activeTab === 0} onClick={() => setActiveTab(0)}>
+        Available
+      </Tab>
+      <Tab active={activeTab === 1} onClick={() => setActiveTab(1)}>
+        Active
+      </Tab>
+      <Tab active={activeTab === 2} disabled onClick={() => setActiveTab(2)}>
+        Locked
+      </Tab>
+    </TabsContainer>
+  );
 };
 
 export const TabsWithOneDisabled: Story = {
-  render: () => {
-    const [activeTab, setActiveTab] = useState(0);
+  render: () => <TabsWithOneDisabledComponent />,
+};
+
+const ManyTabsComponent = () => {
+  const [activeTab, setActiveTab] = useState(0);
     
-    return (
-      <TabsContainer>
-        <Tab active={activeTab === 0} onClick={() => setActiveTab(0)}>
-          Available
+  return (
+    <TabsContainer wrap>
+      {['All', 'Weapons', 'Armor', 'Potions', 'Materials', 'Quest Items', 'Misc'].map((tab, i) => (
+        <Tab key={i} active={activeTab === i} onClick={() => setActiveTab(i)}>
+          {tab}
         </Tab>
-        <Tab active={activeTab === 1} onClick={() => setActiveTab(1)}>
-          Active
-        </Tab>
-        <Tab active={activeTab === 2} disabled onClick={() => setActiveTab(2)}>
-          Locked
-        </Tab>
-      </TabsContainer>
-    );
-  },
+      ))}
+    </TabsContainer>
+  );
 };
 
 export const ManyTabs: Story = {
-  render: () => {
-    const [activeTab, setActiveTab] = useState(0);
-    
-    return (
-      <TabsContainer wrap>
-        {['All', 'Weapons', 'Armor', 'Potions', 'Materials', 'Quest Items', 'Misc'].map((tab, i) => (
-          <Tab key={i} active={activeTab === i} onClick={() => setActiveTab(i)}>
-            {tab}
-          </Tab>
-        ))}
-      </TabsContainer>
-    );
-  },
+  render: () => <ManyTabsComponent />,
 };

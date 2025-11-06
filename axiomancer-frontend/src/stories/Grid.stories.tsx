@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Grid, FlexContainer, Container, EmptyState } from '../components/shared/Grid';
 import { Card } from '../components/shared/Card';
 

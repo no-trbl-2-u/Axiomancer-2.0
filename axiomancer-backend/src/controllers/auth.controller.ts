@@ -9,7 +9,7 @@ interface AuthenticatedRequest extends Request {
 export class AuthController {
   static async register(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userData: UserCreateInput = req.body;
+      const userData = req.body as UserCreateInput;
       
       // Basic validation
       if (!userData.email || !userData.password || !userData.firstName || !userData.lastName) {
@@ -30,7 +30,7 @@ export class AuthController {
 
   static async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const credentials: UserLoginInput = req.body;
+      const credentials = req.body as UserLoginInput;
       
       // Basic validation
       if (!credentials.email || !credentials.password) {
@@ -49,7 +49,7 @@ export class AuthController {
     }
   }
 
-  static async profile(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  static profile(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
     try {
       // This would typically fetch the full user profile
       // For now, we'll just return the authenticated user info

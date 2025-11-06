@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   Dialog,
   DialogContent,
@@ -69,7 +69,7 @@ export const WithForm: Story = {
           <DialogHeader>
             <DialogTitle>Edit Profile</DialogTitle>
             <DialogDescription>
-              Make changes to your profile here. Click save when you're done.
+              Make changes to your profile here. Click save when you&apos;re done.
             </DialogDescription>
           </DialogHeader>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem 0' }}>

@@ -59,3 +59,53 @@ export interface ApiError {
   statusCode: number;
   stack?: string;
 }
+
+/**
+ * Database row type for character states
+ */
+export interface CharacterStateRow {
+  id: number;
+  user_id: number;
+  character_data: string;
+  current_location: string;
+  current_node: string;
+  story_data: string;
+  inventory_data: string;
+  locations_data: string;
+  quest_log_data: string;
+  map_energy: number;
+  max_map_energy: number;
+  game_phase: string;
+  created_at: string | Date;
+  updated_at: string | Date;
+}
+
+/**
+ * Database row type for users
+ */
+export interface UserRow {
+  id: number;
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  created_at: string | Date;
+  updated_at: string | Date;
+}
+
+/**
+ * Character state type
+ */
+export interface CharacterState {
+  character: Record<string, unknown>;
+  currentLocation: string;
+  currentNode: string;
+  story: Record<string, unknown>;
+  inventory: Record<string, unknown>;
+  locations: Record<string, unknown>;
+  questLog: Record<string, unknown>;
+  mapEnergy: number;
+  maxMapEnergy: number;
+  gamePhase: string;
+  savedAt: number;
+}

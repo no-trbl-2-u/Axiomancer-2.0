@@ -107,3 +107,5 @@ export const RegisterPage = React.memo(() => {
     </FormContainer>
   );
 });
+
+RegisterPage.displayName = 'RegisterPage';

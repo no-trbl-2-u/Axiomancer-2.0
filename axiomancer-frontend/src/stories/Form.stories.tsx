@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Form, FormContainer, FormGroup, FormActions, FormError, FormSuccess, FormHelperText, FormLabel } from '../components/shared/Form';
 import { Input } from '../components/shared/Input';
 import { Button } from '../components/shared/Button';
@@ -94,7 +94,7 @@ export const WithHelperText: Story = {
       <FormGroup>
         <FormLabel>Email</FormLabel>
         <Input type="email" placeholder="Enter email" />
-        <FormHelperText>We'll never share your email</FormHelperText>
+        <FormHelperText>We&apos;ll never share your email</FormHelperText>
       </FormGroup>
       <FormActions align="right">
         <Button variant="primary">Submit</Button>

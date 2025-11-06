@@ -222,3 +222,5 @@ export const SkillScreen = React.memo(() => {
     </Container>
   );
 });
+
+SkillScreen.displayName = 'SkillScreen';

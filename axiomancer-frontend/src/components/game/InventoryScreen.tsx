@@ -516,3 +516,5 @@ export const InventoryScreen = React.memo(() => {
     </DndProvider>
   );
 });
+
+InventoryScreen.displayName = 'InventoryScreen';

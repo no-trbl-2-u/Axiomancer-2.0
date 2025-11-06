@@ -21,7 +21,7 @@ export type CombatActionType = 'attack' | 'defend';
 export type AdvantageType = 'player' | 'enemy' | 'none';
 
 // Combat phase
-export type CombatPhase = 'choosing_type' | 'choosing_action' | 'resolving' | 'ended';
+export type CombatPhase = 'choosing_type' | 'choosing_aspect' | 'choosing_action' | 'resolving' | 'ended';
 
 /**
  * Player's combat decision for a round

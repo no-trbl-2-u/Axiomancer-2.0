@@ -66,7 +66,8 @@ export class AuthService {
   }
 
   private static sanitizeUser(user: User): Omit<User, 'password'> {
-    const { password: _password, ...sanitizedUser } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...sanitizedUser } = user;
     return sanitizedUser;
   }
 }

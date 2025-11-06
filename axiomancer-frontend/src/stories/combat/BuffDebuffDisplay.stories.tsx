@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { BuffDebuffDisplay } from '../../components/game/Events/CombatModal/combat/BuffDebuffDisplay';
 import { BuffDebuff } from '../../types/buffs';
 
