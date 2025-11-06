@@ -55,7 +55,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-server-git",
+        "@cyanheads/git-mcp-server",
         "--repository",
         "/home/pn143/Workspace/Axiomancer-2.0"
       ],
