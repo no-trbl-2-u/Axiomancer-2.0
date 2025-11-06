@@ -959,7 +959,7 @@ export const useGameStore = create<GameStore>()(
               mana: finalMaxMP,
               maxMana: finalMaxMP,
               availableStatPoints: 0,
-              unassignedStatPoints: unassignedStatPoints,
+              unassignedStatPoints,
               equippedItems: defaultEquipment,
             },
           },

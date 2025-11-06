@@ -157,7 +157,7 @@ export const DescriptionEvent: StoryObj = {
     <Description variant="event">
       <div className="event-title">Quest Completed!</div>
       <div className="event-text">
-        You have successfully completed the quest "The Lost Artifact" and gained 1,000 XP 
+        You have successfully completed the quest &ldquo;The Lost Artifact&rdquo; and gained 1,000 XP 
         and 500 gold as a reward.
       </div>
     </Description>

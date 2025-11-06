@@ -94,7 +94,7 @@ export const WithHelperText: Story = {
       <FormGroup>
         <FormLabel>Email</FormLabel>
         <Input type="email" placeholder="Enter email" />
-        <FormHelperText>We'll never share your email</FormHelperText>
+        <FormHelperText>We&apos;ll never share your email</FormHelperText>
       </FormGroup>
       <FormActions align="right">
         <Button variant="primary">Submit</Button>

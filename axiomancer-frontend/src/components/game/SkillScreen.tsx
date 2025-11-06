@@ -154,7 +154,6 @@ export const SkillScreen = React.memo(() => {
       {/* Tab Selection */}
       <TabsContainer variant="skill" align="center" gap="sm">
         {(['body', 'mind', 'heart'] as PhilosophicalAspect[]).map((aspect) => {
-          const availableSkills = allFallacySkills.filter(skill => skill.philosophicalAspect === aspect);
           const equippedCount = (character.equippedSkills[aspect] || []).length;
 
           return (

@@ -419,7 +419,7 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
     const newFriendshipCounter = combatState.friendshipCounter + (resolution.friendshipIncrement ? 1 : 0);
 
     // Create battle log entry
-    const logEntry = createBattleLogEntry(
+    createBattleLogEntry(
       round,
       playerDecision,
       enemyDecision,
