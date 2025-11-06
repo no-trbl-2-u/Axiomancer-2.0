@@ -2,7 +2,6 @@ import type { Preview } from '@storybook/react-vite';
 import React from 'react';
 import { GlobalStyles } from '../src/styles/GlobalStyles';
 import { TooltipProvider } from '../src/components/shared/Tooltip';
-import '../src/components/figma/global.css';
 
 const preview: Preview = {
   parameters: {

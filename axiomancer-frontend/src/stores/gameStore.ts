@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
 import { GameState, Character, GameLocation, Quest, CombatState, GameScreen, CharacterPortrait, BaseStats, Skill, PhilosophicalAspect } from '../types/game';
 import { Equipment, EquipmentSlot, EquippedItems } from '../types/equipment';
 import { initialQuests } from '../utils/questSystem';
@@ -847,10 +847,11 @@ function createInitialGameState(): GameState {
  */
 export const useGameStore = create<GameStore>()(
   devtools(
-    (set, get) => ({
-      // Initial State
-      gameState: createInitialGameState(),
-      currentScreen: 'exploration',
+    persist(
+      (set, get) => ({
+        // Initial State
+        gameState: createInitialGameState(),
+        currentScreen: 'exploration',
 
       // Character Actions
       createCharacter: (characterData: CreateCharacterData) => {
@@ -1596,13 +1597,31 @@ export const useGameStore = create<GameStore>()(
       // Save System
       saveGame: async () => {
         const state = get();
-        if (state.gameState.character && state.gameState.character.name && state.gameState.character.id !== 'placeholder') {
+        const char = state.gameState.character;
+
+        // Debug logging
+        console.log('🔍 saveGame called:', {
+          hasCharacter: !!char,
+          name: char?.name,
+          id: char?.id,
+          willSave: !!(char && char.name && char.id !== 'placeholder')
+        });
+
+        if (char && char.name && char.id !== 'placeholder') {
           try {
+            console.log('💾 Attempting to save character to database...');
             await saveCharacter(state.gameState);
-            console.log('📝 Game saved successfully');
+            console.log('✅ Game saved successfully to database');
           } catch (error) {
-            console.error('Failed to save game:', error);
+            console.error('❌ Failed to save game to database:', error);
+            // Re-throw to make it more visible
+            throw error;
           }
+        } else {
+          console.warn('⚠️ Skipping save - character not ready:', {
+            hasName: !!char?.name,
+            id: char?.id
+          });
         }
       },
 
@@ -1628,8 +1647,17 @@ export const useGameStore = create<GameStore>()(
         });
       },
     }),
+      {
+        name: 'axiomancer-game-store',
+        // Persist the entire game state to localStorage
+        partialize: (state) => ({
+          gameState: state.gameState,
+          // Don't persist currentScreen - let it reset to exploration on refresh
+        }),
+      }
+    ),
     {
-      name: 'axiomancer-game-store',
+      name: 'axiomancer-game-store-devtools',
     }
   )
 );

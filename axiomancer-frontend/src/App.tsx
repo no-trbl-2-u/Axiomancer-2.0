@@ -11,7 +11,6 @@ import { CharacterCreationScreen } from './components/game/CharacterCreationScre
 import { CharacterSelectionPage } from './pages/CharacterSelectionPage';
 import { GamePage } from './pages/GamePage';
 import { hasExistingCharacter } from './utils/characterSave';
-import './components/figma/global.css';
 
 // Protected route component that requires authentication
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -76,29 +75,29 @@ const AppContent = React.memo((): JSX.Element => {
       <Route path="/" element={isAuthenticated ? <CharacterRoute /> : <Navigate to="/login" replace />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <Layout><LoginPage /></Layout>} />
       <Route path="/register" element={isAuthenticated ? <Navigate to="/" replace /> : <Layout><RegisterPage /></Layout>} />
-      <Route 
-        path="/character-selection" 
+      <Route
+        path="/character-selection"
         element={
           <ProtectedRoute>
             <CharacterSelectionPage />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/character-creation" 
+      <Route
+        path="/character-creation"
         element={
           <ProtectedRoute>
             <CharacterCreationScreen />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/game" 
+      <Route
+        path="/game"
         element={
           <ProtectedRoute>
             <GamePage />
           </ProtectedRoute>
-        } 
+        }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

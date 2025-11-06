@@ -1,0 +1,75 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-filesystem",
+        "/home/pn143/Workspace"
+      ],
+      "env": {}
+    },
+    "sqlite": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@sqlitecloud/mcp-server",
+        "--connectionString",
+        "file:/home/pn143/Workspace/Axiomancer-2.0/axiomancer-backend/database.sqlite"
+      ],
+      "env": {}
+    },
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {}
+    },
+    "storybook-mcp": {
+      "type": "http",
+      "url": "http://localhost:6006/mcp"
+    },
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "env": {}
+    },
+    "MCP_DOCKER": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "mcp",
+        "gateway",
+        "run"
+      ]
+    },
+    "git": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-server-git",
+        "--repository",
+        "/home/pn143/Workspace/Axiomancer-2.0"
+      ],
+      "env": {}
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-brave-search"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "BSAuNf2pgSO2KZP6H_qv7mbxTilkWlG"
+      }
+    }
+  }
+}
