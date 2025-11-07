@@ -70,6 +70,16 @@
       "env": {
         "BRAVE_API_KEY": "BSAuNf2pgSO2KZP6H_qv7mbxTilkWlG"
       }
+    },
+    "hf-mcp-server": {
+      "type": "http",
+      "url": "https://huggingface.co/mcp?login",
+      "args": [
+        "-y",
+        "@llmindset/hf-mcp-server",
+        "--word-dir=/home/pn143/Workspace/Axiomancer-2.0",
+        "/vinoku89/svg-code-generator"
+      ]
     }
   }
 }
