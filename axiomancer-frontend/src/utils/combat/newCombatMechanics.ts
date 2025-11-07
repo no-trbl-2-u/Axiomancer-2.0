@@ -242,10 +242,12 @@ function resolveAttackVsAttack(
 
 /**
  * Resolve Attack vs Defense scenario
- * NEW MECHANICS:
- * - Advantage: Attacker rolls 2d20 take higher, defender's defense is HALVED
- * - Neutral (same type): Attacker auto-hits with 1d20, defender's defense is DOUBLED
- * - Disadvantage: Attacker rolls 2d20 take lower, defender's defense is NORMAL
+ * MECHANICS (from combat-mechanics.md):
+ * - All attacks automatically hit (defender chose to defend)
+ * - Defender ALWAYS gets x1.5 defense multiplier
+ * - Advantage: Attacker rolls 2d20 take higher, uses ATTACKER'S type for defense stat
+ * - Disadvantage: Attacker rolls 2d20 take lower, uses DEFENDER'S chosen type for defense stat
+ * - Neutral (same type): Attacker rolls 1d20, uses DEFENDER'S chosen type for defense stat
  */
 function resolveAttackVsDefense(
   attackerDecision: CombatDecision,
@@ -257,46 +259,49 @@ function resolveAttackVsDefense(
 ): { attackerRoll: number; attackerRollDetails: string; damage: number; result: string } {
   let damageRoll: number;
   let damageRollDetails: string;
-  let defenseModifier: number;
+  let defenseType: CombatType;
   let advantageText: string;
 
   const attackerStat = getStatForType(attacker, attackerDecision.type);
-  const defenderDefense = getDefenseForType(defender, attackerDecision.type);
 
   // Determine advantage from attacker's perspective
   const attackerAdvantage = attackerIsPlayer ? advantage :
     (advantage === 'player' ? 'enemy' : advantage === 'enemy' ? 'player' : 'none');
 
-  // Roll based on advantage and set defense modifier
+  // Roll based on advantage and determine which defense stat to use
   if (attackerAdvantage === (attackerIsPlayer ? 'player' : 'enemy')) {
-    // Attacker has advantage: 2d20 take higher, defense halved
+    // Attacker has advantage: 2d20 take higher, use ATTACKER'S type for defense
     const rollResult = rollWithAdvantage();
     damageRoll = rollResult.result + attackerStat;
     damageRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) took higher (${rollResult.result}) + ${attackerStat} stat = ${damageRoll}`;
-    defenseModifier = 0.5;
-    advantageText = 'with advantage (defense halved)';
+    defenseType = attackerDecision.type; // Use attacker's type
+    advantageText = 'with advantage';
   } else if (attackerAdvantage === (attackerIsPlayer ? 'enemy' : 'player')) {
-    // Attacker has disadvantage: 2d20 take lower, normal defense
+    // Attacker has disadvantage: 2d20 take lower, use DEFENDER'S chosen type for defense
     const rollResult = rollWithDisadvantage();
     damageRoll = rollResult.result + attackerStat;
     damageRollDetails = `2d20 (${rollResult.rolls[0]}, ${rollResult.rolls[1]}) took lower (${rollResult.result}) + ${attackerStat} stat = ${damageRoll}`;
-    defenseModifier = 1.0;
+    defenseType = defenderDecision.type; // Use defender's chosen type
     advantageText = 'with disadvantage';
   } else {
-    // Neutral (same type): Auto-hit with 1d20, defense doubled
+    // Neutral (same type): 1d20, use DEFENDER'S chosen type for defense
     const d20 = rollD20();
     damageRoll = d20 + attackerStat;
     damageRollDetails = `1d20 (${d20}) + ${attackerStat} stat = ${damageRoll}`;
-    defenseModifier = 2.0;
-    advantageText = 'neutral (defense doubled)';
+    defenseType = defenderDecision.type; // Use defender's chosen type
+    advantageText = 'neutral';
   }
 
+  // Defender ALWAYS gets x1.5 defense multiplier in Attack vs Defense
+  const defenseModifier = 1.5;
+  const defenderDefense = getDefenseForType(defender, defenseType);
   const damage = calculateDamage(damageRoll, defenderDefense, defenseModifier);
   const modifiedDefense = Math.floor(defenderDefense * defenseModifier);
 
   const attackerName = attackerIsPlayer ? 'Player' : 'Enemy';
   const defenderName = attackerIsPlayer ? 'Enemy' : 'Player';
-  const result = `${attackerName} attacked ${advantageText} while ${defenderName} defended. Damage: ${damageRollDetails} vs ${modifiedDefense} defense (${defenderDefense} × ${defenseModifier}) = ${damage} damage`;
+  const defenseTypeName = defenseType.charAt(0).toUpperCase() + defenseType.slice(1);
+  const result = `${attackerName} attacked ${advantageText} while ${defenderName} defended. Damage: ${damageRollDetails} vs ${modifiedDefense} ${defenseTypeName} defense (${defenderDefense} × ${defenseModifier}) = ${damage} damage`;
 
   return {
     attackerRoll: damageRoll,

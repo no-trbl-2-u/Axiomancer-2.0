@@ -3,6 +3,9 @@
 import type { Enemy as EnemyType } from '../components/game/Events/CombatModal/enemyHelper';
 export type Enemy = EnemyType;
 
+// BattleLogEntry type from combat.ts (used by CombatState)
+import type { BattleLogEntry } from './combat';
+
 export interface CharacterPortrait {
   imageUrl: string;
   description: string;
@@ -314,30 +317,6 @@ export interface CombatState {
   battleLog: BattleLogEntry[];
 }
 
-/**
- * @deprecated Legacy battle log format with string-based data
- * Note: newCombat.ts has a more modern BattleLogEntry with proper number types
- */
-export interface BattleLogEntry {
-  round: string;
-  playerDecision: CombatChoice;
-  enemyDecision: CombatChoice;
-  advantage: 'player' | 'enemy' | 'none';
-  damage: {
-    toPlayer: number;
-    toEnemy: number;
-  };
-  effects: string[];
-  playerRoll: string;
-  enemyRoll: string;
-  playerRollDetails: string;
-  enemyRollDetails: string;
-  damageToEnemy: number;
-  damageToPlayer: number;
-  playerHPAfter: string;
-  enemyHPAfter: string;
-  result: string;
-}
 
 export interface GameState {
   character: Character;
