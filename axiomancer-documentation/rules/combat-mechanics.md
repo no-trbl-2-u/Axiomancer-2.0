@@ -3,6 +3,10 @@ Heart > Body > Mind > Heart
 
 Combat is Rock-Paper-Scissors meets Dungeons and Dragons
 
+**Important Stat Clarification**:
+- **Decision Stats (Body/Mind/Heart)**: Used for combat rolls and determining attack/defense types
+- **Skill Stats (physicalSkill/mentalSkill/heartSkill)**: Used ONLY when activating fallacy skills (not in base combat)
+
 - Attack vs. Attack Results:
     - Attack Rolls
         - Determine Advantage:
