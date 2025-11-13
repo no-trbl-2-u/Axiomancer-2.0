@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { theme } from '../../styles/theme';
+import { theme } from '@styles/theme';
 
 export const Title = styled.h1<{ 
   size?: 'sm' | 'md' | 'lg' | 'xl';

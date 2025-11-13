@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { LockedNodeModal } from '../../components/game/LockedNodeModal';
-import { Button } from '../../components/shared/Button';
+import { LockedNodeModal } from '@components/game/LockedNodeModal';
+import { Button } from '@components/shared/Button';
 import { useState } from 'react';
 
 const meta = {

@@ -1,5 +1,5 @@
-import { GameState, Character } from '../types/game';
-import { characterService } from '../services/characterService';
+import { GameState, Character } from '@type/game';
+import { characterService } from '@services/characterService';
 import { calculateDerivedStats, calculateMaxHP, calculateMaxMP } from './statCalculations';
 
 export interface SavedCharacterData {

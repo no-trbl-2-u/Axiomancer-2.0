@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { CombatModal } from '../../components/game/Events/CombatModal/CombatModal';
-import { NewCombatState, BattleLogEntry } from '../../types/combat';
-import { Character, Enemy } from '../../types/game';
-import { useGameStore } from '../../stores/gameStore';
+import { CombatModal } from '@components/game/Events/CombatModal/CombatModal';
+import { NewCombatState, BattleLogEntry } from '@type/combat';
+import { Character, Enemy } from '@type/game';
+import { useGameStore } from '@stores/gameStore';
 
 // Mock the useGameStore hook to provide combat state
 const mockGameStore = (combatState: NewCombatState | null) => {

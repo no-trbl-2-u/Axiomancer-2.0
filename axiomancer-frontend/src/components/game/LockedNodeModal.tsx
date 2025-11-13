@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { OctagonX } from 'lucide-react';
-import { Modal } from '../shared/Modal';
-import { Text } from '../shared/Text';
-import { ActionButton } from '../shared/ActionButton';
-import { theme } from '../../styles/theme';
+import { Modal } from '@components/shared/Modal';
+import { Text } from '@components/shared/Text';
+import { ActionButton } from '@components/shared/ActionButton';
+import { theme } from '@styles/theme';
 
 interface LockedNodeModalProps {
   isOpen: boolean;

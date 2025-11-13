@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { theme } from '../../styles/theme';
-import { useGameStore } from '../../stores/gameStore';
-import { useAuthStore } from '../../stores/authStore';
-import { characterService } from '../../services/characterService';
-import { Container } from '../shared/Grid';
-import { Panel } from '../shared/Panel';
-import { Title, Text, Subtitle } from '../shared/Text';
-import { StatCategory, StatRow } from '../shared/StatDisplay';
-import { ActionButton } from '../shared/ActionButton';
+import { theme } from '@styles/theme';
+import { useGameStore } from '@stores/gameStore';
+import { useAuthStore } from '@stores/authStore';
+import { characterService } from '@services/characterService';
+import { Container } from '@components/shared/Grid';
+import { Panel } from '@components/shared/Panel';
+import { Title, Text, Subtitle } from '@components/shared/Text';
+import { StatCategory, StatRow } from '@components/shared/StatDisplay';
+import { ActionButton } from '@components/shared/ActionButton';
 
 const PortraitImage = styled.img`
   width: 100%;

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { theme } from '../../../styles/theme';
-import { useGameStore } from '../../../stores/gameStore';
-import { saveCharacter } from '../../../utils/characterSave';
+import { theme } from '@styles/theme';
+import { useGameStore } from '@stores/gameStore';
+import { saveCharacter } from '@utils/characterSave';
 import { CombatModal } from './CombatModal/CombatModal';
 
 type EventType = 'combat' | 'moral' | 'gathering' | 'rest';

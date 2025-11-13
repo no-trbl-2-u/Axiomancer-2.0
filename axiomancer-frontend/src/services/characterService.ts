@@ -1,5 +1,5 @@
-import { GameState } from '../types/game';
-import { SavedCharacterData } from '../utils/characterSave';
+import { GameState } from '@type/game';
+import { SavedCharacterData } from '@utils/characterSave';
 
 const API_BASE_URL = 'http://localhost:3001/api';
 

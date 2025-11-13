@@ -7,8 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger
-} from '../../components/figma/Dialog';
-import { Button } from '../../components/shared/Button';
+} from '@components/figma/Dialog';
+import { Button } from '@components/shared/Button';
 import { useState } from 'react';
 
 const meta = {

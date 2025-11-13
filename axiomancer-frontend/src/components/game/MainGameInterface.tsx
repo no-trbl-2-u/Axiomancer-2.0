@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { theme } from '../../styles/theme';
-import { useGameStore } from '../../stores/gameStore';
-import { useDebugStore } from '../../stores/debugStore';
+import { theme } from '@styles/theme';
+import { useGameStore } from '@stores/gameStore';
+import { useDebugStore } from '@stores/debugStore';
 import DebugPanel from './DebugPanel';
 
 // Import all our game screens
@@ -10,7 +10,7 @@ import { CharacterScreen } from './CharacterScreen';
 import { InventoryScreen } from './InventoryScreen';
 import { SkillScreen } from './SkillScreen';
 import { GlobalLocalMapScreen } from './GlobalLocalMapScreen';
-import { featureFlags } from '../../config/featureFlags';
+import { featureFlags } from '@config/featureFlags';
 
 type ActiveTab = 'character' | 'inventory' | 'skills' | 'map' | 'combat';
 type EventType = 'combat' | 'moral' | 'gathering' | 'rest';

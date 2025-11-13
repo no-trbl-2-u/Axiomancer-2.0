@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { StatRow, StatCategory, StatGrid, StatGridItem } from '../components/shared/StatDisplay';
+import { StatRow, StatCategory, StatGrid, StatGridItem } from '@components/shared/StatDisplay';
 
 const meta = {
   title: 'Shared/StatDisplay',

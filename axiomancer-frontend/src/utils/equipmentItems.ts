@@ -1,4 +1,4 @@
-import { Equipment, Item } from '../types/equipment';
+import { Equipment, Item } from '@type/equipment';
 
 /**
  * Equipment Items - Philosophically themed weapons, armor, and accessories

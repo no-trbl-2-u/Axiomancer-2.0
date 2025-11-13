@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ScrollArea } from '../../components/figma/ScrollArea';
+import { ScrollArea } from '@components/figma/ScrollArea';
 
 const meta = {
   title: 'Axiomance/ScrollArea',

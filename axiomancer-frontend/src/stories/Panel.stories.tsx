@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Panel } from '../components/shared/Panel';
+import { Panel } from '@components/shared/Panel';
 
 const meta = {
   title: 'Shared/Panel',

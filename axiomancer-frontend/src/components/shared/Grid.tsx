@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { theme } from '../../styles/theme';
+import { theme } from '@styles/theme';
 
 export const Grid = styled.div<{
   variant?: 'default' | 'equipment' | 'item' | 'skill' | 'resource' | 'category';

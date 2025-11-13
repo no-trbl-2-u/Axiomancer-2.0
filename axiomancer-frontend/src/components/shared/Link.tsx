@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { Link as RouterLink } from 'react-router-dom';
-import { theme } from '../../styles/theme';
+import { theme } from '@styles/theme';
 
 export const StyledLink = styled(RouterLink)<{
   variant?: 'default' | 'primary' | 'secondary' | 'underline';

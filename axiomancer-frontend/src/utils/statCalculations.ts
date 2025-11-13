@@ -1,5 +1,5 @@
-import { BaseStats, DerivedStats } from '../types/game';
-import { EquippedItems } from '../types/equipment';
+import { BaseStats, DerivedStats } from '@type/game';
+import { EquippedItems } from '@type/equipment';
 
 /**
  * Calculate all derived stats from base Heart/Body/Mind stats

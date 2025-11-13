@@ -1,4 +1,4 @@
-import { Skill } from '../types/game';
+import { Skill } from '@type/game';
 
 /**
  * Fallacy-based skills system inspired by philosophical combat

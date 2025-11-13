@@ -1,5 +1,5 @@
-import { BuffDebuff, BuffDebuffEffect, CombatantBuffs, StatusEffectName } from '../../../types/buffs';
-import { DerivedStats } from '../../../types/game';
+import { BuffDebuff, BuffDebuffEffect, CombatantBuffs, StatusEffectName } from '@type/buffs';
+import { DerivedStats } from '@type/game';
 
 // TODO: Update this, but bridge will be similar to combatEffectBridge.ts
 /**

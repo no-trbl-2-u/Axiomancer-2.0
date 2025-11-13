@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Slot, SlotsContainer } from '../components/shared/Slot';
+import { Slot, SlotsContainer } from '@components/shared/Slot';
 
 const meta = {
   title: 'Shared/Slot',

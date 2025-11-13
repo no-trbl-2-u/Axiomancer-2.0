@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ActionButton, SaveButton, CloseButton } from '../components/shared/ActionButton';
+import { ActionButton, SaveButton, CloseButton } from '@components/shared/ActionButton';
 
 const meta = {
   title: 'Shared/ActionButton',

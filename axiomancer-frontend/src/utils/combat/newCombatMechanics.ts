@@ -3,7 +3,7 @@
 * Rock - Paper - Scissors: Heart > Body > Mind > Heart
  */
 
-import { Character, Enemy } from '../../types/game';
+import { Character, Enemy } from '@type/game';
 import {
   CombatType,
   CombatActionType,
@@ -11,7 +11,7 @@ import {
   AdvantageType,
   CombatResolutionResult,
   BattleLogEntry
-} from '../../types/combat';
+} from '@type/combat';
 
 /**
  * Determine type advantage

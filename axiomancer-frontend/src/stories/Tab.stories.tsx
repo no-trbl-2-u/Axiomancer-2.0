@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Tab, TabsContainer } from '../components/shared/Tab';
+import { Tab, TabsContainer } from '@components/shared/Tab';
 import { useState } from 'react';
 
 const meta = {

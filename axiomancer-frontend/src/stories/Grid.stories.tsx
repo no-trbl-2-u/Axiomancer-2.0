@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Grid, FlexContainer, Container, EmptyState } from '../components/shared/Grid';
-import { Card } from '../components/shared/Card';
+import { Grid, FlexContainer, Container, EmptyState } from '@components/shared/Grid';
+import { Card } from '@components/shared/Card';
 
 const meta = {
   title: 'Shared/Grid',

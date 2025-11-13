@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useAuthStore } from '../stores/authStore';
-import { Input } from '../components/shared/Input';
-import { FormContainer, Form, FormError } from '../components/shared/Form';
-import { Title } from '../components/shared/Text';
-import { ActionButton } from '../components/shared/ActionButton';
-import { StyledLink } from '../components/shared/Link';
-import { LoginCredentials } from '../types';
+import { useAuthStore } from '@stores/authStore';
+import { Input } from '@components/shared/Input';
+import { FormContainer, Form, FormError } from '@components/shared/Form';
+import { Title } from '@components/shared/Text';
+import { ActionButton } from '@components/shared/ActionButton';
+import { StyledLink } from '@components/shared/Link';
+import { LoginCredentials } from '@type';
 
 export const LoginPage = React.memo(() => {
   // Zustand store

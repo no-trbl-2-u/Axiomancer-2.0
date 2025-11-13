@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Tooltip, TooltipProvider } from '../components/shared/Tooltip';
-import { Button } from '../components/shared/Button';
+import { Tooltip, TooltipProvider } from '@components/shared/Tooltip';
+import { Button } from '@components/shared/Button';
 
 const meta = {
   title: 'Shared/Tooltip',

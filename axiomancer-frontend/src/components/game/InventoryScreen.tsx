@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { theme } from '../../styles/theme';
-import { useGameStore } from '../../stores/gameStore';
-import { EquipmentSlot, Item, Equipment, EquipmentType, ItemType } from '../../types/equipment';
-import { equipmentItems } from '../../utils/equipmentItems';
+import { theme } from '@styles/theme';
+import { useGameStore } from '@stores/gameStore';
+import { EquipmentSlot, Item, Equipment, EquipmentType, ItemType } from '@type/equipment';
+import { equipmentItems } from '@utils/equipmentItems';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { Container, Grid, EmptyState } from '../shared/Grid';
-import { Panel } from '../shared/Panel';
-import { Card } from '../shared/Card';
-import { TabsContainer, Tab } from '../shared/Tab';
+import { Container, Grid, EmptyState } from '@components/shared/Grid';
+import { Panel } from '@components/shared/Panel';
+import { Card } from '@components/shared/Card';
+import { TabsContainer, Tab } from '@components/shared/Tab';
 
 const TooltipOverlay = styled.div<{ show: boolean }>`
   position: fixed;

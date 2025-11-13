@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { theme } from '../../styles/theme';
-import { useGameStore } from '../../stores/gameStore';
-import { useDebugStore } from '../../stores/debugStore';
+import { theme } from '@styles/theme';
+import { useGameStore } from '@stores/gameStore';
+import { useDebugStore } from '@stores/debugStore';
 import { EventModal } from './Events/EventModal';
 import { LockedNodeModal } from './LockedNodeModal';
-import { saveCharacter } from '../../utils/characterSave';
+import { saveCharacter } from '@utils/characterSave';
 
 interface GlobalArea {
   id: string;

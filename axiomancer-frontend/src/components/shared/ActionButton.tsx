@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { theme } from '../../styles/theme';
+import { theme } from '@styles/theme';
 
 export const ActionButton = styled.button<{
   variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning' | 'category';

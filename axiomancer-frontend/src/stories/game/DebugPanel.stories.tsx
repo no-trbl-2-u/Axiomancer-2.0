@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DebugPanel } from '../../components/game/DebugPanel';
+import { DebugPanel } from '@components/game/DebugPanel';
 import { useState } from 'react';
 
 const meta = {

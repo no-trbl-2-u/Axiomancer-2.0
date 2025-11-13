@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Title, Subtitle, Label, Text, Description, ErrorMessage, Badge } from '../components/shared/Text';
+import { Title, Subtitle, Label, Text, Description, ErrorMessage, Badge } from '@components/shared/Text';
 
 const meta = {
   title: 'Shared/Text',

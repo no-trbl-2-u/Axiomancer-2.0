@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../stores/authStore';
-import { Input } from '../components/shared/Input';
-import { FormContainer, Form, FormError } from '../components/shared/Form';
-import { Title } from '../components/shared/Text';
-import { ActionButton } from '../components/shared/ActionButton';
-import { StyledLink } from '../components/shared/Link';
-import { RegisterData } from '../types';
-import { hasExistingCharacter } from '../utils/characterSave';
+import { useAuthStore } from '@stores/authStore';
+import { Input } from '@components/shared/Input';
+import { FormContainer, Form, FormError } from '@components/shared/Form';
+import { Title } from '@components/shared/Text';
+import { ActionButton } from '@components/shared/ActionButton';
+import { StyledLink } from '@components/shared/Link';
+import { RegisterData } from '@type';
+import { hasExistingCharacter } from '@utils/characterSave';
 
 export const RegisterPage = React.memo(() => {
   // Zustand store

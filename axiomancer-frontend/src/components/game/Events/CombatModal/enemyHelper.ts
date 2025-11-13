@@ -1,5 +1,5 @@
-import { BaseStats, DerivedStats, Skill, PhilosophicalAspect } from '../../../../types/game';
-import { calculateDerivedStats, calculateMaxHP, calculateMaxMP } from '../../../../utils/statCalculations';
+import { BaseStats, DerivedStats, Skill, PhilosophicalAspect } from '@type/game';
+import { calculateDerivedStats, calculateMaxHP, calculateMaxMP } from '@utils/statCalculations';
 
 /**
  * Enemy Type Definition

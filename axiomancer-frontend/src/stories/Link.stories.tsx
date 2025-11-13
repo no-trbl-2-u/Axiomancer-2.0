@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { StyledLink } from '../components/shared/Link';
+import { StyledLink } from '@components/shared/Link';
 import { BrowserRouter } from 'react-router-dom';
 
 const meta = {

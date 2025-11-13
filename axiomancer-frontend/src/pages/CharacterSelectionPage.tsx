@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { theme } from '../styles/theme';
-import { useAuthStore } from '../stores/authStore';
-import { useGameStore } from '../stores/gameStore';
-import { loadCharacter, deleteCharacter, SavedCharacterData } from '../utils/characterSave';
+import { theme } from '@styles/theme';
+import { useAuthStore } from '@stores/authStore';
+import { useGameStore } from '@stores/gameStore';
+import { loadCharacter, deleteCharacter, SavedCharacterData } from '@utils/characterSave';
 import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`

@@ -1,6 +1,6 @@
 // Enemy type moved to components/game/Events/CombatModal/enemyHelper.ts
-// Re-exported here for backwards compatibility
-import type { Enemy as EnemyType } from '../components/game/Events/CombatModal/enemyHelper';
+// Re-imported here for backwards compatibility
+import type { Enemy as EnemyType } from '@components/game/Events/CombatModal/enemyHelper';
 export type Enemy = EnemyType;
 
 // BattleLogEntry type from combat.ts (used by CombatState)

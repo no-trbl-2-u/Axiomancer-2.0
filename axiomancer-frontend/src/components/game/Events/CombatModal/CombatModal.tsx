@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { Dialog, DialogContent } from '../../../figma/Dialog';
+import { Dialog, DialogContent } from '@components/figma/Dialog';
 import { X, BookOpen } from 'lucide-react';
-import { ScrollArea } from '../../../figma/ScrollArea';
-import { useGameStore } from '../../../../stores/gameStore';
-import { NewFriendsModal } from '../../../figma/NewFriendsModal';
-import { theme } from '../../../../styles/theme';
+import { ScrollArea } from '@components/figma/ScrollArea';
+import { useGameStore } from '@stores/gameStore';
+import { NewFriendsModal } from '@components/figma/NewFriendsModal';
+import { theme } from '@styles/theme';
 import {
   resolveCombatRound,
   generateEnemyDecision,
   createBattleLogEntry,
   checkCombatEnd,
-} from '../../../../utils/combat/newCombatMechanics';
-import { CombatType, CombatActionType, CombatDecision } from '../../../../types/combat';
+} from '@utils/combat/newCombatMechanics';
+import { CombatType, CombatActionType, CombatDecision } from '@type/combat';
 
 type ActionView = 'primary' | 'secondary';
 type PrimaryAction = 'Body' | 'Mind' | 'Heart' | 'Item' | 'Flee';
@@ -442,8 +442,7 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
       enemy: updatedEnemy,
       round: round + 1,
       friendshipCounter: newFriendshipCounter,
-      // FIXME: Logging is broken!
-      battleLog,
+      battleLog: [...battleLog, logEntry],
       playerChoice: {},
       enemyChoice: {},
       phase: 'choosing_aspect',

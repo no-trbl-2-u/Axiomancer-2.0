@@ -1,4 +1,4 @@
-import { Quest, QuestObjective, Character } from '../types/game';
+import { Quest, QuestObjective, Character } from '@type/game';
 
 export const initialQuests: Quest[] = [
   {

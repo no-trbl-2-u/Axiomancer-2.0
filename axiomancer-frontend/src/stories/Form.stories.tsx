@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Form, FormContainer, FormGroup, FormActions, FormError, FormSuccess, FormHelperText, FormLabel } from '../components/shared/Form';
-import { Input } from '../components/shared/Input';
-import { Button } from '../components/shared/Button';
+import { Form, FormContainer, FormGroup, FormActions, FormError, FormSuccess, FormHelperText, FormLabel } from '@components/shared/Form';
+import { Input } from '@components/shared/Input';
+import { Button } from '@components/shared/Button';
 
 const meta = {
   title: 'Shared/Form',

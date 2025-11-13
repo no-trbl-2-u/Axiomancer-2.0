@@ -1,4 +1,4 @@
-import { Skill } from '../types/game';
+import { Skill } from '@type/game';
 
 /**
  * Complete Fallacy Spellbook - All 100+ Logical Fallacies from all-fallacies.md

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
-import { theme } from '../../styles/theme';
-import { useGameStore } from '../../stores/gameStore';
-import { loadAvailablePortraits, getFallbackPortraits, Portrait } from '../../utils/portraitLoader';
-import { BaseStats } from '../../types/game';
+import { theme } from '@styles/theme';
+import { useGameStore } from '@stores/gameStore';
+import { loadAvailablePortraits, getFallbackPortraits, Portrait } from '@utils/portraitLoader';
+import { BaseStats } from '@type/game';
 import {
   createInitialBaseStats,
   calculateDerivedStats,
@@ -12,7 +12,7 @@ import {
   calculateMaxMP,
   getCharacterCreationPoints,
   getTotalInvestedPoints
-} from '../../utils/statCalculations';
+} from '@utils/statCalculations';
 
 const Container = styled.div`
   width: 100vw;

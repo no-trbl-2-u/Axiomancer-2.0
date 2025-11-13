@@ -1,8 +1,8 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
-import { theme } from '../../../../../styles/theme';
-import { BuffDebuff } from '../../../../../types/buffs';
+import { theme } from '@styles/theme';
+import { BuffDebuff } from '@type/buffs';
 
 interface BuffDebuffDisplayProps {
   buffs: BuffDebuff[];

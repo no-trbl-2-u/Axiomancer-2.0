@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { BuffDebuffDisplay } from '../../components/game/Events/CombatModal/combat/BuffDebuffDisplay';
-import { BuffDebuff } from '../../types/buffs';
+import { BuffDebuffDisplay } from '@components/game/Events/CombatModal/combat/BuffDebuffDisplay';
+import { BuffDebuff } from '@type/buffs';
 
 const meta: Meta<typeof BuffDebuffDisplay> = {
     title: 'Combat/BuffDebuffDisplay',
