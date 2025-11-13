@@ -160,7 +160,7 @@ const createMockCombatState = (
   playerHealth: number = 85,
   enemyHealth: number = 60,
   friendshipCounter: number = 0,
-  battleLog: BattleLogEntry[] = []
+  logEntry: BattleLogEntry[] = []
 ): NewCombatState => ({
   active: true,
   phase,
@@ -170,7 +170,7 @@ const createMockCombatState = (
   enemy: { ...mockEnemy, health: enemyHealth },
   playerChoice: {},
   enemyChoice: {},
-  battleLog,
+  logEntry,
 });
 
 const meta: Meta<typeof CombatModal> = {
@@ -266,7 +266,7 @@ export const MidCombat: Story = {
  */
 export const NearFriendship: Story = {
   render: () => {
-    const battleLogWithDefends: BattleLogEntry[] = [
+    const logEntryWithDefends: BattleLogEntry[] = [
       ...mockBattleLog,
       {
         round: 3,
@@ -300,7 +300,7 @@ export const NearFriendship: Story = {
       77,
       58,
       2,
-      battleLogWithDefends
+      logEntryWithDefends
     );
 
     useGameStore.setState({
@@ -410,7 +410,7 @@ export const BossFight: Story = {
       enemy: bossEnemy,
       playerChoice: {},
       enemyChoice: {},
-      battleLog: [],
+      logEntry: [],
     };
 
     useGameStore.setState({

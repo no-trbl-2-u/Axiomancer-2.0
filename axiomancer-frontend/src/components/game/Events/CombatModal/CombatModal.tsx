@@ -345,7 +345,6 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
   const enemy = combatState?.enemy;
   const round = combatState?.round ?? 1;
   const friendshipCounter = combatState?.friendshipCounter ?? 0;
-  const battleLog = combatState?.battleLog ?? [];
 
   // Get current location for background
   // TODO: Enhance this and take out of file
@@ -442,7 +441,7 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
       enemy: updatedEnemy,
       round: round + 1,
       friendshipCounter: newFriendshipCounter,
-      battleLog: [...battleLog, logEntry],
+      logEntry: [...(combatState.logEntry ?? []), logEntry],
       playerChoice: {},
       enemyChoice: {},
       phase: 'choosing_aspect',
@@ -639,10 +638,10 @@ export function CombatModal({ open, onOpenChange, bare = false }: CombatModalPro
             </BattleLogHeader>
             <BattleLogContent>
               <BattleLogEntries>
-                {battleLog.length === 0 ? (
+                {!combatState?.logEntry || combatState.logEntry.length === 0 ? (
                   <EmptyLogMessage>No combat rounds yet</EmptyLogMessage>
                 ) : (
-                  battleLog.map((entry) => (
+                  combatState.logEntry.map((entry) => (
                     <BattleLogEntry key={entry.round}>
                       <RoundTitle>Round {entry.round}</RoundTitle>
 

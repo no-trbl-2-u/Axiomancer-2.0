@@ -853,800 +853,800 @@ export const useGameStore = create<GameStore>()(
         gameState: createInitialGameState(),
         currentScreen: 'exploration',
 
-      // Character Actions
-      createCharacter: (characterData: CreateCharacterData) => {
-        const finalBaseStats = characterData.baseStats || createInitialBaseStats();
-        const finalDerivedStats = calculateDerivedStats(finalBaseStats);
-        const finalMaxHP = calculateMaxHP(finalBaseStats);
-        const finalMaxMP = calculateMaxMP(finalBaseStats);
+        // Character Actions
+        createCharacter: (characterData: CreateCharacterData) => {
+          const finalBaseStats = characterData.baseStats || createInitialBaseStats();
+          const finalDerivedStats = calculateDerivedStats(finalBaseStats);
+          const finalMaxHP = calculateMaxHP(finalBaseStats);
+          const finalMaxMP = calculateMaxMP(finalBaseStats);
 
-        // Calculate unassigned stat points - any points not used during character creation
-        const totalInvestedPoints = getTotalInvestedPoints(finalBaseStats);
-        const maxAvailablePoints = getCharacterCreationPoints();
-        const unassignedStatPoints = Math.max(0, maxAvailablePoints - totalInvestedPoints);
+          // Calculate unassigned stat points - any points not used during character creation
+          const totalInvestedPoints = getTotalInvestedPoints(finalBaseStats);
+          const maxAvailablePoints = getCharacterCreationPoints();
+          const unassignedStatPoints = Math.max(0, maxAvailablePoints - totalInvestedPoints);
 
-        // Add default equipment for new characters
-        const defaultEquipment = {
-          helmet: {
-            id: 'starter_helmet',
-            name: 'Leather Cap',
-            type: 'armor' as const,
-            stats: { body: 1 },
-            special: 'Basic protection for beginners',
-            icon: '🧢'
-          },
-          bodyArmor: {
-            id: 'starter_tunic',
-            name: 'Simple Tunic',
-            type: 'armor' as const,
-            stats: { heart: 1 },
-            special: 'Comfortable clothing for philosophical discourse',
-            icon: '👕'
-          },
-          gloves: {
-            id: 'starter_gloves',
-            name: 'Work Gloves',
-            type: 'armor' as const,
-            stats: { body: 1 },
-            special: 'Basic hand protection',
-            icon: '🧤'
-          },
-          boots: {
-            id: 'starter_boots',
-            name: 'Simple Boots',
-            type: 'armor' as const,
-            stats: { body: 1 },
-            special: 'Footwear for long journeys',
-            icon: '👢'
-          },
-          leftHand: {
-            id: 'starter_weapon',
-            name: 'Walking Stick',
-            type: 'weapon' as const,
-            stats: { body: 2 },
-            special: 'A sturdy stick for support and defense',
-            icon: '🪄'
-          },
-          rightHand: {
-            id: 'starter_book',
-            name: 'Philosophy Primer',
-            type: 'weapon' as const,
-            stats: { mind: 2 },
-            special: 'Basic text on logical reasoning',
-            icon: '📚'
-          },
-          leftRing: {
-            id: 'starter_ring',
-            name: 'Simple Ring',
-            type: 'accessory' as const,
-            subtype: 'ring' as const,
-            stats: { mind: 1 },
-            special: 'A basic ring for focus',
-            icon: '💍'
-          },
-          bracelet: {
-            id: 'starter_bracelet',
-            name: 'Leather Bracelet',
-            type: 'accessory' as const,
-            subtype: 'bracelet' as const,
-            stats: { body: 1 },
-            special: 'Basic wrist protection',
-            icon: '🧿'
-          },
-          amulet: {
-            id: 'starter_amulet',
-            name: 'Heart Pendant',
-            type: 'accessory' as const,
-            subtype: 'amulet' as const,
-            stats: { heart: 1 },
-            special: 'A simple pendant for emotional balance',
-            icon: '📿'
-          }
-        };
-
-        set((state) => ({
-          gameState: {
-            ...createInitialGameState(),
-            character: {
-              ...createInitialGameState().character,
-              id: Date.now().toString(),
-              name: characterData.name,
-              portrait: characterData.portrait,
-              baseStats: finalBaseStats,
-              derivedStats: finalDerivedStats,
-              health: finalMaxHP,
-              maxHealth: finalMaxHP,
-              mana: finalMaxMP,
-              maxMana: finalMaxMP,
-              availableStatPoints: 0,
-              unassignedStatPoints: unassignedStatPoints,
-              equippedItems: defaultEquipment,
+          // Add default equipment for new characters
+          const defaultEquipment = {
+            helmet: {
+              id: 'starter_helmet',
+              name: 'Leather Cap',
+              type: 'armor' as const,
+              stats: { body: 1 },
+              special: 'Basic protection for beginners',
+              icon: '🧢'
             },
-          },
-          currentScreen: 'exploration',
-        }));
+            bodyArmor: {
+              id: 'starter_tunic',
+              name: 'Simple Tunic',
+              type: 'armor' as const,
+              stats: { heart: 1 },
+              special: 'Comfortable clothing for philosophical discourse',
+              icon: '👕'
+            },
+            gloves: {
+              id: 'starter_gloves',
+              name: 'Work Gloves',
+              type: 'armor' as const,
+              stats: { body: 1 },
+              special: 'Basic hand protection',
+              icon: '🧤'
+            },
+            boots: {
+              id: 'starter_boots',
+              name: 'Simple Boots',
+              type: 'armor' as const,
+              stats: { body: 1 },
+              special: 'Footwear for long journeys',
+              icon: '👢'
+            },
+            leftHand: {
+              id: 'starter_weapon',
+              name: 'Walking Stick',
+              type: 'weapon' as const,
+              stats: { body: 2 },
+              special: 'A sturdy stick for support and defense',
+              icon: '🪄'
+            },
+            rightHand: {
+              id: 'starter_book',
+              name: 'Philosophy Primer',
+              type: 'weapon' as const,
+              stats: { mind: 2 },
+              special: 'Basic text on logical reasoning',
+              icon: '📚'
+            },
+            leftRing: {
+              id: 'starter_ring',
+              name: 'Simple Ring',
+              type: 'accessory' as const,
+              subtype: 'ring' as const,
+              stats: { mind: 1 },
+              special: 'A basic ring for focus',
+              icon: '💍'
+            },
+            bracelet: {
+              id: 'starter_bracelet',
+              name: 'Leather Bracelet',
+              type: 'accessory' as const,
+              subtype: 'bracelet' as const,
+              stats: { body: 1 },
+              special: 'Basic wrist protection',
+              icon: '🧿'
+            },
+            amulet: {
+              id: 'starter_amulet',
+              name: 'Heart Pendant',
+              type: 'accessory' as const,
+              subtype: 'amulet' as const,
+              stats: { heart: 1 },
+              special: 'A simple pendant for emotional balance',
+              icon: '📿'
+            }
+          };
 
-        // Auto-save after character creation
-        setTimeout(() => {
-          get().saveGame();
-        }, 500);
-      },
+          set((state) => ({
+            gameState: {
+              ...createInitialGameState(),
+              character: {
+                ...createInitialGameState().character,
+                id: Date.now().toString(),
+                name: characterData.name,
+                portrait: characterData.portrait,
+                baseStats: finalBaseStats,
+                derivedStats: finalDerivedStats,
+                health: finalMaxHP,
+                maxHealth: finalMaxHP,
+                mana: finalMaxMP,
+                maxMana: finalMaxMP,
+                availableStatPoints: 0,
+                unassignedStatPoints: unassignedStatPoints,
+                equippedItems: defaultEquipment,
+              },
+            },
+            currentScreen: 'exploration',
+          }));
 
-      loadSavedCharacter: async (): Promise<boolean> => {
-        try {
-          const savedData = await loadCharacter();
-          if (!savedData) {
-            console.log('No saved character found');
+          // Auto-save after character creation
+          setTimeout(() => {
+            get().saveGame();
+          }, 500);
+        },
+
+        loadSavedCharacter: async (): Promise<boolean> => {
+          try {
+            const savedData = await loadCharacter();
+            if (!savedData) {
+              console.log('No saved character found');
+              return false;
+            }
+
+            console.log('Loading saved character:', savedData.character.name);
+            set({
+              gameState: {
+                character: savedData.character,
+                currentLocation: savedData.currentLocation,
+                currentNode: savedData.currentNode,
+                story: savedData.story,
+                inventory: savedData.inventory,
+                locations: savedData.locations,
+                globalMap: {},
+                questLog: savedData.questLog,
+                mapEnergy: savedData.mapEnergy,
+                maxMapEnergy: savedData.maxMapEnergy,
+                gamePhase: (savedData.gamePhase as 'childhood' | 'labyrinth' | 'adulthood') || 'childhood',
+                combat: null, // Reset combat state
+                currentGlobalNode: 'fishing_village',
+              },
+              currentScreen: 'exploration',
+            });
+            return true;
+          } catch (error) {
+            console.error('Failed to load saved character:', error);
+            return false;
+          }
+        },
+
+        updateCharacter: (updates: Partial<Character>) => {
+          set((state) => ({
+            gameState: {
+              ...state.gameState,
+              character: {
+                ...state.gameState.character,
+                ...updates,
+              },
+            },
+          }));
+
+          // Auto-save after character update
+          setTimeout(() => {
+            get().saveGame();
+          }, 500);
+        },
+
+        assignStatPoint: (statName: keyof BaseStats) => {
+          set((state) => {
+            const currentCharacter = state.gameState.character;
+
+            // Check if there are unassigned stat points available
+            if (currentCharacter.unassignedStatPoints <= 0) {
+              return state; // No points to assign
+            }
+
+            // Update base stats and unassigned points
+            const newBaseStats = {
+              ...currentCharacter.baseStats,
+              [statName]: currentCharacter.baseStats[statName] + 1
+            };
+
+            // Recalculate derived stats
+            const newDerivedStats = calculateDerivedStats(newBaseStats);
+            const newMaxHP = calculateMaxHP(newBaseStats);
+            const newMaxMP = calculateMaxMP(newBaseStats);
+
+            console.log(`📈 Assigned stat point to ${statName}. New value: ${newBaseStats[statName]}`);
+
+            return {
+              gameState: {
+                ...state.gameState,
+                character: {
+                  ...currentCharacter,
+                  baseStats: newBaseStats,
+                  derivedStats: newDerivedStats,
+                  maxHealth: newMaxHP,
+                  maxMana: newMaxMP,
+                  unassignedStatPoints: currentCharacter.unassignedStatPoints - 1,
+                  // Ensure current HP/MP don't exceed new maximums
+                  health: Math.min(currentCharacter.health, newMaxHP),
+                  mana: Math.min(currentCharacter.mana, newMaxMP),
+                },
+              },
+            };
+          });
+
+          // Auto-save after stat assignment
+          setTimeout(() => {
+            get().saveGame();
+          }, 500);
+        },
+
+        unassignStatPoint: (statName: keyof BaseStats) => {
+          set((state) => {
+            const currentCharacter = state.gameState.character;
+
+            // Check if stat can be decreased (can't go below 1)
+            if (currentCharacter.baseStats[statName] <= 1) {
+              return state; // Can't unassign below 1
+            }
+
+            // Update base stats and unassigned points
+            const newBaseStats = {
+              ...currentCharacter.baseStats,
+              [statName]: currentCharacter.baseStats[statName] - 1
+            };
+
+            // Recalculate derived stats
+            const newDerivedStats = calculateDerivedStats(newBaseStats);
+            const newMaxHP = calculateMaxHP(newBaseStats);
+            const newMaxMP = calculateMaxMP(newBaseStats);
+
+            console.log(`📉 Unassigned stat point from ${statName}. New value: ${newBaseStats[statName]}`);
+
+            return {
+              gameState: {
+                ...state.gameState,
+                character: {
+                  ...currentCharacter,
+                  baseStats: newBaseStats,
+                  derivedStats: newDerivedStats,
+                  maxHealth: newMaxHP,
+                  maxMana: newMaxMP,
+                  unassignedStatPoints: currentCharacter.unassignedStatPoints + 1,
+                  // Ensure current HP/MP don't exceed new maximums
+                  health: Math.min(currentCharacter.health, newMaxHP),
+                  mana: Math.min(currentCharacter.mana, newMaxMP),
+                },
+              },
+            };
+          });
+
+          // Auto-save after stat unassignment
+          setTimeout(() => {
+            get().saveGame();
+          }, 500);
+        },
+
+        gainExperience: (amount: number) => {
+          set((state) => {
+            const currentCharacter = state.gameState.character;
+            const newExperience = currentCharacter.experience + amount;
+            const newExperienceToNextLevel = currentCharacter.experienceToNextLevel;
+            let leveledUp = false;
+            let newLevel = currentCharacter.level;
+            let newUnassignedStatPoints = currentCharacter.unassignedStatPoints;
+
+            // Check if character leveled up
+            if (newExperience >= newExperienceToNextLevel) {
+              newLevel = currentCharacter.level + 1;
+              newUnassignedStatPoints = currentCharacter.unassignedStatPoints + 5;
+              leveledUp = true;
+
+              console.log(`🎉 Level up! ${currentCharacter.name} reached level ${newLevel}`);
+            }
+
+            return {
+              gameState: {
+                ...state.gameState,
+                character: {
+                  ...currentCharacter,
+                  level: newLevel,
+                  experience: leveledUp ? newExperience - newExperienceToNextLevel : newExperience,
+                  experienceToNextLevel: leveledUp ? 1000 : newExperienceToNextLevel,
+                  unassignedStatPoints: newUnassignedStatPoints,
+                },
+              },
+            };
+          });
+
+          // Auto-save after gaining experience
+          setTimeout(() => {
+            get().saveGame();
+          }, 500);
+        },
+
+        // Location & Navigation
+        moveToLocation: (locationId: string) => {
+          set((state) => {
+            const targetLocation = state.gameState.locations[locationId];
+            const startNodeId = targetLocation?.isNodeMap ?
+              targetLocation.nodes?.find(n => n.type === 'start')?.id : undefined;
+            const nextCurrentNode = startNodeId || state.gameState.currentNode;
+
+            return {
+              gameState: {
+                ...state.gameState,
+                currentLocation: locationId,
+                ...(nextCurrentNode ? { currentNode: nextCurrentNode } : {}),
+              },
+            };
+          });
+        },
+
+        moveToNode: (nodeId: string) => {
+          set((state) => {
+            const currentLoc = state.gameState.locations[state.gameState.currentLocation];
+            if (!currentLoc) return state;
+
+            return {
+              gameState: {
+                ...state.gameState,
+                currentNode: nodeId,
+                locations: {
+                  ...state.gameState.locations,
+                  [state.gameState.currentLocation]: {
+                    ...currentLoc,
+                    nodes: currentLoc.nodes?.map(node =>
+                      node.id === nodeId
+                        ? { ...node, visited: true }
+                        : node
+                    ) || []
+                  }
+                }
+              }
+            };
+          });
+        },
+
+        unlockNode: (locationId: string, nodeId: string) => {
+          console.log(`🔓 UNLOCK_NODE: unlocking ${nodeId} in ${locationId}`);
+          set((state) => {
+            const unlockLocation = state.gameState.locations[locationId];
+            if (!unlockLocation) {
+              console.warn(`Location ${locationId} not found`);
+              return state;
+            }
+
+            return {
+              gameState: {
+                ...state.gameState,
+                locations: {
+                  ...state.gameState.locations,
+                  [locationId]: {
+                    ...unlockLocation,
+                    nodes: unlockLocation.nodes?.map(node =>
+                      node.id === nodeId
+                        ? { ...node, unlocked: true }
+                        : node
+                    ) || []
+                  }
+                }
+              }
+            };
+          });
+        },
+
+        // Inventory Management
+        updateInventory: (updates: Partial<GameState['inventory']>) => {
+          set((state) => ({
+            gameState: {
+              ...state.gameState,
+              inventory: {
+                ...state.gameState.inventory,
+                ...updates,
+              },
+            },
+          }));
+        },
+
+        // Story Progression
+        updateStory: (updates: Partial<GameState['story']>) => {
+          set((state) => ({
+            gameState: {
+              ...state.gameState,
+              story: {
+                ...state.gameState.story,
+                ...updates,
+              },
+            },
+          }));
+        },
+
+        unlockGuardianProgression: () => {
+          const state = get();
+          console.log('🌟 unlockGuardianProgression() called!');
+          console.log('📍 Current Location:', state.gameState.currentLocation);
+
+          // Update story to mark guardian as talked to
+          get().updateStory({ talkedToGuardian: true });
+          console.log('✅ Set talkedToGuardian to true');
+
+          // Unlock Basic Reasoning skill for the player
+          const basicReasoningSkill: Skill = {
+            id: 'basic_reasoning',
+            name: 'Basic Reasoning',
+            description: 'Fundamental logical thinking skills unlocked by your guardian.',
+            level: 1,
+            manaCost: 5,
+            damage: 10,
+            icon: '🤔',
+            type: 'logic',
+            philosophicalAspect: 'mind',
+          };
+
+          console.log('✅ Adding Basic Reasoning skill:', basicReasoningSkill);
+
+          // Add the Basic Reasoning skill to availableSkills
+          get().updateCharacter({
+            availableSkills: [basicReasoningSkill],
+          });
+
+          // Unlock all nodes connected to the guardian
+          const guardianNode = state.gameState.locations[state.gameState.currentLocation]?.nodes?.find(n => n.id === 'guardian');
+          console.log('🏰 Guardian Node:', guardianNode);
+          console.log('🔗 Guardian Connections:', guardianNode?.connections);
+
+          if (guardianNode?.connections) {
+            guardianNode.connections.forEach(connectedNodeId => {
+              console.log(`🔓 Unlocking node: ${connectedNodeId}`);
+              get().unlockNode(state.gameState.currentLocation, connectedNodeId);
+            });
+          }
+        },
+
+        // Combat System
+        startCombat: (enemyId: string) => {
+          const state = get();
+
+          // Try to get enemy by ID first, if not found or if 'random', get random enemy based on location
+          let enemy;
+          if (enemyId === 'random') {
+            enemy = getRandomEnemyBasedOnMap(state.gameState.currentLocation);
+          } else {
+            enemy = getEnemyById(enemyId);
+          }
+
+          if (!enemy) {
+            console.error(`Failed to create enemy with ID: ${enemyId}`);
+            return;
+          }
+
+          // Initialize new combat state
+          const newCombatState: any = {
+            active: true,
+            phase: 'choosing_type',
+            round: 1,
+            friendshipCounter: 0,
+            player: state.gameState.character,
+            enemy,
+            playerChoice: {},
+            enemyChoice: {},
+            logEntry: [],
+          };
+
+          set({
+            gameState: {
+              ...state.gameState,
+              combat: newCombatState,
+            },
+            currentScreen: 'combat',
+          });
+        },
+
+        endCombat: () => {
+          set((state) => ({
+            gameState: {
+              ...state.gameState,
+              combat: null,
+            },
+            currentScreen: 'exploration',
+          }));
+        },
+
+        updateCombat: (updates: Partial<any>) => {
+          set((state) => ({
+            gameState: {
+              ...state.gameState,
+              combat: state.gameState.combat ? {
+                ...state.gameState.combat,
+                ...updates,
+              } : null,
+            },
+          }));
+        },
+
+        // Quest System
+        completeQuest: (questId: string) => {
+          set((state) => ({
+            gameState: {
+              ...state.gameState,
+              questLog: state.gameState.questLog.map(quest =>
+                quest.id === questId
+                  ? { ...quest, completed: true }
+                  : quest
+              ),
+            },
+          }));
+        },
+
+        addQuest: (quest: Quest) => {
+          set((state) => ({
+            gameState: {
+              ...state.gameState,
+              questLog: [...state.gameState.questLog, quest],
+            },
+          }));
+        },
+
+        // Equipment System
+        equipItem: (slot: EquipmentSlot, item: Equipment) => {
+          set((state) => {
+            // Update equipped items
+            const newEquippedItems = {
+              ...state.gameState.character.equippedItems,
+              [slot]: item,
+            };
+
+            // Recalculate stats with new equipment
+            const totalBaseStats = calculateTotalBaseStats(state.gameState.character.baseStats, newEquippedItems);
+            const newDerivedStats = calculateDerivedStats(totalBaseStats);
+            const newMaxHP = calculateMaxHP(totalBaseStats);
+            const newMaxMP = calculateMaxMP(totalBaseStats);
+
+            console.log(`⚔️ Equipped ${item.name} to ${slot}`);
+            console.log(`📊 New total base stats:`, totalBaseStats);
+
+            return {
+              gameState: {
+                ...state.gameState,
+                character: {
+                  ...state.gameState.character,
+                  equippedItems: newEquippedItems,
+                  derivedStats: newDerivedStats,
+                  maxHealth: newMaxHP,
+                  maxMana: newMaxMP,
+                  // Heal player proportionally when max HP/MP increases
+                  health: Math.min(state.gameState.character.health, newMaxHP),
+                  mana: Math.min(state.gameState.character.mana, newMaxMP),
+                },
+              },
+            };
+          });
+        },
+
+        unequipItem: (slot: EquipmentSlot) => {
+          set((state) => {
+            if (!state.gameState.character.equippedItems?.[slot]) {
+              return state; // Nothing equipped in that slot
+            }
+
+            // Update equipped items
+            const newEquippedItems = { ...state.gameState.character.equippedItems };
+            delete newEquippedItems[slot];
+
+            // Recalculate stats without the unequipped item
+            const totalBaseStats = calculateTotalBaseStats(state.gameState.character.baseStats, newEquippedItems);
+            const newDerivedStats = calculateDerivedStats(totalBaseStats);
+            const newMaxHP = calculateMaxHP(totalBaseStats);
+            const newMaxMP = calculateMaxMP(totalBaseStats);
+
+            console.log(`🗑️ Unequipped item from ${slot}`);
+            console.log(`📊 New total base stats:`, totalBaseStats);
+
+            return {
+              gameState: {
+                ...state.gameState,
+                character: {
+                  ...state.gameState.character,
+                  equippedItems: newEquippedItems,
+                  derivedStats: newDerivedStats,
+                  maxHealth: newMaxHP,
+                  maxMana: newMaxMP,
+                  // Ensure current HP/MP don't exceed new maximums
+                  health: Math.min(state.gameState.character.health, newMaxHP),
+                  mana: Math.min(state.gameState.character.mana, newMaxMP),
+                },
+              },
+            };
+          });
+        },
+
+        // Skill System
+        canLearnSkill: (skill: Skill): boolean => {
+          const state = get();
+          // Check if already learned
+          if (state.gameState.character.availableSkills.some(s => s.id === skill.id)) {
             return false;
           }
 
-          console.log('Loading saved character:', savedData.character.name);
+          // Check learning requirements
+          if (skill.learningRequirement) {
+            const req = skill.learningRequirement;
+
+            // Check level requirement
+            if (req.level && state.gameState.character.level < req.level) {
+              return false;
+            }
+
+            // Check stat requirements
+            if (req.stats) {
+              if (req.stats.heart && state.gameState.character.baseStats.heart < req.stats.heart) {
+                return false;
+              }
+              if (req.stats.body && state.gameState.character.baseStats.body < req.stats.body) {
+                return false;
+              }
+              if (req.stats.mind && state.gameState.character.baseStats.mind < req.stats.mind) {
+                return false;
+              }
+            }
+          }
+
+          return true;
+        },
+
+        learnSkill: (skill: Skill) => {
+          const state = get();
+          if (!state.canLearnSkill(skill)) {
+            console.warn(`Cannot learn skill ${skill.name}: requirements not met`);
+            return;
+          }
+
+          // Check if skill is already learned
+          if (state.gameState.character.availableSkills.some(s => s.id === skill.id)) {
+            console.log(`⚠️ Skill ${skill.name} is already learned`);
+            return;
+          }
+
+          console.log(`✨ Learned new skill: ${skill.name}`);
+
+          set((innerState) => ({
+            gameState: {
+              ...innerState.gameState,
+              character: {
+                ...innerState.gameState.character,
+                availableSkills: [...innerState.gameState.character.availableSkills, skill],
+              },
+            },
+          }));
+        },
+
+        equipSkill: (skill: Skill, aspect: PhilosophicalAspect) => {
+          set((state) => {
+            const currentEquipped = state.gameState.character.equippedSkills[aspect];
+            if (currentEquipped.length >= 5) {
+              console.warn(`Cannot equip more than 5 skills for ${aspect}`);
+              return state;
+            }
+
+            // Check if skill is already equipped
+            if (currentEquipped.some(s => s.id === skill.id)) {
+              console.log(`Skill ${skill.name} is already equipped for ${aspect}`);
+              return state;
+            }
+
+            // Auto-learn the skill if not already available
+            const availableSkills = state.gameState.character.availableSkills;
+            const skillAlreadyAvailable = availableSkills.some(s => s.id === skill.id);
+            const updatedAvailableSkills = skillAlreadyAvailable
+              ? availableSkills
+              : [...availableSkills, skill];
+
+            console.log(`✅ Equipped ${skill.name} to ${aspect}`);
+
+            return {
+              gameState: {
+                ...state.gameState,
+                character: {
+                  ...state.gameState.character,
+                  availableSkills: updatedAvailableSkills,
+                  equippedSkills: {
+                    ...state.gameState.character.equippedSkills,
+                    [aspect]: [...currentEquipped, skill]
+                  }
+                }
+              }
+            };
+          });
+
+          // Auto-save after equipping skill
+          setTimeout(() => {
+            get().saveGame();
+          }, 500);
+        },
+
+        unequipSkill: (skillId: string, aspect: PhilosophicalAspect) => {
+          set((state) => {
+            const currentEquipped = state.gameState.character.equippedSkills[aspect];
+            const skillIndex = currentEquipped.findIndex(s => s.id === skillId);
+
+            if (skillIndex === -1) {
+              console.warn(`Skill ${skillId} is not equipped for ${aspect}`);
+              return state;
+            }
+
+            return {
+              gameState: {
+                ...state.gameState,
+                character: {
+                  ...state.gameState.character,
+                  equippedSkills: {
+                    ...state.gameState.character.equippedSkills,
+                    [aspect]: currentEquipped.filter((_, index) => index !== skillIndex)
+                  }
+                }
+              }
+            };
+          });
+
+          // Auto-save after unequipping skill
+          setTimeout(() => {
+            get().saveGame();
+          }, 500);
+        },
+
+        // Screen Navigation
+        changeScreen: (screen: GameScreen) => {
+          set({ currentScreen: screen });
+        },
+
+        // Philosophical Choices
+        makePhilosophicalChoice: (choiceId: string, outcome: any) => {
+          // TODO: Implement philosophical choice handling
+          console.log('Philosophical choice made:', choiceId, outcome);
+        },
+
+        // Save System
+        saveGame: async () => {
+          const state = get();
+          const char = state.gameState.character;
+
+          // Debug logging
+          console.log('🔍 saveGame called:', {
+            hasCharacter: !!char,
+            name: char?.name,
+            id: char?.id,
+            willSave: !!(char && char.name && char.id !== 'placeholder')
+          });
+
+          if (char && char.name && char.id !== 'placeholder') {
+            try {
+              console.log('💾 Attempting to save character to database...');
+              await saveCharacter(state.gameState);
+              console.log('✅ Game saved successfully to database');
+            } catch (error) {
+              console.error('❌ Failed to save game to database:', error);
+              // Re-throw to make it more visible
+              throw error;
+            }
+          } else {
+            console.warn('⚠️ Skipping save - character not ready:', {
+              hasName: !!char?.name,
+              id: char?.id
+            });
+          }
+        },
+
+        // Reset/New Game
+        startNewGame: (characterName: string) => {
           set({
             gameState: {
-              character: savedData.character,
-              currentLocation: savedData.currentLocation,
-              currentNode: savedData.currentNode,
-              story: savedData.story,
-              inventory: savedData.inventory,
-              locations: savedData.locations,
-              globalMap: {},
-              questLog: savedData.questLog,
-              mapEnergy: savedData.mapEnergy,
-              maxMapEnergy: savedData.maxMapEnergy,
-              gamePhase: (savedData.gamePhase as 'childhood' | 'labyrinth' | 'adulthood') || 'childhood',
-              combat: null, // Reset combat state
-              currentGlobalNode: 'fishing_village',
+              ...createInitialGameState(),
+              character: {
+                ...createInitialGameState().character,
+                id: Date.now().toString(),
+                name: characterName,
+              },
             },
             currentScreen: 'exploration',
           });
-          return true;
-        } catch (error) {
-          console.error('Failed to load saved character:', error);
-          return false;
-        }
-      },
+        },
 
-      updateCharacter: (updates: Partial<Character>) => {
-        set((state) => ({
-          gameState: {
-            ...state.gameState,
-            character: {
-              ...state.gameState.character,
-              ...updates,
-            },
-          },
-        }));
-
-        // Auto-save after character update
-        setTimeout(() => {
-          get().saveGame();
-        }, 500);
-      },
-
-      assignStatPoint: (statName: keyof BaseStats) => {
-        set((state) => {
-          const currentCharacter = state.gameState.character;
-
-          // Check if there are unassigned stat points available
-          if (currentCharacter.unassignedStatPoints <= 0) {
-            return state; // No points to assign
-          }
-
-          // Update base stats and unassigned points
-          const newBaseStats = {
-            ...currentCharacter.baseStats,
-            [statName]: currentCharacter.baseStats[statName] + 1
-          };
-
-          // Recalculate derived stats
-          const newDerivedStats = calculateDerivedStats(newBaseStats);
-          const newMaxHP = calculateMaxHP(newBaseStats);
-          const newMaxMP = calculateMaxMP(newBaseStats);
-
-          console.log(`📈 Assigned stat point to ${statName}. New value: ${newBaseStats[statName]}`);
-
-          return {
-            gameState: {
-              ...state.gameState,
-              character: {
-                ...currentCharacter,
-                baseStats: newBaseStats,
-                derivedStats: newDerivedStats,
-                maxHealth: newMaxHP,
-                maxMana: newMaxMP,
-                unassignedStatPoints: currentCharacter.unassignedStatPoints - 1,
-                // Ensure current HP/MP don't exceed new maximums
-                health: Math.min(currentCharacter.health, newMaxHP),
-                mana: Math.min(currentCharacter.mana, newMaxMP),
-              },
-            },
-          };
-        });
-
-        // Auto-save after stat assignment
-        setTimeout(() => {
-          get().saveGame();
-        }, 500);
-      },
-
-      unassignStatPoint: (statName: keyof BaseStats) => {
-        set((state) => {
-          const currentCharacter = state.gameState.character;
-
-          // Check if stat can be decreased (can't go below 1)
-          if (currentCharacter.baseStats[statName] <= 1) {
-            return state; // Can't unassign below 1
-          }
-
-          // Update base stats and unassigned points
-          const newBaseStats = {
-            ...currentCharacter.baseStats,
-            [statName]: currentCharacter.baseStats[statName] - 1
-          };
-
-          // Recalculate derived stats
-          const newDerivedStats = calculateDerivedStats(newBaseStats);
-          const newMaxHP = calculateMaxHP(newBaseStats);
-          const newMaxMP = calculateMaxMP(newBaseStats);
-
-          console.log(`📉 Unassigned stat point from ${statName}. New value: ${newBaseStats[statName]}`);
-
-          return {
-            gameState: {
-              ...state.gameState,
-              character: {
-                ...currentCharacter,
-                baseStats: newBaseStats,
-                derivedStats: newDerivedStats,
-                maxHealth: newMaxHP,
-                maxMana: newMaxMP,
-                unassignedStatPoints: currentCharacter.unassignedStatPoints + 1,
-                // Ensure current HP/MP don't exceed new maximums
-                health: Math.min(currentCharacter.health, newMaxHP),
-                mana: Math.min(currentCharacter.mana, newMaxMP),
-              },
-            },
-          };
-        });
-
-        // Auto-save after stat unassignment
-        setTimeout(() => {
-          get().saveGame();
-        }, 500);
-      },
-
-      gainExperience: (amount: number) => {
-        set((state) => {
-          const currentCharacter = state.gameState.character;
-          const newExperience = currentCharacter.experience + amount;
-          const newExperienceToNextLevel = currentCharacter.experienceToNextLevel;
-          let leveledUp = false;
-          let newLevel = currentCharacter.level;
-          let newUnassignedStatPoints = currentCharacter.unassignedStatPoints;
-
-          // Check if character leveled up
-          if (newExperience >= newExperienceToNextLevel) {
-            newLevel = currentCharacter.level + 1;
-            newUnassignedStatPoints = currentCharacter.unassignedStatPoints + 5;
-            leveledUp = true;
-
-            console.log(`🎉 Level up! ${currentCharacter.name} reached level ${newLevel}`);
-          }
-
-          return {
-            gameState: {
-              ...state.gameState,
-              character: {
-                ...currentCharacter,
-                level: newLevel,
-                experience: leveledUp ? newExperience - newExperienceToNextLevel : newExperience,
-                experienceToNextLevel: leveledUp ? 1000 : newExperienceToNextLevel,
-                unassignedStatPoints: newUnassignedStatPoints,
-              },
-            },
-          };
-        });
-
-        // Auto-save after gaining experience
-        setTimeout(() => {
-          get().saveGame();
-        }, 500);
-      },
-
-      // Location & Navigation
-      moveToLocation: (locationId: string) => {
-        set((state) => {
-          const targetLocation = state.gameState.locations[locationId];
-          const startNodeId = targetLocation?.isNodeMap ?
-            targetLocation.nodes?.find(n => n.type === 'start')?.id : undefined;
-          const nextCurrentNode = startNodeId || state.gameState.currentNode;
-
-          return {
-            gameState: {
-              ...state.gameState,
-              currentLocation: locationId,
-              ...(nextCurrentNode ? { currentNode: nextCurrentNode } : {}),
-            },
-          };
-        });
-      },
-
-      moveToNode: (nodeId: string) => {
-        set((state) => {
-          const currentLoc = state.gameState.locations[state.gameState.currentLocation];
-          if (!currentLoc) return state;
-
-          return {
-            gameState: {
-              ...state.gameState,
-              currentNode: nodeId,
-              locations: {
-                ...state.gameState.locations,
-                [state.gameState.currentLocation]: {
-                  ...currentLoc,
-                  nodes: currentLoc.nodes?.map(node =>
-                    node.id === nodeId
-                      ? { ...node, visited: true }
-                      : node
-                  ) || []
-                }
-              }
-            }
-          };
-        });
-      },
-
-      unlockNode: (locationId: string, nodeId: string) => {
-        console.log(`🔓 UNLOCK_NODE: unlocking ${nodeId} in ${locationId}`);
-        set((state) => {
-          const unlockLocation = state.gameState.locations[locationId];
-          if (!unlockLocation) {
-            console.warn(`Location ${locationId} not found`);
-            return state;
-          }
-
-          return {
-            gameState: {
-              ...state.gameState,
-              locations: {
-                ...state.gameState.locations,
-                [locationId]: {
-                  ...unlockLocation,
-                  nodes: unlockLocation.nodes?.map(node =>
-                    node.id === nodeId
-                      ? { ...node, unlocked: true }
-                      : node
-                  ) || []
-                }
-              }
-            }
-          };
-        });
-      },
-
-      // Inventory Management
-      updateInventory: (updates: Partial<GameState['inventory']>) => {
-        set((state) => ({
-          gameState: {
-            ...state.gameState,
-            inventory: {
-              ...state.gameState.inventory,
-              ...updates,
-            },
-          },
-        }));
-      },
-
-      // Story Progression
-      updateStory: (updates: Partial<GameState['story']>) => {
-        set((state) => ({
-          gameState: {
-            ...state.gameState,
-            story: {
-              ...state.gameState.story,
-              ...updates,
-            },
-          },
-        }));
-      },
-
-      unlockGuardianProgression: () => {
-        const state = get();
-        console.log('🌟 unlockGuardianProgression() called!');
-        console.log('📍 Current Location:', state.gameState.currentLocation);
-
-        // Update story to mark guardian as talked to
-        get().updateStory({ talkedToGuardian: true });
-        console.log('✅ Set talkedToGuardian to true');
-
-        // Unlock Basic Reasoning skill for the player
-        const basicReasoningSkill: Skill = {
-          id: 'basic_reasoning',
-          name: 'Basic Reasoning',
-          description: 'Fundamental logical thinking skills unlocked by your guardian.',
-          level: 1,
-          manaCost: 5,
-          damage: 10,
-          icon: '🤔',
-          type: 'logic',
-          philosophicalAspect: 'mind',
-        };
-
-        console.log('✅ Adding Basic Reasoning skill:', basicReasoningSkill);
-
-        // Add the Basic Reasoning skill to availableSkills
-        get().updateCharacter({
-          availableSkills: [basicReasoningSkill],
-        });
-
-        // Unlock all nodes connected to the guardian
-        const guardianNode = state.gameState.locations[state.gameState.currentLocation]?.nodes?.find(n => n.id === 'guardian');
-        console.log('🏰 Guardian Node:', guardianNode);
-        console.log('🔗 Guardian Connections:', guardianNode?.connections);
-
-        if (guardianNode?.connections) {
-          guardianNode.connections.forEach(connectedNodeId => {
-            console.log(`🔓 Unlocking node: ${connectedNodeId}`);
-            get().unlockNode(state.gameState.currentLocation, connectedNodeId);
+        resetGame: () => {
+          set({
+            gameState: createInitialGameState(),
+            currentScreen: 'exploration',
           });
-        }
-      },
-
-      // Combat System
-      startCombat: (enemyId: string) => {
-        const state = get();
-
-        // Try to get enemy by ID first, if not found or if 'random', get random enemy based on location
-        let enemy;
-        if (enemyId === 'random') {
-          enemy = getRandomEnemyBasedOnMap(state.gameState.currentLocation);
-        } else {
-          enemy = getEnemyById(enemyId);
-        }
-
-        if (!enemy) {
-          console.error(`Failed to create enemy with ID: ${enemyId}`);
-          return;
-        }
-
-        // Initialize new combat state
-        const newCombatState: any = {
-          active: true,
-          phase: 'choosing_type',
-          round: 1,
-          friendshipCounter: 0,
-          player: state.gameState.character,
-          enemy,
-          playerChoice: {},
-          enemyChoice: {},
-          battleLog: [],
-        };
-
-        set({
-          gameState: {
-            ...state.gameState,
-            combat: newCombatState,
-          },
-          currentScreen: 'combat',
-        });
-      },
-
-      endCombat: () => {
-        set((state) => ({
-          gameState: {
-            ...state.gameState,
-            combat: null,
-          },
-          currentScreen: 'exploration',
-        }));
-      },
-
-      updateCombat: (updates: Partial<any>) => {
-        set((state) => ({
-          gameState: {
-            ...state.gameState,
-            combat: state.gameState.combat ? {
-              ...state.gameState.combat,
-              ...updates,
-            } : null,
-          },
-        }));
-      },
-
-      // Quest System
-      completeQuest: (questId: string) => {
-        set((state) => ({
-          gameState: {
-            ...state.gameState,
-            questLog: state.gameState.questLog.map(quest =>
-              quest.id === questId
-                ? { ...quest, completed: true }
-                : quest
-            ),
-          },
-        }));
-      },
-
-      addQuest: (quest: Quest) => {
-        set((state) => ({
-          gameState: {
-            ...state.gameState,
-            questLog: [...state.gameState.questLog, quest],
-          },
-        }));
-      },
-
-      // Equipment System
-      equipItem: (slot: EquipmentSlot, item: Equipment) => {
-        set((state) => {
-          // Update equipped items
-          const newEquippedItems = {
-            ...state.gameState.character.equippedItems,
-            [slot]: item,
-          };
-
-          // Recalculate stats with new equipment
-          const totalBaseStats = calculateTotalBaseStats(state.gameState.character.baseStats, newEquippedItems);
-          const newDerivedStats = calculateDerivedStats(totalBaseStats);
-          const newMaxHP = calculateMaxHP(totalBaseStats);
-          const newMaxMP = calculateMaxMP(totalBaseStats);
-
-          console.log(`⚔️ Equipped ${item.name} to ${slot}`);
-          console.log(`📊 New total base stats:`, totalBaseStats);
-
-          return {
-            gameState: {
-              ...state.gameState,
-              character: {
-                ...state.gameState.character,
-                equippedItems: newEquippedItems,
-                derivedStats: newDerivedStats,
-                maxHealth: newMaxHP,
-                maxMana: newMaxMP,
-                // Heal player proportionally when max HP/MP increases
-                health: Math.min(state.gameState.character.health, newMaxHP),
-                mana: Math.min(state.gameState.character.mana, newMaxMP),
-              },
-            },
-          };
-        });
-      },
-
-      unequipItem: (slot: EquipmentSlot) => {
-        set((state) => {
-          if (!state.gameState.character.equippedItems?.[slot]) {
-            return state; // Nothing equipped in that slot
-          }
-
-          // Update equipped items
-          const newEquippedItems = { ...state.gameState.character.equippedItems };
-          delete newEquippedItems[slot];
-
-          // Recalculate stats without the unequipped item
-          const totalBaseStats = calculateTotalBaseStats(state.gameState.character.baseStats, newEquippedItems);
-          const newDerivedStats = calculateDerivedStats(totalBaseStats);
-          const newMaxHP = calculateMaxHP(totalBaseStats);
-          const newMaxMP = calculateMaxMP(totalBaseStats);
-
-          console.log(`🗑️ Unequipped item from ${slot}`);
-          console.log(`📊 New total base stats:`, totalBaseStats);
-
-          return {
-            gameState: {
-              ...state.gameState,
-              character: {
-                ...state.gameState.character,
-                equippedItems: newEquippedItems,
-                derivedStats: newDerivedStats,
-                maxHealth: newMaxHP,
-                maxMana: newMaxMP,
-                // Ensure current HP/MP don't exceed new maximums
-                health: Math.min(state.gameState.character.health, newMaxHP),
-                mana: Math.min(state.gameState.character.mana, newMaxMP),
-              },
-            },
-          };
-        });
-      },
-
-      // Skill System
-      canLearnSkill: (skill: Skill): boolean => {
-        const state = get();
-        // Check if already learned
-        if (state.gameState.character.availableSkills.some(s => s.id === skill.id)) {
-          return false;
-        }
-
-        // Check learning requirements
-        if (skill.learningRequirement) {
-          const req = skill.learningRequirement;
-
-          // Check level requirement
-          if (req.level && state.gameState.character.level < req.level) {
-            return false;
-          }
-
-          // Check stat requirements
-          if (req.stats) {
-            if (req.stats.heart && state.gameState.character.baseStats.heart < req.stats.heart) {
-              return false;
-            }
-            if (req.stats.body && state.gameState.character.baseStats.body < req.stats.body) {
-              return false;
-            }
-            if (req.stats.mind && state.gameState.character.baseStats.mind < req.stats.mind) {
-              return false;
-            }
-          }
-        }
-
-        return true;
-      },
-
-      learnSkill: (skill: Skill) => {
-        const state = get();
-        if (!state.canLearnSkill(skill)) {
-          console.warn(`Cannot learn skill ${skill.name}: requirements not met`);
-          return;
-        }
-
-        // Check if skill is already learned
-        if (state.gameState.character.availableSkills.some(s => s.id === skill.id)) {
-          console.log(`⚠️ Skill ${skill.name} is already learned`);
-          return;
-        }
-
-        console.log(`✨ Learned new skill: ${skill.name}`);
-
-        set((innerState) => ({
-          gameState: {
-            ...innerState.gameState,
-            character: {
-              ...innerState.gameState.character,
-              availableSkills: [...innerState.gameState.character.availableSkills, skill],
-            },
-          },
-        }));
-      },
-
-      equipSkill: (skill: Skill, aspect: PhilosophicalAspect) => {
-        set((state) => {
-          const currentEquipped = state.gameState.character.equippedSkills[aspect];
-          if (currentEquipped.length >= 5) {
-            console.warn(`Cannot equip more than 5 skills for ${aspect}`);
-            return state;
-          }
-
-          // Check if skill is already equipped
-          if (currentEquipped.some(s => s.id === skill.id)) {
-            console.log(`Skill ${skill.name} is already equipped for ${aspect}`);
-            return state;
-          }
-
-          // Auto-learn the skill if not already available
-          const availableSkills = state.gameState.character.availableSkills;
-          const skillAlreadyAvailable = availableSkills.some(s => s.id === skill.id);
-          const updatedAvailableSkills = skillAlreadyAvailable
-            ? availableSkills
-            : [...availableSkills, skill];
-
-          console.log(`✅ Equipped ${skill.name} to ${aspect}`);
-
-          return {
-            gameState: {
-              ...state.gameState,
-              character: {
-                ...state.gameState.character,
-                availableSkills: updatedAvailableSkills,
-                equippedSkills: {
-                  ...state.gameState.character.equippedSkills,
-                  [aspect]: [...currentEquipped, skill]
-                }
-              }
-            }
-          };
-        });
-
-        // Auto-save after equipping skill
-        setTimeout(() => {
-          get().saveGame();
-        }, 500);
-      },
-
-      unequipSkill: (skillId: string, aspect: PhilosophicalAspect) => {
-        set((state) => {
-          const currentEquipped = state.gameState.character.equippedSkills[aspect];
-          const skillIndex = currentEquipped.findIndex(s => s.id === skillId);
-
-          if (skillIndex === -1) {
-            console.warn(`Skill ${skillId} is not equipped for ${aspect}`);
-            return state;
-          }
-
-          return {
-            gameState: {
-              ...state.gameState,
-              character: {
-                ...state.gameState.character,
-                equippedSkills: {
-                  ...state.gameState.character.equippedSkills,
-                  [aspect]: currentEquipped.filter((_, index) => index !== skillIndex)
-                }
-              }
-            }
-          };
-        });
-
-        // Auto-save after unequipping skill
-        setTimeout(() => {
-          get().saveGame();
-        }, 500);
-      },
-
-      // Screen Navigation
-      changeScreen: (screen: GameScreen) => {
-        set({ currentScreen: screen });
-      },
-
-      // Philosophical Choices
-      makePhilosophicalChoice: (choiceId: string, outcome: any) => {
-        // TODO: Implement philosophical choice handling
-        console.log('Philosophical choice made:', choiceId, outcome);
-      },
-
-      // Save System
-      saveGame: async () => {
-        const state = get();
-        const char = state.gameState.character;
-
-        // Debug logging
-        console.log('🔍 saveGame called:', {
-          hasCharacter: !!char,
-          name: char?.name,
-          id: char?.id,
-          willSave: !!(char && char.name && char.id !== 'placeholder')
-        });
-
-        if (char && char.name && char.id !== 'placeholder') {
-          try {
-            console.log('💾 Attempting to save character to database...');
-            await saveCharacter(state.gameState);
-            console.log('✅ Game saved successfully to database');
-          } catch (error) {
-            console.error('❌ Failed to save game to database:', error);
-            // Re-throw to make it more visible
-            throw error;
-          }
-        } else {
-          console.warn('⚠️ Skipping save - character not ready:', {
-            hasName: !!char?.name,
-            id: char?.id
-          });
-        }
-      },
-
-      // Reset/New Game
-      startNewGame: (characterName: string) => {
-        set({
-          gameState: {
-            ...createInitialGameState(),
-            character: {
-              ...createInitialGameState().character,
-              id: Date.now().toString(),
-              name: characterName,
-            },
-          },
-          currentScreen: 'exploration',
-        });
-      },
-
-      resetGame: () => {
-        set({
-          gameState: createInitialGameState(),
-          currentScreen: 'exploration',
-        });
-      },
-    }),
+        },
+      }),
       {
         name: 'axiomancer-game-store',
         // Persist the entire game state to localStorage

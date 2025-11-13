@@ -314,7 +314,7 @@ export interface CombatState {
     enemy: number;
   };
   friendshipCounter: number;
-  battleLog: BattleLogEntry[];
+  logEntry: BattleLogEntry[];
 }
 
 

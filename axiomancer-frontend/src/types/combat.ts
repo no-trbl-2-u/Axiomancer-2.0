@@ -55,7 +55,7 @@ export interface BattleLogEntry {
  * New Combat State
  * Simplified based on new mechanics
  */
-export interface qNewCombatState {
+export interface NewCombatState {
   active: boolean;
   phase: CombatPhase;
   round: number;
@@ -70,7 +70,7 @@ export interface qNewCombatState {
   enemyChoice: Partial<CombatDecision>;
 
   // Battle history
-  battleLog: BattleLogEntry[];
+  logEntry: BattleLogEntry[];
 }
 
 /**
